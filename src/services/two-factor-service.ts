@@ -21,11 +21,8 @@ export async function disableTwoFactor(password: string) {
 }
 
 export async function regenerateRecoveryCodes(password: string) {
-  const response = await api.post('/auth/two-factor/recovery-codes', { password });
+  const response = await api.post('/auth/two-factor/recovery-codes', {
+    password,
+  });
   return response.data;
 }
-
-
-
-
-
