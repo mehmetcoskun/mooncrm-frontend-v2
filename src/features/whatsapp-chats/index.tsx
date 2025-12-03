@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { format } from 'date-fns';
+import { useQuery } from '@tanstack/react-query';
+import { getChatsOverview } from '@/services/whatsapp-service';
+import { getWhatsappSessions } from '@/services/whatsapp-session-service';
 import {
   ArrowLeft,
   MoreVertical,
-  Edit,
   Paperclip,
   Phone,
   ImagePlus,
@@ -13,20 +15,40 @@ import {
   Send,
   Video,
   MessagesSquare,
+  ChevronDown,
+  Check,
+  CheckCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { NewChat } from './components/new-chat';
+import { type WhatsappSession } from '@/features/whatsapp-sessions/data/schema';
+import { WhatsAppAvatar } from './components/whatsapp-avatar';
 import { type ChatUser, type Convo } from './data/chat-types';
-// Fake Data
-import { conversations } from './data/convo.json';
+
+// WhatsApp Chat tipi
+type WhatsappChat = {
+  id: string;
+  name?: string;
+  picture?: string;
+  lastMessage?: {
+    body?: string;
+    fromMe?: boolean;
+    ackName?: 'SERVER' | 'DEVICE' | 'READ';
+  };
+};
 
 export function WhatsappChats() {
   const [search, setSearch] = useState('');
@@ -34,12 +56,31 @@ export function WhatsappChats() {
   const [mobileSelectedUser, setMobileSelectedUser] = useState<ChatUser | null>(
     null
   );
-  const [createConversationDialogOpened, setCreateConversationDialog] =
-    useState(false);
+  const [selectedSession, setSelectedSession] =
+    useState<WhatsappSession | null>(null);
+  const [limit, setLimit] = useState(50);
+
+  const { data: whatsappSessions = [] } = useQuery({
+    queryKey: ['whatsapp-sessions'],
+    queryFn: getWhatsappSessions,
+  });
+
+  // Chat listesini çek - İlk başta 50 tane
+  const { data: chatsData = [], isLoading: isLoadingChats } = useQuery({
+    queryKey: ['whatsapp-chats', selectedSession?.title, limit],
+    queryFn: () => getChatsOverview(selectedSession!.title, limit, 0),
+    enabled: !!selectedSession,
+  });
+
+  // Oturum seçilmemişse veya chat listesi yükleniyorsa boş liste
+  const chatList: WhatsappChat[] =
+    selectedSession && !isLoadingChats ? chatsData : [];
 
   // Filtered data based on the search query
-  const filteredChatList = conversations.filter(({ fullName }) =>
-    fullName.toLowerCase().includes(search.trim().toLowerCase())
+  const filteredChatList = chatList.filter((chat) =>
+    (chat.name || chat.id || '')
+      .toLowerCase()
+      .includes(search.trim().toLowerCase())
   );
 
   const currentMessage = selectedUser?.messages.reduce(
@@ -59,8 +100,6 @@ export function WhatsappChats() {
     {}
   );
 
-  const users = conversations.map(({ messages, ...user }) => user);
-
   return (
     <>
       {/* ===== Top Heading ===== */}
@@ -78,18 +117,42 @@ export function WhatsappChats() {
             <div className="bg-background sticky top-0 z-10 -mx-4 px-4 pb-3 shadow-md sm:static sm:z-auto sm:mx-0 sm:p-0 sm:shadow-none">
               <div className="flex items-center justify-between py-2">
                 <div className="flex gap-2">
-                  <h1 className="text-2xl font-bold">Inbox</h1>
+                  <h1 className="text-2xl font-bold">Sohbetler</h1>
                   <MessagesSquare size={20} />
                 </div>
-
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setCreateConversationDialog(true)}
-                  className="rounded-lg"
-                >
-                  <Edit size={24} className="stroke-muted-foreground" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <ChevronDown size={20} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64">
+                    {whatsappSessions.map((session: WhatsappSession) => (
+                      <DropdownMenuItem
+                        key={session.id}
+                        className="p-3"
+                        onClick={() => {
+                          setSelectedSession(session);
+                        }}
+                      >
+                        <div className="flex w-full items-center gap-3">
+                          <WhatsAppAvatar
+                            session={session.title}
+                            phone={session.phone}
+                          />
+                          <div className="flex min-w-0 flex-1 flex-col">
+                            <span className="truncate text-sm font-medium">
+                              {session.title}
+                            </span>
+                            <span className="text-muted-foreground text-xs">
+                              Bu oturuma geç
+                            </span>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <label
@@ -111,46 +174,125 @@ export function WhatsappChats() {
             </div>
 
             <ScrollArea className="-mx-3 h-full overflow-scroll p-3">
-              {filteredChatList.map((chatUsr) => {
-                const { id, profile, username, messages, fullName } = chatUsr;
-                const lastConvo = messages[0];
-                const lastMsg =
-                  lastConvo.sender === 'You'
-                    ? `You: ${lastConvo.message}`
-                    : lastConvo.message;
-                return (
-                  <Fragment key={id}>
-                    <button
-                      type="button"
-                      className={cn(
-                        'group hover:bg-accent hover:text-accent-foreground',
-                        `flex w-full rounded-md px-2 py-2 text-start text-sm`,
-                        selectedUser?.id === id && 'sm:bg-muted'
-                      )}
-                      onClick={() => {
-                        setSelectedUser(chatUsr);
-                        setMobileSelectedUser(chatUsr);
-                      }}
-                    >
-                      <div className="flex gap-2">
-                        <Avatar>
-                          <AvatarImage src={profile} alt={username} />
-                          <AvatarFallback>{username}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <span className="col-start-2 row-span-2 font-medium">
-                            {fullName}
-                          </span>
-                          <span className="text-muted-foreground group-hover:text-accent-foreground/90 col-start-2 row-span-2 row-start-2 line-clamp-2 text-ellipsis">
-                            {lastMsg}
-                          </span>
-                        </div>
+              {!selectedSession ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <MessagesSquare className="text-muted-foreground mb-2 size-12" />
+                  <p className="text-muted-foreground text-sm">
+                    Sohbetleri görüntülemek için bir oturum seçin
+                  </p>
+                </div>
+              ) : isLoadingChats ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    Sohbetler yükleniyor...
+                  </p>
+                </div>
+              ) : filteredChatList.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <MessagesSquare className="text-muted-foreground mb-2 size-12" />
+                  <p className="text-muted-foreground text-sm">
+                    {search ? 'Arama sonucu bulunamadı' : 'Henüz sohbet yok'}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {filteredChatList.map((chat) => {
+                    const chatName = chat.name || chat.id || 'Bilinmeyen';
+                    const lastMessage = chat.lastMessage;
+                    const lastMessageBody = lastMessage?.body || '';
+                    const isFromMe = lastMessage?.fromMe || false;
+                    const ackName = lastMessage?.ackName;
+
+                    // Mesaj durumu ikonu
+                    const getMessageStatusIcon = () => {
+                      if (!isFromMe) return null;
+
+                      if (ackName === 'SERVER') {
+                        return (
+                          <Check size={14} className="text-muted-foreground" />
+                        );
+                      } else if (ackName === 'DEVICE') {
+                        return (
+                          <CheckCheck
+                            size={14}
+                            className="text-muted-foreground"
+                          />
+                        );
+                      } else if (ackName === 'READ') {
+                        return (
+                          <CheckCheck size={14} className="text-blue-500" />
+                        );
+                      }
+                      return null;
+                    };
+
+                    // Mesaj body'sini kısalt
+                    const truncatedMessage =
+                      lastMessageBody.length > 50
+                        ? `${lastMessageBody.substring(0, 50)}...`
+                        : lastMessageBody;
+
+                    return (
+                      <Fragment key={chat.id}>
+                        <button
+                          type="button"
+                          className={cn(
+                            'group hover:bg-accent hover:text-accent-foreground',
+                            `flex w-full rounded-md px-2 py-2 text-start text-sm`,
+                            selectedUser?.id === chat.id && 'sm:bg-muted'
+                          )}
+                          onClick={() => {
+                            setSelectedUser(chat as ChatUser);
+                            setMobileSelectedUser(chat as ChatUser);
+                          }}
+                        >
+                          <div className="flex w-full gap-2">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
+                              <AvatarImage src={chat.picture} alt={chatName} />
+                              <AvatarFallback>
+                                {chatName.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="min-w-0 flex-1 font-medium">
+                                  {chatName}
+                                </span>
+                                {getMessageStatusIcon() && (
+                                  <div className="flex-shrink-0">
+                                    {getMessageStatusIcon()}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="text-muted-foreground group-hover:text-accent-foreground/90 col-start-2 row-span-2 row-start-2 line-clamp-1 block text-xs text-ellipsis">
+                                  {truncatedMessage}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                        <Separator className="my-1" />
+                      </Fragment>
+                    );
+                  })}
+
+                  {/* Daha fazlasını yükle butonu */}
+                  {filteredChatList.length >= limit &&
+                    chatsData.length >= limit && (
+                      <div className="flex justify-center py-4">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setLimit((prev) => prev + 50);
+                          }}
+                        >
+                          Daha fazlasını yükle
+                        </Button>
                       </div>
-                    </button>
-                    <Separator className="my-1" />
-                  </Fragment>
-                );
-              })}
+                    )}
+                </>
+              )}
             </ScrollArea>
           </div>
 
@@ -322,23 +464,16 @@ export function WhatsappChats() {
                   <MessagesSquare className="size-8" />
                 </div>
                 <div className="space-y-2 text-center">
-                  <h1 className="text-xl font-semibold">Your messages</h1>
+                  <h1 className="text-xl font-semibold">Sohbetler</h1>
                   <p className="text-muted-foreground text-sm">
-                    Send a message to start a chat.
+                    Bir sohbet başlatmak için bir mesaj gönderin.
                   </p>
                 </div>
-                <Button onClick={() => setCreateConversationDialog(true)}>
-                  Send message
-                </Button>
+                <Button>Mesaj Gönder</Button>
               </div>
             </div>
           )}
         </section>
-        <NewChat
-          users={users}
-          onOpenChange={setCreateConversationDialog}
-          open={createConversationDialogOpened}
-        />
       </Main>
     </>
   );

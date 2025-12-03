@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { type Table } from '@tanstack/react-table';
 import { Trash2, RefreshCw, FolderOpen, UserCog } from 'lucide-react';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -36,116 +37,137 @@ export function DataTableBulkActions<TData>({
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [showUserDialog, setShowUserDialog] = useState(false);
 
+  const { hasPermission } = usePermissions();
+
+  const canBulkUpdate = hasPermission('customer_BulkUpdate');
+  const canBulkDelete = hasPermission('customer_BulkDelete');
+
   return (
     <>
       <BulkActionsToolbar table={table} entityName="müşteri">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowStatusDialog(true)}
-              className="size-8"
-              aria-label="Toplu durum değiştir"
-              title="Toplu durum değiştir"
-            >
-              <RefreshCw className="size-4" />
-              <span className="sr-only">Toplu durum değiştir</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Toplu durum değiştir</p>
-          </TooltipContent>
-        </Tooltip>
+        {canBulkUpdate && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowStatusDialog(true)}
+                className="size-8"
+                aria-label="Toplu durum değiştir"
+                title="Toplu durum değiştir"
+              >
+                <RefreshCw className="size-4" />
+                <span className="sr-only">Toplu durum değiştir</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toplu durum değiştir</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowCategoryDialog(true)}
-              className="size-8"
-              aria-label="Toplu kategori değiştir"
-              title="Toplu kategori değiştir"
-            >
-              <FolderOpen className="size-4" />
-              <span className="sr-only">Toplu kategori değiştir</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Toplu kategori değiştir</p>
-          </TooltipContent>
-        </Tooltip>
+        {canBulkUpdate && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowCategoryDialog(true)}
+                className="size-8"
+                aria-label="Toplu kategori değiştir"
+                title="Toplu kategori değiştir"
+              >
+                <FolderOpen className="size-4" />
+                <span className="sr-only">Toplu kategori değiştir</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toplu kategori değiştir</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowUserDialog(true)}
-              className="size-8"
-              aria-label="Toplu danışman değiştir"
-              title="Toplu danışman değiştir"
-            >
-              <UserCog className="size-4" />
-              <span className="sr-only">Toplu danışman değiştir</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Toplu danışman değiştir</p>
-          </TooltipContent>
-        </Tooltip>
+        {canBulkUpdate && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowUserDialog(true)}
+                className="size-8"
+                aria-label="Toplu danışman değiştir"
+                title="Toplu danışman değiştir"
+              >
+                <UserCog className="size-4" />
+                <span className="sr-only">Toplu danışman değiştir</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toplu danışman değiştir</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="size-8"
-              aria-label="Toplu sil"
-              title="Toplu sil"
-            >
-              <Trash2 className="size-4" />
-              <span className="sr-only">Toplu sil</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Toplu sil</p>
-          </TooltipContent>
-        </Tooltip>
+        {canBulkDelete && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="size-8"
+                aria-label="Toplu sil"
+                title="Toplu sil"
+              >
+                <Trash2 className="size-4" />
+                <span className="sr-only">Toplu sil</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Toplu sil</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </BulkActionsToolbar>
 
-      <CustomersMultiDeleteDialog
-        table={table}
-        open={showDeleteConfirm}
-        onOpenChange={setShowDeleteConfirm}
-        onSuccess={onSuccess}
-      />
+      {canBulkDelete && (
+        <CustomersMultiDeleteDialog
+          table={table}
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onSuccess={onSuccess}
+        />
+      )}
 
-      <CustomersBulkStatusDialog
-        table={table}
-        open={showStatusDialog}
-        onOpenChange={setShowStatusDialog}
-        statuses={statuses}
-        onSuccess={onSuccess}
-      />
+      {canBulkUpdate && (
+        <CustomersBulkStatusDialog
+          table={table}
+          open={showStatusDialog}
+          onOpenChange={setShowStatusDialog}
+          statuses={statuses}
+          onSuccess={onSuccess}
+        />
+      )}
 
-      <CustomersBulkCategoryDialog
-        table={table}
-        open={showCategoryDialog}
-        onOpenChange={setShowCategoryDialog}
-        categories={categories}
-        onSuccess={onSuccess}
-      />
+      {canBulkUpdate && (
+        <CustomersBulkCategoryDialog
+          table={table}
+          open={showCategoryDialog}
+          onOpenChange={setShowCategoryDialog}
+          categories={categories}
+          onSuccess={onSuccess}
+        />
+      )}
 
-      <CustomersBulkUserDialog
-        table={table}
-        open={showUserDialog}
-        onOpenChange={setShowUserDialog}
-        users={users}
-        onSuccess={onSuccess}
-      />
+      {canBulkUpdate && (
+        <CustomersBulkUserDialog
+          table={table}
+          open={showUserDialog}
+          onOpenChange={setShowUserDialog}
+          users={users}
+          onSuccess={onSuccess}
+        />
+      )}
     </>
   );
 }

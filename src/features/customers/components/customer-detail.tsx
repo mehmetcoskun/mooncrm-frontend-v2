@@ -35,6 +35,8 @@ import {
   Download,
   X,
 } from 'lucide-react';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -721,12 +723,17 @@ export function CustomerDetail() {
                       <Label htmlFor="phone">
                         Telefon <span className="text-destructive">*</span>
                       </Label>
-                      <Input
-                        id="phone"
-                        placeholder="Telefon"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                      />
+                      {formData.phone !== '' && (
+                        <PhoneInput
+                          defaultCountry="tr"
+                          value={formData.phone}
+                          onChange={(phone) =>
+                            setFormData((prev) => ({ ...prev, phone }))
+                          }
+                          className="w-full"
+                          inputClassName="w-full"
+                        />
+                      )}
                     </div>
 
                     <div className="space-y-2">

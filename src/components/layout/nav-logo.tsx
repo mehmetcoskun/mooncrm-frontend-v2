@@ -93,6 +93,7 @@ export function NavLogo() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="h-8"
+                    autoFocus
                   />
                 </div>
                 <div className="max-h-[200px] overflow-y-auto">

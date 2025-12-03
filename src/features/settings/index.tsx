@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { Calendar, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { usePermissions } from '@/hooks/use-permissions';
 import { useOrganizationStore } from '@/stores/organization-store';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -16,7 +17,6 @@ import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { settings } from './data/settings';
-import { Calendar, AlertCircle } from 'lucide-react';
 
 export function Settings() {
   const [openSidebar, setOpenSidebar] = useState<string | null>(null);
@@ -54,8 +54,10 @@ export function Settings() {
 
     if (trial_ends_at) {
       const trialDate = new Date(trial_ends_at);
-      const daysLeft = Math.ceil((trialDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      
+      const daysLeft = Math.ceil(
+        (trialDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       return {
         type: 'trial',
         date: trialDate,
@@ -67,8 +69,10 @@ export function Settings() {
 
     if (license_ends_at) {
       const licenseDate = new Date(license_ends_at);
-      const daysLeft = Math.ceil((licenseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      
+      const daysLeft = Math.ceil(
+        (licenseDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       return {
         type: 'license',
         date: licenseDate,
@@ -92,7 +96,7 @@ export function Settings() {
         </div>
       </Header>
 
-      <Main fixed fluid>
+      <Main fluid>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Ayarlar</h1>
           <p className="text-muted-foreground">
@@ -100,15 +104,17 @@ export function Settings() {
           </p>
         </div>
         <Separator className="my-4 shadow-sm" />
-        
+
         {licenseInfo && (
-          <div className="mb-6 rounded-xl border bg-card p-6 shadow-sm">
+          <div className="bg-card mb-6 rounded-xl border p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <h3 className="text-lg font-semibold">
-                  {licenseInfo.type === 'trial' ? 'Deneme Lisansı' : 'Lisans Bilgisi'}
+                  {licenseInfo.type === 'trial'
+                    ? 'Deneme Lisansı'
+                    : 'Lisans Bilgisi'}
                 </h3>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
                     <span>
@@ -125,10 +131,10 @@ export function Settings() {
                         licenseInfo.isExpired
                           ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                           : licenseInfo.isExpiringSoon
-                          ? licenseInfo.daysLeft <= 3
-                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                          : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                            ? licenseInfo.daysLeft <= 3
+                              ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                            : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
                       }`}
                     >
                       {licenseInfo.isExpired ? (

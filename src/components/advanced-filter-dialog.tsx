@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Popover,
@@ -37,7 +38,7 @@ import { Switch } from '@/components/ui/switch';
 import { MultiSelect } from '@/components/multi-select';
 
 // Operatör tipleri
-type Operator = 'in' | 'nin' | 'eq' | 'between';
+type Operator = 'in' | 'nin' | 'eq' | 'between' | 'contains';
 
 // Alan tipleri
 type FieldType =
@@ -52,7 +53,10 @@ type FieldType =
   | 'warranty_sent'
   | 'rpt'
   | 'created_at'
-  | 'updated_at';
+  | 'updated_at'
+  | 'ad_name'
+  | 'adset_name'
+  | 'campaign_name';
 
 // Filtre koşulu
 export interface FilterCondition {
@@ -81,7 +85,7 @@ const FIELD_CONFIG: Record<
   {
     label: string;
     operators: Operator[];
-    type: 'multi-select' | 'boolean' | 'date';
+    type: 'multi-select' | 'boolean' | 'date' | 'text';
   }
 > = {
   categories: {
@@ -130,6 +134,21 @@ const FIELD_CONFIG: Record<
     type: 'boolean',
   },
   rpt: { label: 'RPT', operators: ['eq'], type: 'boolean' },
+  ad_name: {
+    label: 'Reklam Adı',
+    operators: ['contains'],
+    type: 'text',
+  },
+  adset_name: {
+    label: 'Reklam Seti Adı',
+    operators: ['contains'],
+    type: 'text',
+  },
+  campaign_name: {
+    label: 'Kampanya Adı',
+    operators: ['contains'],
+    type: 'text',
+  },
   created_at: {
     label: 'Kayıt Tarihi',
     operators: ['eq', 'between'],
@@ -148,6 +167,7 @@ const OPERATOR_LABELS: Record<Operator, string> = {
   nin: 'İçinde Değil',
   eq: 'Eşittir',
   between: 'Arasında',
+  contains: 'İçerir',
 };
 
 // Filtre satırı bileşeni
@@ -377,6 +397,19 @@ function FilterRow({
       }
     }
 
+    if (config.type === 'text') {
+      return (
+        <Input
+          type="text"
+          value={typeof filter.value === 'string' ? filter.value : ''}
+          onChange={(e) => onUpdate(filter.id, { value: e.target.value })}
+          placeholder="Değer girin"
+          className="w-full"
+          disabled={isDisabled}
+        />
+      );
+    }
+
     return null;
   };
 
@@ -520,6 +553,11 @@ export function AdvancedFilterDialog({
           filterObj[field] = value;
           filterObj[`${field}_operator`] = operator;
         }
+      } else if (FIELD_CONFIG[field].type === 'text') {
+        if (typeof value === 'string' && value.trim() !== '') {
+          filterObj[field] = value.trim();
+          filterObj[`${field}_operator`] = operator;
+        }
       }
     });
 
@@ -556,6 +594,11 @@ export function AdvancedFilterDialog({
           params.push(`${field}_operator=${operator}`);
         } else if (typeof value === 'string') {
           params.push(`${field}=${encodeURIComponent(value)}`);
+          params.push(`${field}_operator=${operator}`);
+        }
+      } else if (FIELD_CONFIG[field].type === 'text') {
+        if (typeof value === 'string' && value.trim() !== '') {
+          params.push(`${field}=${encodeURIComponent(value.trim())}`);
           params.push(`${field}_operator=${operator}`);
         }
       }

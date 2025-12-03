@@ -1,4 +1,5 @@
 import { format, parse, subHours } from 'date-fns';
+import { Link } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
 import { tr } from 'date-fns/locale';
 import { Calendar, Hotel, Plane, User, Bus } from 'lucide-react';
@@ -9,25 +10,21 @@ import { DataTableRowActions } from './data-table-row-actions';
 
 export const appointmentsColumns: ColumnDef<Appointment>[] = [
   {
-    accessorKey: 'id',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ID" />
-    ),
-    cell: ({ row }) => {
-      return <div className="w-16">{row.getValue('id')}</div>;
-    },
-  },
-  {
     accessorKey: 'name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Müşteri Adı" />
     ),
     cell: ({ row }) => {
+      const customerId = row.original.id;
       return (
-        <div className="flex items-center space-x-2">
+        <Link
+          to="/customers/$customerId"
+          params={{ customerId: customerId.toString() }}
+          className="flex items-center space-x-2 hover:underline"
+        >
           <User className="text-muted-foreground h-4 w-4" />
           <span className="font-medium">{row.getValue('name')}</span>
-        </div>
+        </Link>
       );
     },
   },

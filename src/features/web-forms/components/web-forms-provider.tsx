@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useDialogState from '@/hooks/use-dialog-state';
 import { type WebForm } from '../data/schema';
 
-type WebFormsDialogType = 'add' | 'edit' | 'delete';
+type WebFormsDialogType = 'add' | 'edit' | 'delete' | 'duplicate';
 
 type WebFormsContextType = {
   open: WebFormsDialogType | null;

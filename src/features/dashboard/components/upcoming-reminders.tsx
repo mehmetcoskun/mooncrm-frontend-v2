@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
+import { Link } from '@tanstack/react-router';
 import { tr } from 'date-fns/locale';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -49,7 +50,15 @@ export function UpcomingReminders({ reminders }: UpcomingRemindersProps) {
                   {reminder.title || 'Hatırlatıcı'}
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  {reminder.customer} - {reminder.user}
+                  <Link
+                    to="/customers/$customerId"
+                    params={{ customerId: reminder.id.toString() }}
+                    className="hover:underline"
+                  >
+                    {reminder.customer}
+                  </Link>
+                  {' - '}
+                  {reminder.user}
                 </p>
               </div>
               <div className="text-muted-foreground text-sm">

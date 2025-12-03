@@ -1,6 +1,7 @@
 import { usePermissions } from '@/hooks/use-permissions';
 import { WebFormsActionDialog } from './web-forms-action-dialog';
 import { WebFormsDeleteDialog } from './web-forms-delete-dialog';
+import { WebFormsDuplicateDialog } from './web-forms-duplicate-dialog';
 import { useWebForms } from './web-forms-provider';
 
 type WebFormsDialogsProps = {
@@ -28,6 +29,21 @@ export function WebFormsDialogs({ onSuccess }: WebFormsDialogsProps) {
 
       {currentRow && (
         <>
+          {canCreate && (
+            <WebFormsDuplicateDialog
+              key={`web-form-duplicate-${currentRow.id}`}
+              open={open === 'duplicate'}
+              onOpenChange={() => {
+                setOpen('duplicate');
+                setTimeout(() => {
+                  setCurrentRow(null);
+                }, 500);
+              }}
+              currentRow={currentRow}
+              onSuccess={onSuccess}
+            />
+          )}
+
           {canEdit && (
             <WebFormsActionDialog
               key={`web-form-edit-${currentRow.id}`}
