@@ -47,60 +47,6 @@ export const rolesColumns: ColumnDef<Role>[] = [
     },
   },
   {
-    accessorKey: 'has_status_filter',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Durum Filtresi" />
-    ),
-    cell: ({ row }) => {
-      const hasStatusFilter = row.getValue('has_status_filter') as boolean;
-      return (
-        <Badge variant={hasStatusFilter ? 'default' : 'outline'}>
-          {hasStatusFilter ? 'Var' : 'Yok'}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: 'statuses',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Durumlar" />
-    ),
-    cell: ({ row }) => {
-      const role = row.original;
-      const hasStatusFilter = row.getValue('has_status_filter') as boolean;
-
-      if (!hasStatusFilter) {
-        return <span className="text-muted-foreground text-sm">Tümü</span>;
-      }
-
-      if (!role.statuses || role.statuses.length === 0) {
-        return <span className="text-muted-foreground text-sm">Hiçbiri</span>;
-      }
-
-      return (
-        <div className="flex flex-wrap gap-1">
-          {role.statuses.slice(0, 3).map((status) => (
-            <span
-              key={status.id}
-              className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
-              style={{
-                backgroundColor: status.background_color + '20',
-                color: status.background_color,
-              }}
-            >
-              {status.title}
-            </span>
-          ))}
-          {role.statuses.length > 3 && (
-            <span className="text-muted-foreground flex items-center text-xs">
-              +{role.statuses.length - 3} daha
-            </span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: 'created_at',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Oluşturulma Tarihi" />

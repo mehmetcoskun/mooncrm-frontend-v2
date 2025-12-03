@@ -1,5 +1,6 @@
 import { usePermissions } from '@/hooks/use-permissions';
 import { CustomersActionDialog } from './customers-action-dialog';
+import { CustomersCommunicationDialog } from './customers-communication-dialog';
 import { CustomersDeleteDialog } from './customers-delete-dialog';
 import { useCustomers } from './customers-provider';
 
@@ -27,6 +28,21 @@ export function CustomersDialogs({ onSuccess }: CustomersDialogsProps) {
 
       {currentRow && (
         <>
+          <CustomersCommunicationDialog
+            key={`customer-communication-${currentRow.id}`}
+            customer={currentRow}
+            open={open === 'communication'}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                setOpen(null);
+                setTimeout(() => {
+                  setCurrentRow(null);
+                }, 500);
+              }
+            }}
+            onSuccess={onSuccess}
+          />
+
           {canDelete && (
             <CustomersDeleteDialog
               key={`customer-delete-${currentRow.id}`}

@@ -641,15 +641,15 @@ export function AdvancedFilterDialog({
             : 'Filtrele'}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-3xl">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Gelişmiş Filtreler</DialogTitle>
           <DialogDescription>
             Verilerinizi filtrelemek için koşullar ekleyin
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex-1 space-y-4 overflow-y-auto py-4">
           {filters.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-12">
               <Filter className="text-muted-foreground mb-4 h-12 w-12" />
@@ -728,12 +728,8 @@ export function AdvancedFilterDialog({
         </div>
 
         {filters.length > 0 && (
-          <DialogFooter className="flex flex-row gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleReset}
-            >
+          <DialogFooter className="flex flex-shrink-0 flex-row gap-2 border-t pt-4">
+            <Button type="button" variant="outline" onClick={handleReset}>
               Sıfırla
             </Button>
             <Button type="button" onClick={handleApply}>

@@ -149,14 +149,14 @@ export const settings = [
     logo: <Building />,
     desc: 'Otel listesini oluşturun ve yönetin.',
     route: '/hotels',
-    permission: 'partner_hotel_Access',
+    permission: 'hotel_Access',
   },
   {
     name: 'Transfer Yönetimi',
     logo: <Plane />,
     desc: 'Transfer listesini oluşturun ve yönetin.',
     route: '/transfers',
-    permission: 'partner_transfer_Access',
+    permission: 'transfer_Access',
   },
   {
     name: 'Kategori Yönetimi',

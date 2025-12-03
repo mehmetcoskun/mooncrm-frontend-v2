@@ -1,6 +1,6 @@
-import { type Row } from '@tanstack/react-table';
 import { useNavigate } from '@tanstack/react-router';
-import { Edit, Trash2 } from 'lucide-react';
+import { type Row } from '@tanstack/react-table';
+import { Edit, MessageSquare, Trash2 } from 'lucide-react';
 import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import { type Customer } from '../data/schema';
@@ -19,10 +19,18 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const canEdit = hasPermission('customer_Edit');
   const canDelete = hasPermission('customer_Delete');
 
-  if (!canEdit && !canDelete) return null;
-
   return (
     <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          setCurrentRow(row.original);
+          setOpen('communication');
+        }}
+      >
+        <MessageSquare className="h-4 w-4" />
+      </Button>
       {canEdit && (
         <Button
           variant="ghost"
