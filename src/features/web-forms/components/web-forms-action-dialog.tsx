@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { type WebForm } from '../data/schema';
-import { WebFormEditor } from './web-form-editor';
+import { WebFormsEditor } from './web-forms-editor';
 
 const formSchema = z.object({
   uuid: z.uuidv4(),
@@ -44,7 +44,7 @@ const formSchema = z.object({
 });
 type WebFormForm = z.infer<typeof formSchema>;
 
-type WebFormActionDialogProps = {
+type WebFormsActionDialogProps = {
   currentRow?: WebForm;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -56,7 +56,7 @@ export function WebFormsActionDialog({
   open,
   onOpenChange,
   onSuccess,
-}: WebFormActionDialogProps) {
+}: WebFormsActionDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
 
@@ -233,7 +233,7 @@ export function WebFormsActionDialog({
         </DialogFooter>
       </DialogContent>
 
-      <WebFormEditor
+      <WebFormsEditor
         open={editorOpen}
         onOpenChange={setEditorOpen}
         onSave={handleEditorSave}

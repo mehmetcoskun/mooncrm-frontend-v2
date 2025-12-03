@@ -1,14 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { z } from 'zod';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  createWhatsappSession,
-  updateWhatsappSession,
-} from '@/services/whatsapp-session-service';
+import { createWhatsappSession } from '@/services/whatsapp-session-service';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,58 +24,41 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { type WhatsappSession } from '../data/schema';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
   title: z.string().min(1, 'WhatsApp oturumu adı gereklidir.'),
-  isEdit: z.boolean(),
+  phone: z.string().min(1, 'WhatsApp numarası gereklidir.'),
+  is_admin: z.boolean(),
 });
 type WhatsappSessionForm = z.infer<typeof formSchema>;
 
 type WhatsappSessionsActionDialogProps = {
-  currentRow?: WhatsappSession;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 };
 
 export function WhatsappSessionsActionDialog({
-  currentRow,
   open,
   onOpenChange,
   onSuccess,
 }: WhatsappSessionsActionDialogProps) {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const isEdit = !!currentRow;
   const form = useForm<WhatsappSessionForm>({
     resolver: zodResolver(formSchema),
-    defaultValues: isEdit
-      ? {
-          title: currentRow.title,
-          isEdit,
-        }
-      : {
-          title: '',
-          isEdit,
-        },
+    defaultValues: {
+      title: '',
+      phone: '',
+      is_admin: false,
+    },
   });
 
   const onSubmit = async (values: WhatsappSessionForm) => {
     try {
-      setIsLoading(true);
-
-      if (isEdit && currentRow) {
-        await updateWhatsappSession(currentRow.id, values);
-        toast.success('WhatsApp oturumu güncellendi', {
-          description: `${values.title} WhatsApp oturumu başarıyla güncellendi.`,
-        });
-      } else {
-        await createWhatsappSession(values);
-        toast.success('WhatsApp oturumu eklendi', {
-          description: `${values.title} WhatsApp oturumu başarıyla eklendi.`,
-        });
-      }
+      await createWhatsappSession(values);
+      toast.success('WhatsApp oturumu eklendi', {
+        description: `${values.title} WhatsApp oturumu başarıyla eklendi.`,
+      });
 
       form.reset();
       onOpenChange(false);
@@ -91,8 +70,6 @@ export function WhatsappSessionsActionDialog({
       toast.error('Hata', {
         description: `İşlem sırasında bir hata oluştu: ${error instanceof AxiosError ? error.response?.data.message : 'Bilinmeyen hata'}`,
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -106,14 +83,10 @@ export function WhatsappSessionsActionDialog({
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="text-start">
-          <DialogTitle>
-            {isEdit ? 'WhatsApp Oturumu Düzenle' : 'Yeni WhatsApp Oturumu Ekle'}
-          </DialogTitle>
+          <DialogTitle>WhatsApp Oturumu Ekle</DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? 'WhatsApp oturumunu burada güncelleyin. '
-              : 'Yeni WhatsApp oturumunu burada oluşturun. '}
-            İşlem tamamlandığında kaydet'e tıklayın.
+            WhatsApp oturumunu burada oluşturun. İşlem tamamlandığında kaydet'e
+            tıklayın.
           </DialogDescription>
         </DialogHeader>
         <div className="py-1">
@@ -140,23 +113,52 @@ export function WhatsappSessionsActionDialog({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel>WhatsApp Numarası</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="WhatsApp Numarası"
+                        autoComplete="off"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="is_admin"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Yönetici</FormLabel>
+                      <div className="text-muted-foreground text-sm">
+                        Bu oturum yönetici yetkisine sahip mi?
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </form>
           </Form>
         </div>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isLoading}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             İptal
           </Button>
-          <Button
-            type="submit"
-            form="whatsapp-session-form"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Kaydediliyor...' : 'Kaydet'}
+          <Button type="submit" form="whatsapp-session-form">
+            Kaydet
           </Button>
         </DialogFooter>
       </DialogContent>

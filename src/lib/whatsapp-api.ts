@@ -12,6 +12,12 @@ const fetchSettings = async () => {
 let WHATSAPP_API_URL: string | undefined;
 let WHATSAPP_API_KEY: string | undefined;
 
+export const clearWhatsappCache = () => {
+  WHATSAPP_API_URL = undefined;
+  WHATSAPP_API_KEY = undefined;
+  settingsCache = null;
+};
+
 export const fetchWhatsappApiUrl = async () => {
   if (!WHATSAPP_API_URL) {
     const settings = await fetchSettings();

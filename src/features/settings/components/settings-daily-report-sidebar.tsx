@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSetting, updateOrCreateSetting } from '@/services/setting-service';
-import { Search, ShoppingCart } from 'lucide-react';
+import { FileText, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,29 +29,29 @@ import { Textarea } from '@/components/ui/textarea';
 import { WhatsappChatSelector } from '@/components/whatsapp-chat-selector';
 
 const DEFAULT_MESSAGE_TEMPLATE =
-  '🎉 Yeni Satış Bildirimi!\n\n👤 Müşteri: {name}\n📅 Lead Tarihi: {date}\n📋 Kategori: {category}\n🏥 Tedavi: {service}\n📅 Randevu Tarihi: {appointment_date}\n👨‍💼 Danışman: {user}';
+  '{user} - {date}\n\nGünlük Lead: {daily_leads}\nToplam Fotoğraf Gelmedi: {total_no_photos}\nToplam Teklif Bekliyor: {total_waiting_offer}\nGünlük Satış: {daily_sales}\nGünlük Teklif Geçilen: {daily_offered}\nGünlük Aranan Hasta: {daily_called_patients}\nOlumlu: {total_positive}\nBilet Beklenen: {total_waiting_ticket}';
 
 const formSchema = z.object({
   status: z.boolean(),
   chat_id: z.string().min(1, 'Chat ID gereklidir.'),
   message_template: z.string().min(1, 'Mesaj şablonu gereklidir.'),
 });
-type SalesNotificationSettingsForm = z.infer<typeof formSchema>;
+type SettingsDailyReportForm = z.infer<typeof formSchema>;
 
-interface SalesNotificationSettingsSidebarProps {
+interface SettingsDailyReportSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function SalesNotificationSettingsSidebar({
+export function SettingsDailyReportSidebar({
   open,
   onOpenChange,
-}: SalesNotificationSettingsSidebarProps) {
+}: SettingsDailyReportSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [chatSelectorOpen, setChatSelectorOpen] = useState(false);
 
-  const form = useForm<SalesNotificationSettingsForm>({
+  const form = useForm<SettingsDailyReportForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       status: true,
@@ -65,14 +65,14 @@ export function SalesNotificationSettingsSidebar({
       setIsFetching(true);
       const settings = await getSetting();
 
-      if (settings?.sales_notification_settings) {
-        const salesSettings = settings.sales_notification_settings;
+      if (settings?.daily_report_settings) {
+        const reportSettings = settings.daily_report_settings;
 
         form.reset({
-          status: salesSettings.status ?? true,
-          chat_id: salesSettings.chat_id || '',
+          status: reportSettings.status ?? true,
+          chat_id: reportSettings.chat_id || '',
           message_template:
-            salesSettings.message_template || DEFAULT_MESSAGE_TEMPLATE,
+            reportSettings.message_template || DEFAULT_MESSAGE_TEMPLATE,
         });
       }
     } catch (error) {
@@ -93,12 +93,12 @@ export function SalesNotificationSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: SalesNotificationSettingsForm) => {
+  const onSubmit = async (values: SettingsDailyReportForm) => {
     try {
       setIsLoading(true);
 
       const response = await updateOrCreateSetting({
-        sales_notification_settings: {
+        daily_report_settings: {
           status: values.status,
           chat_id: values.chat_id,
           message_template: values.message_template,
@@ -107,7 +107,7 @@ export function SalesNotificationSettingsSidebar({
 
       toast.success('Başarılı', {
         description:
-          response?.message || 'Satış bildirim ayarları başarıyla kaydedildi.',
+          response?.message || 'Günlük rapor ayarları başarıyla kaydedildi.',
       });
 
       onOpenChange(false);
@@ -139,18 +139,18 @@ export function SalesNotificationSettingsSidebar({
         <SheetContent className="w-full overflow-y-auto p-4 sm:max-w-md">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              Satış Bildirim Ayarları
+              <FileText className="h-5 w-5" />
+              Günlük Rapor Ayarları
             </SheetTitle>
             <SheetDescription>
-              Satış ile ilgili bildirimleri yapılandırın.
+              Günlük rapor formatı ve gönderim ayarları.
             </SheetDescription>
           </SheetHeader>
 
           <div className="mt-6">
             <Form {...form}>
               <form
-                id="sales-notification-settings-form"
+                id="daily-report-settings-form"
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
@@ -161,10 +161,10 @@ export function SalesNotificationSettingsSidebar({
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">
-                          Satış Bildirim Durumu
+                          Günlük Rapor Durumu
                         </FormLabel>
                         <FormDescription>
-                          Satış bildirimleri gönderilsin mi?
+                          Günlük rapor gönderilsin mi?
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -223,30 +223,50 @@ export function SalesNotificationSettingsSidebar({
                           Kullanılabilir değişkenler:
                         </p>
                         <p>
-                          <code className="text-xs">{'{name}'}</code> - Müşteri
-                          adı
+                          <code className="text-xs">{'{user}'}</code> -
+                          Danışmanın adı
                         </p>
                         <p>
-                          <code className="text-xs">{'{date}'}</code> - Lead
-                          tarihi
+                          <code className="text-xs">{'{date}'}</code> - Raporun
+                          oluşturulduğu tarih
                         </p>
                         <p>
-                          <code className="text-xs">{'{category}'}</code> -
-                          Kategori
+                          <code className="text-xs">{'{daily_leads}'}</code> - O
+                          gün içinde oluşturulan yeni müşteri (lead) sayısı
                         </p>
                         <p>
-                          <code className="text-xs">{'{service}'}</code> -
-                          Tedavi
+                          <code className="text-xs">{'{total_no_photos}'}</code>{' '}
+                          - Fotoğraf göndermeyen toplam müşteri sayısı
                         </p>
                         <p>
                           <code className="text-xs">
-                            {'{appointment_date}'}
+                            {'{total_waiting_offer}'}
                           </code>{' '}
-                          - Randevu tarihi
+                          - Teklif bekleyen toplam müşteri sayısı
                         </p>
                         <p>
-                          <code className="text-xs">{'{user}'}</code> - Danışman
-                          adı
+                          <code className="text-xs">{'{daily_sales}'}</code> - O
+                          gün içinde yapılan toplam satış sayısı
+                        </p>
+                        <p>
+                          <code className="text-xs">{'{daily_offered}'}</code> -
+                          O gün içinde teklif yapılmış müşteri sayısı
+                        </p>
+                        <p>
+                          <code className="text-xs">
+                            {'{daily_called_patients}'}
+                          </code>{' '}
+                          - O gün içinde aranmış toplam hasta sayısı
+                        </p>
+                        <p>
+                          <code className="text-xs">{'{total_positive}'}</code>{' '}
+                          - Olumlu sonuçlanan toplam müşteri sayısı
+                        </p>
+                        <p>
+                          <code className="text-xs">
+                            {'{total_waiting_ticket}'}
+                          </code>{' '}
+                          - Bilet bekleyen toplam müşteri sayısı
                         </p>
                       </div>
                       <FormMessage />
@@ -257,7 +277,7 @@ export function SalesNotificationSettingsSidebar({
                 <div className="flex gap-2 pt-4">
                   <Button
                     type="submit"
-                    form="sales-notification-settings-form"
+                    form="daily-report-settings-form"
                     disabled={isLoading || isFetching}
                     className="flex-1"
                   >

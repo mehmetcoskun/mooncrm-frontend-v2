@@ -40,8 +40,8 @@ import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { type WhatsappSession } from '@/features/whatsapp-sessions/data/schema';
-import { WhatsappAvatar } from './components/whatsapp-avatar';
-import { WhatsappMessageItem } from './components/whatsapp-message-item';
+import { WhatsappChatsAvatar } from './components/whatsapp-chats-avatar';
+import { WhatsappChatsMessageItem } from './components/whatsapp-chats-message-item';
 import { type WhatsappChat, type WhatsappMessage } from './data/schema';
 
 export function WhatsappChats() {
@@ -275,7 +275,7 @@ export function WhatsappChats() {
                           }}
                         >
                           <div className="flex w-full items-center gap-3">
-                            <WhatsappAvatar
+                            <WhatsappChatsAvatar
                               session={session.title}
                               phone={session.phone}
                             />
@@ -494,7 +494,7 @@ export function WhatsappChats() {
                           <Fragment key={dateKey}>
                             {groupedMessages[dateKey].map(
                               (message: WhatsappMessage) => (
-                                <WhatsappMessageItem
+                                <WhatsappChatsMessageItem
                                   key={message.id}
                                   message={message}
                                 />

@@ -33,21 +33,21 @@ const formSchema = z.object({
   status: z.boolean(),
   message_template: z.string().min(1, 'Mesaj şablonu gereklidir.'),
 });
-type UserNotificationSettingsForm = z.infer<typeof formSchema>;
+type SettingsUserNotificationForm = z.infer<typeof formSchema>;
 
-interface UserNotificationSettingsSidebarProps {
+interface SettingsUserNotificationSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function UserNotificationSettingsSidebar({
+export function SettingsUserNotificationSidebar({
   open,
   onOpenChange,
-}: UserNotificationSettingsSidebarProps) {
+}: SettingsUserNotificationSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const form = useForm<UserNotificationSettingsForm>({
+  const form = useForm<SettingsUserNotificationForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       status: true,
@@ -87,7 +87,7 @@ export function UserNotificationSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: UserNotificationSettingsForm) => {
+  const onSubmit = async (values: SettingsUserNotificationForm) => {
     try {
       setIsLoading(true);
 

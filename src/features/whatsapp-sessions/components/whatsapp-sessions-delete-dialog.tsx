@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { logoutSession } from '@/services/whatsapp-service';
 import { destroyWhatsappSession } from '@/services/whatsapp-session-service';
 import { AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -26,6 +27,13 @@ export function WhatsappSessionsDeleteDialog({
   const handleDelete = async () => {
     try {
       setIsLoading(true);
+
+      try {
+        await logoutSession(currentRow.title);
+      } catch (_error) {
+        // Continue even if logout fails
+      }
+
       await destroyWhatsappSession(currentRow.id);
 
       onOpenChange(false);

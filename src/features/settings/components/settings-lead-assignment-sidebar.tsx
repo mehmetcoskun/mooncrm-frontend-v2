@@ -28,21 +28,21 @@ import {
 const formSchema = z.object({
   strategy: z.enum(['sequential', 'working_hours']),
 });
-type LeadAssignmentSettingsForm = z.infer<typeof formSchema>;
+type SettingsLeadAssignmentForm = z.infer<typeof formSchema>;
 
-interface LeadAssignmentSettingsSidebarProps {
+interface SettingsLeadAssignmentSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function LeadAssignmentSettingsSidebar({
+export function SettingsLeadAssignmentSidebar({
   open,
   onOpenChange,
-}: LeadAssignmentSettingsSidebarProps) {
+}: SettingsLeadAssignmentSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const form = useForm<LeadAssignmentSettingsForm>({
+  const form = useForm<SettingsLeadAssignmentForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       strategy: 'sequential',
@@ -79,7 +79,7 @@ export function LeadAssignmentSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: LeadAssignmentSettingsForm) => {
+  const onSubmit = async (values: SettingsLeadAssignmentForm) => {
     try {
       setIsLoading(true);
 

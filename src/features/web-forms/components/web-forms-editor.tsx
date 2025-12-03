@@ -31,10 +31,10 @@ import {
   type RateLimitSettings,
   type WebForm,
 } from '../data/schema';
-import { AddFieldDialog } from './add-field-dialog';
-import { WebFormSettingsTabs } from './web-form-settings-tabs';
+import { WebFormsAddFieldDialog } from './web-forms-add-field-dialog';
+import { WebFormsSettingsTabs } from './web-forms-settings-tabs';
 
-type WebFormEditorProps = {
+type WebFormsEditorProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (data: WebForm) => void;
@@ -48,7 +48,7 @@ type WebFormEditorProps = {
   rate_limit_settings?: RateLimitSettings;
 };
 
-export function WebFormEditor({
+export function WebFormsEditor({
   open,
   onOpenChange,
   onSave,
@@ -83,7 +83,7 @@ export function WebFormEditor({
     enabled: true,
     maxSubmissionsPerMinute: 1,
   },
-}: WebFormEditorProps) {
+}: WebFormsEditorProps) {
   const [fields, setFields] = useState<Field[]>([]);
   const [addFieldDialogOpen, setAddFieldDialogOpen] = useState(false);
   const [editingField, setEditingField] = useState<Field | null>(null);
@@ -349,7 +349,7 @@ export function WebFormEditor({
             </div>
 
             <div className="w-1/2">
-              <WebFormSettingsTabs
+              <WebFormsSettingsTabs
                 uuid={uuid}
                 styles={currentStyles}
                 onStylesChange={setCurrentStyles}
@@ -382,7 +382,7 @@ export function WebFormEditor({
         </SheetFooter>
       </SheetContent>
 
-      <AddFieldDialog
+      <WebFormsAddFieldDialog
         open={addFieldDialogOpen}
         onOpenChange={(open) => {
           setAddFieldDialogOpen(open);

@@ -1,6 +1,13 @@
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from 'recharts';
 
-interface OverviewProps {
+interface DashboardOverviewProps {
   data: {
     name: string;
     customers: number;
@@ -9,7 +16,7 @@ interface OverviewProps {
   }[];
 }
 
-export function Overview({ data }: OverviewProps) {
+export function DashboardOverview({ data }: DashboardOverviewProps) {
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
@@ -37,29 +44,29 @@ export function Overview({ data }: OverviewProps) {
               return null;
             }
             return (
-              <div className="rounded-lg border bg-background p-2 shadow-sm">
+              <div className="bg-background rounded-lg border p-2 shadow-sm">
                 <div className="grid grid-cols-1 gap-2">
                   <div className="flex flex-col">
-                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                    <span className="text-muted-foreground text-[0.70rem] uppercase">
                       Müşteriler
                     </span>
-                    <span className="font-bold text-muted-foreground">
+                    <span className="text-muted-foreground font-bold">
                       {payload[0]?.value}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                    <span className="text-muted-foreground text-[0.70rem] uppercase">
                       Teklifler
                     </span>
-                    <span className="font-bold text-muted-foreground">
+                    <span className="text-muted-foreground font-bold">
                       {payload[1]?.value}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                    <span className="text-muted-foreground text-[0.70rem] uppercase">
                       Satışlar
                     </span>
-                    <span className="font-bold text-muted-foreground">
+                    <span className="text-muted-foreground font-bold">
                       {payload[2]?.value}
                     </span>
                   </div>
@@ -93,5 +100,3 @@ export function Overview({ data }: OverviewProps) {
     </ResponsiveContainer>
   );
 }
-
-

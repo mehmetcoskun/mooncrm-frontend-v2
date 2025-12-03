@@ -97,6 +97,7 @@ export function TwoFactorForm({
                   placeholder="000000"
                   maxLength={10}
                   autoComplete="one-time-code"
+                  autoFocus
                   {...field}
                 />
               </FormControl>

@@ -29,9 +29,9 @@ const formSchema = z.object({
   access_token: z.string().optional(),
   expires_in: z.number().optional(),
 });
-type FacebookSettingsForm = z.infer<typeof formSchema>;
+type SettingsFacebookForm = z.infer<typeof formSchema>;
 
-interface FacebookSettingsSidebarProps {
+interface SettingsFacebookSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -43,17 +43,17 @@ interface FacebookPage {
   subscribed: boolean;
 }
 
-export function FacebookSettingsSidebar({
+export function SettingsFacebookSidebar({
   open,
   onOpenChange,
-}: FacebookSettingsSidebarProps) {
+}: SettingsFacebookSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [pages, setPages] = useState<FacebookPage[]>([]);
   const [loadingPages, setLoadingPages] = useState<Record<string, boolean>>({});
 
-  const form = useForm<FacebookSettingsForm>({
+  const form = useForm<SettingsFacebookForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       access_token: undefined,

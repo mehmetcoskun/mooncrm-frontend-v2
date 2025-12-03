@@ -33,21 +33,21 @@ const formSchema = z.object({
   status: z.boolean(),
   message_template: z.string().min(1, 'Mesaj şablonu gereklidir.'),
 });
-type SalesEmailSettingsForm = z.infer<typeof formSchema>;
+type SettingsSalesEmailForm = z.infer<typeof formSchema>;
 
-interface SalesEmailSettingsSidebarProps {
+interface SettingsSalesEmailSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function SalesEmailSettingsSidebar({
+export function SettingsSalesEmailSidebar({
   open,
   onOpenChange,
-}: SalesEmailSettingsSidebarProps) {
+}: SettingsSalesEmailSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const form = useForm<SalesEmailSettingsForm>({
+  const form = useForm<SettingsSalesEmailForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       status: true,
@@ -87,7 +87,7 @@ export function SalesEmailSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: SalesEmailSettingsForm) => {
+  const onSubmit = async (values: SettingsSalesEmailForm) => {
     try {
       setIsLoading(true);
 

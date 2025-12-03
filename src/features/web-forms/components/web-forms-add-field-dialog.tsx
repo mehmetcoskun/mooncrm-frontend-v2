@@ -39,7 +39,7 @@ const formSchema = z.object({
 });
 type FieldForm = z.infer<typeof formSchema>;
 
-type AddFieldDialogProps = {
+type WebFormsAddFieldDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (field: Omit<Field, 'id'>) => void;
@@ -47,13 +47,13 @@ type AddFieldDialogProps = {
   usedSystemFields?: string[];
 };
 
-export function AddFieldDialog({
+export function WebFormsAddFieldDialog({
   open,
   onOpenChange,
   onAdd,
   editField,
   usedSystemFields = [],
-}: AddFieldDialogProps) {
+}: WebFormsAddFieldDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [optionInput, setOptionInput] = useState('');
 

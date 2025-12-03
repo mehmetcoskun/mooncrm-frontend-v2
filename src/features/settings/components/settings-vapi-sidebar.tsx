@@ -27,21 +27,21 @@ import {
 const formSchema = z.object({
   api_key: z.string().min(1, 'API Key gereklidir.'),
 });
-type VapiSettingsForm = z.infer<typeof formSchema>;
+type SettingsVapiForm = z.infer<typeof formSchema>;
 
-interface VapiSettingsSidebarProps {
+interface SettingsVapiSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function VapiSettingsSidebar({
+export function SettingsVapiSidebar({
   open,
   onOpenChange,
-}: VapiSettingsSidebarProps) {
+}: SettingsVapiSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const form = useForm<VapiSettingsForm>({
+  const form = useForm<SettingsVapiForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       api_key: '',
@@ -78,7 +78,7 @@ export function VapiSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: VapiSettingsForm) => {
+  const onSubmit = async (values: SettingsVapiForm) => {
     try {
       setIsLoading(true);
 

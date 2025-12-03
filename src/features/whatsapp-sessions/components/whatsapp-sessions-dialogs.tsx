@@ -2,6 +2,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 import { WhatsappSessionsActionDialog } from './whatsapp-sessions-action-dialog';
 import { WhatsappSessionsDeleteDialog } from './whatsapp-sessions-delete-dialog';
 import { useWhatsappSessions } from './whatsapp-sessions-provider';
+import { WhatsappSessionsQrCodeDialog } from './whatsapp-sessions-qr-code-dialog';
 
 type WhatsappSessionsDialogsProps = {
   onSuccess?: () => void;
@@ -14,7 +15,6 @@ export function WhatsappSessionsDialogs({
   const { hasPermission } = usePermissions();
 
   const canCreate = hasPermission('whatsapp_session_Create');
-  const canEdit = hasPermission('whatsapp_session_Edit');
   const canDelete = hasPermission('whatsapp_session_Delete');
 
   return (
@@ -30,27 +30,24 @@ export function WhatsappSessionsDialogs({
 
       {currentRow && (
         <>
-          {canEdit && (
-            <WhatsappSessionsActionDialog
-              key={`whatsapp-session-edit-${currentRow.id}`}
-              open={open === 'edit'}
-              onOpenChange={() => {
-                setOpen('edit');
-                setTimeout(() => {
-                  setCurrentRow(null);
-                }, 500);
-              }}
-              currentRow={currentRow}
-              onSuccess={onSuccess}
-            />
-          )}
+          <WhatsappSessionsQrCodeDialog
+            key={`whatsapp-session-qr-${currentRow.id}`}
+            open={open === 'qr'}
+            onOpenChange={() => {
+              setOpen(null);
+              setTimeout(() => {
+                setCurrentRow(null);
+              }, 500);
+            }}
+            sessionTitle={currentRow.title}
+          />
 
           {canDelete && (
             <WhatsappSessionsDeleteDialog
               key={`whatsapp-session-delete-${currentRow.id}`}
               open={open === 'delete'}
               onOpenChange={() => {
-                setOpen('delete');
+                setOpen(null);
                 setTimeout(() => {
                   setCurrentRow(null);
                 }, 500);

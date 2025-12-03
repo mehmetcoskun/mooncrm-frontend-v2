@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/data-table';
 import { type WhatsappSession } from '../data/schema';
 import { DataTableRowActions } from './data-table-row-actions';
+import { SessionStatusCell } from './whatsapp-sessions-status-cell';
 
 export const whatsappSessionsColumns: ColumnDef<WhatsappSession>[] = [
   {
@@ -33,7 +34,10 @@ export const whatsappSessionsColumns: ColumnDef<WhatsappSession>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Durum" />
     ),
-    cell: ({ row }) => <div>{row.getValue('status')}</div>,
+    cell: ({ row }) => {
+      const title = row.getValue('title') as string;
+      return <SessionStatusCell title={title} />;
+    },
   },
   {
     accessorKey: 'is_admin',

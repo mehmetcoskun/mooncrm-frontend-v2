@@ -13,8 +13,8 @@ import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { Overview } from './components/overview';
-import { UpcomingReminders } from './components/upcoming-reminders';
+import { DashboardOverview } from './components/dashboard-overview';
+import { DashboardUpcomingReminders } from './components/dashboard-upcoming-reminders';
 
 export function Dashboard() {
   const { data, isLoading } = useQuery({
@@ -257,7 +257,7 @@ export function Dashboard() {
                       Yükleniyor...
                     </div>
                   ) : (
-                    <Overview data={chartData} />
+                    <DashboardOverview data={chartData} />
                   )}
                 </CardContent>
               </Card>
@@ -272,7 +272,9 @@ export function Dashboard() {
                       Yükleniyor...
                     </div>
                   ) : (
-                    <UpcomingReminders reminders={upcomingReminders} />
+                    <DashboardUpcomingReminders
+                      upcomingReminders={upcomingReminders}
+                    />
                   )}
                 </CardContent>
               </Card>

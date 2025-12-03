@@ -44,4 +44,3 @@ export const whatsappMessageSchema = z.object({
 export type WhatsappMessage = z.infer<typeof whatsappMessageSchema>;
 
 export const whatsappMessageListSchema = z.array(whatsappMessageSchema);
-

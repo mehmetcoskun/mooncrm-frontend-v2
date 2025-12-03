@@ -19,94 +19,94 @@ import {
   Phone,
   Facebook,
 } from 'lucide-react';
-import { DailyReportSettingsSidebar } from '../components/daily-report-settings-sidebar';
-import { EmailSettingsSidebar } from '../components/email-settings-sidebar';
-import { FacebookSettingsSidebar } from '../components/facebook-settings-sidebar';
-import { LeadAssignmentSettingsSidebar } from '../components/lead-assignment-settings-sidebar';
-import { SalesEmailSettingsSidebar } from '../components/sales-email-settings-sidebar';
-import { SalesNotificationSettingsSidebar } from '../components/sales-notification-settings-sidebar';
-import { SmsSettingsSidebar } from '../components/sms-settings-sidebar';
-import { UserNotificationSettingsSidebar } from '../components/user-notification-settings-sidebar';
-import { VapiSettingsSidebar } from '../components/vapi-settings-sidebar';
-import { WelcomeMessageSettingsSidebar } from '../components/welcome-message-settings-sidebar';
-import { WhatsappSettingsSidebar } from '../components/whatsapp-settings-sidebar';
+import { SettingsDailyReportSidebar } from '../components/settings-daily-report-sidebar';
+import { SettingsEmailSidebar } from '../components/settings-email-sidebar';
+import { SettingsFacebookSidebar } from '../components/settings-facebook-sidebar';
+import { SettingsLeadAssignmentSidebar } from '../components/settings-lead-assignment-sidebar';
+import { SettingsSalesEmailSidebar } from '../components/settings-sales-email-sidebar';
+import { SettingsSalesNotificationSidebar } from '../components/settings-sales-notification-sidebar';
+import { SettingsSmsSidebar } from '../components/settings-sms-sidebar';
+import { SettingsUserNotificationSidebar } from '../components/settings-user-notification-sidebar';
+import { SettingsVapiSidebar } from '../components/settings-vapi-sidebar';
+import { SettingsWelcomeMessageSidebar } from '../components/settings-welcome-message-sidebar';
+import { SettingsWhatsappSidebar } from '../components/settings-whatsapp-sidebar';
 
 export const settings = [
   {
     name: 'E-Posta Ayarları',
     logo: <Mail />,
     desc: 'E-posta sunucu ve şablon ayarlarını yapılandırın.',
-    component: EmailSettingsSidebar,
+    component: SettingsEmailSidebar,
     permission: 'setting_Mail',
   },
   {
     name: 'SMS Ayarları',
     logo: <MessageSquare />,
     desc: 'SMS entegrasyonu ve şablon ayarlarını yönetin.',
-    component: SmsSettingsSidebar,
+    component: SettingsSmsSidebar,
     permission: 'setting_Sms',
   },
   {
     name: 'WhatsApp Ayarları',
     logo: <MessageCircle />,
     desc: 'WhatsApp entegrasyon ve mesaj ayarlarını düzenleyin.',
-    component: WhatsappSettingsSidebar,
+    component: SettingsWhatsappSidebar,
     permission: 'setting_Whatsapp',
   },
   {
     name: 'Facebook Ayarları',
     logo: <Facebook />,
     desc: 'Facebook hesabınızı bağlayın ve sayfalarınızı yönetin.',
-    component: FacebookSettingsSidebar,
+    component: SettingsFacebookSidebar,
     permission: 'setting_Facebook',
   },
   {
     name: 'VAPI AI Ayarları',
     logo: <Phone />,
     desc: 'VAPI AI ses asistanı entegrasyonu için ayarlar.',
-    component: VapiSettingsSidebar,
+    component: SettingsVapiSidebar,
     permission: 'setting_Vapi',
   },
   {
     name: 'Lead Atama Strateji Ayarları',
     logo: <UserPlus />,
     desc: 'Lead dağıtım ve atama stratejilerini belirleyin.',
-    component: LeadAssignmentSettingsSidebar,
+    component: SettingsLeadAssignmentSidebar,
     permission: 'setting_LeadAssignment',
   },
   {
     name: 'Karşılama Mesaj Ayarları',
     logo: <MessageSquareText />,
     desc: 'Otomatik karşılama mesajlarını yapılandırın.',
-    component: WelcomeMessageSettingsSidebar,
+    component: SettingsWelcomeMessageSidebar,
     permission: 'setting_WelcomeMessage',
   },
   {
     name: 'Kullanıcı Bildirim Ayarları',
     logo: <Bell />,
     desc: 'Kullanıcı bildirim tercihlerini yönetin.',
-    component: UserNotificationSettingsSidebar,
+    component: SettingsUserNotificationSidebar,
     permission: 'setting_UserNotification',
   },
   {
     name: 'Günlük Rapor Ayarları',
     logo: <FileText />,
     desc: 'Günlük rapor formatı ve gönderim ayarları.',
-    component: DailyReportSettingsSidebar,
+    component: SettingsDailyReportSidebar,
     permission: 'setting_DailyReport',
   },
   {
     name: 'Satış Bildirim Ayarları',
     logo: <ShoppingCart />,
     desc: 'Satış ile ilgili bildirimleri yapılandırın.',
-    component: SalesNotificationSettingsSidebar,
+    component: SettingsSalesNotificationSidebar,
     permission: 'setting_SalesNotification',
   },
   {
     name: 'Satış E-Posta Ayarları',
     logo: <MailCheck />,
     desc: 'Satış sürecine özel e-posta şablonları.',
-    component: SalesEmailSettingsSidebar,
+    component: SettingsSalesEmailSidebar,
     permission: 'setting_SalesMail',
   },
   {

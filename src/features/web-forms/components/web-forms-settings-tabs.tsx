@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type Category } from '@/features/categories/data/schema';
 import { type Styles, type RateLimitSettings } from '../data/schema';
 
-type WebFormSettingsTabsProps = {
+type WebFormsSettingsTabsProps = {
   uuid: string;
   styles: Styles;
   onStylesChange: (styles: Styles) => void;
@@ -33,7 +33,7 @@ type WebFormSettingsTabsProps = {
   onRateLimitSettingsChange: (settings: RateLimitSettings) => void;
 };
 
-export function WebFormSettingsTabs({
+export function WebFormsSettingsTabs({
   uuid,
   styles,
   onStylesChange,
@@ -47,7 +47,7 @@ export function WebFormSettingsTabs({
   onCategoryIdChange,
   rate_limit_settings,
   onRateLimitSettingsChange,
-}: WebFormSettingsTabsProps) {
+}: WebFormsSettingsTabsProps) {
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,

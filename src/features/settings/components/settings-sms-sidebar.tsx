@@ -29,21 +29,21 @@ const formSchema = z.object({
   auth_token: z.string().min(1, 'Auth Token gereklidir.'),
   phone_number: z.string().min(1, 'Twilio Telefon Numarası gereklidir.'),
 });
-type SmsSettingsForm = z.infer<typeof formSchema>;
+type SettingsSmsForm = z.infer<typeof formSchema>;
 
-interface SmsSettingsSidebarProps {
+interface SettingsSmsSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function SmsSettingsSidebar({
+export function SettingsSmsSidebar({
   open,
   onOpenChange,
-}: SmsSettingsSidebarProps) {
+}: SettingsSmsSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const form = useForm<SmsSettingsForm>({
+  const form = useForm<SettingsSmsForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       account_sid: '',
@@ -84,7 +84,7 @@ export function SmsSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: SmsSettingsForm) => {
+  const onSubmit = async (values: SettingsSmsForm) => {
     try {
       setIsLoading(true);
 

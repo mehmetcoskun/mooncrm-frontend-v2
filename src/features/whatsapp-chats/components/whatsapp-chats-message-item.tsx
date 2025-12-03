@@ -6,11 +6,13 @@ import { cn } from '@/lib/utils';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { type WhatsappMessage } from '../data/schema';
 
-interface WhatsappMessageItemProps {
+interface WhatsappChatsMessageItemProps {
   message: WhatsappMessage;
 }
 
-export function WhatsappMessageItem({ message }: WhatsappMessageItemProps) {
+export function WhatsappChatsMessageItem({
+  message,
+}: WhatsappChatsMessageItemProps) {
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);

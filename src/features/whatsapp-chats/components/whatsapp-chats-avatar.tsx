@@ -3,18 +3,20 @@ import { getProfilePicture } from '@/services/whatsapp-service';
 import whatsappAvatar from '@/assets/whatsapp-avatar.png';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-interface WhatsappAvatarProps {
+interface WhatsappChatsAvatarProps {
   session: string;
   phone: string;
 }
 
-export function WhatsappAvatar({ session, phone }: WhatsappAvatarProps) {
+export function WhatsappChatsAvatar({
+  session,
+  phone,
+}: WhatsappChatsAvatarProps) {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfilePicture = async () => {
       try {
-        // Telefon numarasını WhatsApp formatına çevir (@c.us)
         const cleanPhone = phone.replace(/\D/g, '').replace(/^(\+)|^0/g, '');
         const contactId = `${cleanPhone}@c.us`;
         const result = await getProfilePicture(session, contactId);

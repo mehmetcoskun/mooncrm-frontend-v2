@@ -35,23 +35,23 @@ const formSchema = z.object({
   smtp_username: z.string().min(1, 'SMTP kullanıcı adı gereklidir.'),
   smtp_password: z.string().min(1, 'SMTP şifre gereklidir.'),
 });
-type EmailSettingsForm = z.infer<typeof formSchema>;
+type SettingsEmailForm = z.infer<typeof formSchema>;
 
-interface EmailSettingsSidebarProps {
+interface SettingsEmailSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function EmailSettingsSidebar({
+export function SettingsEmailSidebar({
   open,
   onOpenChange,
-}: EmailSettingsSidebarProps) {
+}: SettingsEmailSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
-  const form = useForm<EmailSettingsForm>({
+  const form = useForm<SettingsEmailForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       smtp_from_name: '',
@@ -141,7 +141,7 @@ export function EmailSettingsSidebar({
     }
   };
 
-  const onSubmit = async (values: EmailSettingsForm) => {
+  const onSubmit = async (values: SettingsEmailForm) => {
     try {
       setIsLoading(true);
 

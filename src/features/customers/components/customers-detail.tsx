@@ -126,7 +126,7 @@ const getSidebarNavItems = (
     },
   ].filter((item) => item.show);
 
-export function CustomerDetail() {
+export function CustomersDetail() {
   const { customerId } = useParams({
     from: '/_authenticated/customers/$customerId',
   });

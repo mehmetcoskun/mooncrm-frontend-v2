@@ -3,6 +3,7 @@ import {
   getOrganizations,
 } from '@/services/organization-service';
 import { create } from 'zustand';
+import { clearWhatsappCache } from '@/lib/whatsapp-api';
 import type { Organization } from '@/features/organizations/data/schema';
 import type { User } from '@/features/users/data/schema';
 
@@ -38,6 +39,7 @@ export const useOrganizationStore = create<OrganizationState>((set) => ({
   setCurrentOrganization: (organization: Organization) => {
     set({ currentOrganization: organization });
     localStorage.setItem('organization_id', String(organization.id));
+    clearWhatsappCache();
   },
 
   getCurrentOrganizationFromUser: async (user: User | null) => {

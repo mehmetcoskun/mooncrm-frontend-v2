@@ -34,21 +34,21 @@ const formSchema = z.object({
       message: 'Oturum Limiti pozitif bir sayı olmalıdır.',
     }),
 });
-type WhatsappSettingsForm = z.infer<typeof formSchema>;
+type SettingsWhatsappForm = z.infer<typeof formSchema>;
 
-interface WhatsappSettingsSidebarProps {
+interface SettingsWhatsappSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function WhatsappSettingsSidebar({
+export function SettingsWhatsappSidebar({
   open,
   onOpenChange,
-}: WhatsappSettingsSidebarProps) {
+}: SettingsWhatsappSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
-  const form = useForm<WhatsappSettingsForm>({
+  const form = useForm<SettingsWhatsappForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       api_url: '',
@@ -89,7 +89,7 @@ export function WhatsappSettingsSidebar({
     }
   }, [open, loadSettings]);
 
-  const onSubmit = async (values: WhatsappSettingsForm) => {
+  const onSubmit = async (values: SettingsWhatsappForm) => {
     try {
       setIsLoading(true);
 

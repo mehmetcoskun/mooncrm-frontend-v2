@@ -88,15 +88,15 @@ const phoneSchema = z.object({
 });
 type PhoneForm = z.infer<typeof phoneSchema>;
 
-interface WelcomeMessageSettingsSidebarProps {
+interface SettingsWelcomeMessageSidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function WelcomeMessageSettingsSidebar({
+export function SettingsWelcomeMessageSidebar({
   open,
   onOpenChange,
-}: WelcomeMessageSettingsSidebarProps) {
+}: SettingsWelcomeMessageSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useDialogState from '@/hooks/use-dialog-state';
 import { type WhatsappSession } from '../data/schema';
 
-type WhatsappSessionsDialogType = 'add' | 'edit' | 'delete';
+type WhatsappSessionsDialogType = 'add' | 'delete' | 'qr';
 
 type WhatsappSessionsContextType = {
   open: WhatsappSessionsDialogType | null;

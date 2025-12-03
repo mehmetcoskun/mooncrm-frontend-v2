@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '@/stores/auth-store';
 import { getCookie } from './cookies';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -25,6 +26,20 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+
+      if (!window.location.pathname.includes('/sign-in')) {
+        window.location.href = '/sign-in';
+      }
+    }
     return Promise.reject(error);
   }
 );
