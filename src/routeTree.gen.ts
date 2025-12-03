@@ -41,7 +41,6 @@ import { Route as AuthenticatedEmailTemplatesIndexRouteImport } from './routes/_
 import { Route as AuthenticatedDoctorsIndexRouteImport } from './routes/_authenticated/doctors/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedCategoriesIndexRouteImport } from './routes/_authenticated/categories/index'
-import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedAppointmentsIndexRouteImport } from './routes/_authenticated/appointments/index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
@@ -230,11 +229,6 @@ const AuthenticatedCategoriesIndexRoute =
     path: '/categories/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
-  id: '/apps/',
-  path: '/apps/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAppointmentsIndexRoute =
   AuthenticatedAppointmentsIndexRouteImport.update({
     id: '/appointments/',
@@ -292,7 +286,6 @@ export interface FileRoutesByFullPath {
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/appointments': typeof AuthenticatedAppointmentsIndexRoute
-  '/apps': typeof AuthenticatedAppsIndexRoute
   '/categories': typeof AuthenticatedCategoriesIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/doctors': typeof AuthenticatedDoctorsIndexRoute
@@ -332,7 +325,6 @@ export interface FileRoutesByTo {
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/appointments': typeof AuthenticatedAppointmentsIndexRoute
-  '/apps': typeof AuthenticatedAppsIndexRoute
   '/categories': typeof AuthenticatedCategoriesIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/doctors': typeof AuthenticatedDoctorsIndexRoute
@@ -375,7 +367,6 @@ export interface FileRoutesById {
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/appointments/': typeof AuthenticatedAppointmentsIndexRoute
-  '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/categories/': typeof AuthenticatedCategoriesIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/doctors/': typeof AuthenticatedDoctorsIndexRoute
@@ -418,7 +409,6 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/account/'
     | '/appointments'
-    | '/apps'
     | '/categories'
     | '/customers'
     | '/doctors'
@@ -458,7 +448,6 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/account'
     | '/appointments'
-    | '/apps'
     | '/categories'
     | '/customers'
     | '/doctors'
@@ -500,7 +489,6 @@ export interface FileRouteTypes {
     | '/_authenticated/errors/$error'
     | '/_authenticated/account/'
     | '/_authenticated/appointments/'
-    | '/_authenticated/apps/'
     | '/_authenticated/categories/'
     | '/_authenticated/customers/'
     | '/_authenticated/doctors/'
@@ -764,13 +752,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCategoriesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/apps/': {
-      id: '/_authenticated/apps/'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/appointments/': {
       id: '/_authenticated/appointments/'
       path: '/appointments'
@@ -847,7 +828,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomersCustomerIdRoute: typeof AuthenticatedCustomersCustomerIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppointmentsIndexRoute: typeof AuthenticatedAppointmentsIndexRoute
-  AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedCategoriesIndexRoute: typeof AuthenticatedCategoriesIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedDoctorsIndexRoute: typeof AuthenticatedDoctorsIndexRoute
@@ -879,7 +859,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomersCustomerIdRoute: AuthenticatedCustomersCustomerIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppointmentsIndexRoute: AuthenticatedAppointmentsIndexRoute,
-  AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedCategoriesIndexRoute: AuthenticatedCategoriesIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedDoctorsIndexRoute: AuthenticatedDoctorsIndexRoute,
