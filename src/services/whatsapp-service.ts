@@ -104,7 +104,7 @@ export const getMessages = async (
   limit: number
 ) => {
   const response = await whatsappApi.get(
-    `/${session}/chats/${chatId}/messages?downloadMedia=true&limit=${limit}`
+    `/${session}/chats/${chatId}/messages?&downloadMedia=true&limit=${limit}`
   );
   return response.data;
 };

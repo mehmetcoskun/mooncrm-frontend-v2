@@ -1,25 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { format } from 'date-fns';
-import { useQuery } from '@tanstack/react-query';
-import { getChatsOverview } from '@/services/whatsapp-service';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  getChatsOverview,
+  getMessages,
+  sendText,
+  sendSeen,
+  startTyping,
+  stopTyping,
+} from '@/services/whatsapp-service';
 import { getWhatsappSessions } from '@/services/whatsapp-session-service';
 import {
   ArrowLeft,
-  MoreVertical,
   Paperclip,
-  Phone,
   ImagePlus,
   Plus,
   Search as SearchIcon,
   Send,
-  Video,
   MessagesSquare,
   ChevronDown,
   Check,
   CheckCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,74 +40,208 @@ import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { type WhatsappSession } from '@/features/whatsapp-sessions/data/schema';
-import { WhatsAppAvatar } from './components/whatsapp-avatar';
-import { type ChatUser, type Convo } from './data/chat-types';
-
-// WhatsApp Chat tipi
-type WhatsappChat = {
-  id: string;
-  name?: string;
-  picture?: string;
-  lastMessage?: {
-    body?: string;
-    fromMe?: boolean;
-    ackName?: 'SERVER' | 'DEVICE' | 'READ';
-  };
-};
+import { WhatsappAvatar } from './components/whatsapp-avatar';
+import { WhatsappMessageItem } from './components/whatsapp-message-item';
+import { type WhatsappChat, type WhatsappMessage } from './data/schema';
 
 export function WhatsappChats() {
   const [search, setSearch] = useState('');
-  const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
-  const [mobileSelectedUser, setMobileSelectedUser] = useState<ChatUser | null>(
-    null
-  );
+  const [selectedChat, setSelectedChat] = useState<WhatsappChat | null>(null);
+  const [mobileSelectedChat, setMobileSelectedChat] =
+    useState<WhatsappChat | null>(null);
   const [selectedSession, setSelectedSession] =
     useState<WhatsappSession | null>(null);
   const [limit, setLimit] = useState(50);
+  const [messageLimit] = useState(50);
+  const [messageText, setMessageText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: whatsappSessions = [] } = useQuery({
     queryKey: ['whatsapp-sessions'],
     queryFn: getWhatsappSessions,
   });
 
-  // Chat listesini çek - İlk başta 50 tane
   const { data: chatsData = [], isLoading: isLoadingChats } = useQuery({
     queryKey: ['whatsapp-chats', selectedSession?.title, limit],
     queryFn: () => getChatsOverview(selectedSession!.title, limit, 0),
     enabled: !!selectedSession,
   });
 
-  // Oturum seçilmemişse veya chat listesi yükleniyorsa boş liste
+  const { data: messagesData = [], isLoading: isLoadingMessages } = useQuery({
+    queryKey: [
+      'whatsapp-messages',
+      selectedSession?.title,
+      selectedChat?.id,
+      messageLimit,
+    ],
+    queryFn: () =>
+      getMessages(selectedSession!.title, selectedChat!.id, messageLimit),
+    enabled: !!selectedSession && !!selectedChat,
+  });
+
   const chatList: WhatsappChat[] =
     selectedSession && !isLoadingChats ? chatsData : [];
 
-  // Filtered data based on the search query
   const filteredChatList = chatList.filter((chat) =>
     (chat.name || chat.id || '')
       .toLowerCase()
       .includes(search.trim().toLowerCase())
   );
 
-  const currentMessage = selectedUser?.messages.reduce(
-    (acc: Record<string, Convo[]>, obj) => {
-      const key = format(obj.timestamp, 'd MMM, yyyy');
+  const groupedMessages = messagesData.reduce(
+    (acc: Record<string, WhatsappMessage[]>, message: WhatsappMessage) => {
+      const date = new Date(message.timestamp * 1000);
+      const key = format(date, 'd MMM, yyyy');
 
-      // Create an array for the category if it doesn't exist
       if (!acc[key]) {
         acc[key] = [];
       }
 
-      // Push the current object to the array
-      acc[key].push(obj);
+      acc[key].push(message);
 
       return acc;
     },
     {}
   );
 
+  const sendMessageMutation = useMutation({
+    mutationFn: async (text: string) => {
+      return await sendText({
+        session: selectedSession!.title,
+        chatId: selectedChat!.id,
+        text,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          'whatsapp-messages',
+          selectedSession?.title,
+          selectedChat?.id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['whatsapp-chats', selectedSession?.title],
+      });
+    },
+  });
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!messageText.trim() || !selectedSession || !selectedChat || isSending) {
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+      await stopTyping({
+        session: selectedSession.title,
+        chatId: selectedChat.id,
+      });
+
+      await sendMessageMutation.mutateAsync(messageText);
+      setMessageText('');
+    } catch (_error) {
+      // Hata sessizce yönetilir
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleTyping = async (value: string) => {
+    setMessageText(value);
+
+    if (!selectedSession || !selectedChat) return;
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    if (value.trim()) {
+      try {
+        await startTyping({
+          session: selectedSession.title,
+          chatId: selectedChat.id,
+        });
+
+        typingTimeoutRef.current = setTimeout(async () => {
+          try {
+            await stopTyping({
+              session: selectedSession.title,
+              chatId: selectedChat.id,
+            });
+          } catch (_error) {
+            // Hata sessizce yönetilir
+          }
+        }, 3000);
+      } catch (_error) {
+        // Hata sessizce yönetilir
+      }
+    } else {
+      try {
+        await stopTyping({
+          session: selectedSession.title,
+          chatId: selectedChat.id,
+        });
+      } catch (_error) {
+        // Hata sessizce yönetilir
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (selectedSession && selectedChat) {
+      const markAsRead = async () => {
+        try {
+          await sendSeen({
+            session: selectedSession.title,
+            chatId: selectedChat.id,
+          });
+          queryClient.invalidateQueries({
+            queryKey: ['whatsapp-chats', selectedSession.title],
+          });
+        } catch (_error) {
+          // Hata sessizce yönetilir
+        }
+      };
+      markAsRead();
+    }
+  }, [selectedSession, selectedChat, queryClient]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      user?.whatsapp_session_id &&
+      whatsappSessions.length > 0 &&
+      !selectedSession
+    ) {
+      const userSession = whatsappSessions.find(
+        (session: WhatsappSession) => session.id === user.whatsapp_session_id
+      );
+      if (userSession) {
+        setSelectedSession(userSession);
+      }
+    }
+  }, [user, whatsappSessions, selectedSession]);
+
   return (
     <>
-      {/* ===== Top Heading ===== */}
       <Header>
         <div className="ms-auto flex items-center space-x-4">
           <ThemeSwitch />
@@ -112,7 +251,6 @@ export function WhatsappChats() {
 
       <Main fixed fluid>
         <section className="flex h-full gap-6">
-          {/* Left Side */}
           <div className="flex w-full flex-col gap-2 sm:w-56 lg:w-72 2xl:w-80">
             <div className="bg-background sticky top-0 z-10 -mx-4 px-4 pb-3 shadow-md sm:static sm:z-auto sm:mx-0 sm:p-0 sm:shadow-none">
               <div className="flex items-center justify-between py-2">
@@ -120,39 +258,41 @@ export function WhatsappChats() {
                   <h1 className="text-2xl font-bold">Sohbetler</h1>
                   <MessagesSquare size={20} />
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <ChevronDown size={20} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-64">
-                    {whatsappSessions.map((session: WhatsappSession) => (
-                      <DropdownMenuItem
-                        key={session.id}
-                        className="p-3"
-                        onClick={() => {
-                          setSelectedSession(session);
-                        }}
-                      >
-                        <div className="flex w-full items-center gap-3">
-                          <WhatsAppAvatar
-                            session={session.title}
-                            phone={session.phone}
-                          />
-                          <div className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate text-sm font-medium">
-                              {session.title}
-                            </span>
-                            <span className="text-muted-foreground text-xs">
-                              Bu oturuma geç
-                            </span>
+                {!user?.whatsapp_session_id && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <ChevronDown size={20} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64">
+                      {whatsappSessions.map((session: WhatsappSession) => (
+                        <DropdownMenuItem
+                          key={session.id}
+                          className="p-3"
+                          onClick={() => {
+                            setSelectedSession(session);
+                          }}
+                        >
+                          <div className="flex w-full items-center gap-3">
+                            <WhatsappAvatar
+                              session={session.title}
+                              phone={session.phone}
+                            />
+                            <div className="flex min-w-0 flex-1 flex-col">
+                              <span className="truncate text-sm font-medium">
+                                {session.title}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                Bu oturuma geç
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
               <label
@@ -162,11 +302,11 @@ export function WhatsappChats() {
                 )}
               >
                 <SearchIcon size={15} className="me-2 stroke-slate-500" />
-                <span className="sr-only">Search</span>
+                <span className="sr-only">Sohbet Ara</span>
                 <input
                   type="text"
                   className="w-full flex-1 bg-inherit text-sm focus-visible:outline-hidden"
-                  placeholder="Search chat..."
+                  placeholder="Sohbet ara..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -203,7 +343,11 @@ export function WhatsappChats() {
                     const isFromMe = lastMessage?.fromMe || false;
                     const ackName = lastMessage?.ackName;
 
-                    // Mesaj durumu ikonu
+                    const hasUnreadMessage =
+                      lastMessage &&
+                      !lastMessage.fromMe &&
+                      lastMessage.ackName === 'DEVICE';
+
                     const getMessageStatusIcon = () => {
                       if (!isFromMe) return null;
 
@@ -226,7 +370,6 @@ export function WhatsappChats() {
                       return null;
                     };
 
-                    // Mesaj body'sini kısalt
                     const truncatedMessage =
                       lastMessageBody.length > 50
                         ? `${lastMessageBody.substring(0, 50)}...`
@@ -239,11 +382,11 @@ export function WhatsappChats() {
                           className={cn(
                             'group hover:bg-accent hover:text-accent-foreground',
                             `flex w-full rounded-md px-2 py-2 text-start text-sm`,
-                            selectedUser?.id === chat.id && 'sm:bg-muted'
+                            selectedChat?.id === chat.id && 'sm:bg-muted'
                           )}
                           onClick={() => {
-                            setSelectedUser(chat as ChatUser);
-                            setMobileSelectedUser(chat as ChatUser);
+                            setSelectedChat(chat);
+                            setMobileSelectedChat(chat);
                           }}
                         >
                           <div className="flex w-full gap-2">
@@ -258,11 +401,13 @@ export function WhatsappChats() {
                                 <span className="min-w-0 flex-1 font-medium">
                                   {chatName}
                                 </span>
-                                {getMessageStatusIcon() && (
-                                  <div className="flex-shrink-0">
-                                    {getMessageStatusIcon()}
-                                  </div>
-                                )}
+                                <div className="flex-shrink-0">
+                                  {hasUnreadMessage ? (
+                                    <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                                  ) : (
+                                    getMessageStatusIcon()
+                                  )}
+                                </div>
                               </div>
                               <div className="flex items-center gap-1">
                                 <span className="text-muted-foreground group-hover:text-accent-foreground/90 col-start-2 row-span-2 row-start-2 line-clamp-1 block text-xs text-ellipsis">
@@ -277,7 +422,6 @@ export function WhatsappChats() {
                     );
                   })}
 
-                  {/* Daha fazlasını yükle butonu */}
                   {filteredChatList.length >= limit &&
                     chatsData.length >= limit && (
                       <div className="flex justify-center py-4">
@@ -296,108 +440,83 @@ export function WhatsappChats() {
             </ScrollArea>
           </div>
 
-          {/* Right Side */}
-          {selectedUser ? (
+          {selectedChat ? (
             <div
               className={cn(
                 'bg-background absolute inset-0 start-full z-50 hidden w-full flex-1 flex-col border shadow-xs sm:static sm:z-auto sm:flex sm:rounded-md',
-                mobileSelectedUser && 'start-0 flex'
+                mobileSelectedChat && 'start-0 flex'
               )}
             >
-              {/* Top Part */}
               <div className="bg-card mb-1 flex flex-none justify-between p-4 shadow-lg sm:rounded-t-md">
-                {/* Left */}
                 <div className="flex gap-3">
                   <Button
                     size="icon"
                     variant="ghost"
                     className="-ms-2 h-full sm:hidden"
-                    onClick={() => setMobileSelectedUser(null)}
+                    onClick={() => setMobileSelectedChat(null)}
                   >
                     <ArrowLeft className="rtl:rotate-180" />
                   </Button>
                   <div className="flex items-center gap-2 lg:gap-4">
                     <Avatar className="size-9 lg:size-11">
                       <AvatarImage
-                        src={selectedUser.profile}
-                        alt={selectedUser.username}
+                        src={selectedChat.picture}
+                        alt={selectedChat.name || selectedChat.id}
                       />
-                      <AvatarFallback>{selectedUser.username}</AvatarFallback>
+                      <AvatarFallback>
+                        {(selectedChat.name || selectedChat.id)
+                          .charAt(0)
+                          .toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <span className="col-start-2 row-span-2 text-sm font-medium lg:text-base">
-                        {selectedUser.fullName}
-                      </span>
-                      <span className="text-muted-foreground col-start-2 row-span-2 row-start-2 line-clamp-1 block max-w-32 text-xs text-nowrap text-ellipsis lg:max-w-none lg:text-sm">
-                        {selectedUser.title}
+                        {selectedChat.name || selectedChat.id}
                       </span>
                     </div>
                   </div>
                 </div>
-
-                {/* Right */}
-                <div className="-me-1 flex items-center gap-1 lg:gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="hidden size-8 rounded-full sm:inline-flex lg:size-10"
-                  >
-                    <Video size={22} className="stroke-muted-foreground" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="hidden size-8 rounded-full sm:inline-flex lg:size-10"
-                  >
-                    <Phone size={22} className="stroke-muted-foreground" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-10 rounded-md sm:h-8 sm:w-4 lg:h-10 lg:w-6"
-                  >
-                    <MoreVertical className="stroke-muted-foreground sm:size-5" />
-                  </Button>
-                </div>
               </div>
 
-              {/* Conversation */}
               <div className="flex flex-1 flex-col gap-2 rounded-md px-4 pt-0 pb-4">
                 <div className="flex size-full flex-1">
                   <div className="chat-text-container relative -me-4 flex flex-1 flex-col overflow-y-hidden">
                     <div className="chat-flex flex h-40 w-full grow flex-col-reverse justify-start gap-4 overflow-y-auto py-2 pe-4 pb-4">
-                      {currentMessage &&
-                        Object.keys(currentMessage).map((key) => (
-                          <Fragment key={key}>
-                            {currentMessage[key].map((msg, index) => (
-                              <div
-                                key={`${msg.sender}-${msg.timestamp}-${index}`}
-                                className={cn(
-                                  'chat-box max-w-72 px-3 py-2 break-words shadow-lg',
-                                  msg.sender === 'You'
-                                    ? 'bg-primary/90 text-primary-foreground/75 self-end rounded-[16px_16px_0_16px]'
-                                    : 'bg-muted self-start rounded-[16px_16px_16px_0]'
-                                )}
-                              >
-                                {msg.message}{' '}
-                                <span
-                                  className={cn(
-                                    'text-foreground/75 mt-1 block text-xs font-light italic',
-                                    msg.sender === 'You' &&
-                                      'text-primary-foreground/85 text-end'
-                                  )}
-                                >
-                                  {format(msg.timestamp, 'h:mm a')}
-                                </span>
-                              </div>
-                            ))}
-                            <div className="text-center text-xs">{key}</div>
+                      {isLoadingMessages ? (
+                        <div className="flex items-center justify-center py-8">
+                          <p className="text-muted-foreground text-sm">
+                            Mesajlar yükleniyor...
+                          </p>
+                        </div>
+                      ) : groupedMessages &&
+                        Object.keys(groupedMessages).length > 0 ? (
+                        Object.keys(groupedMessages).map((dateKey) => (
+                          <Fragment key={dateKey}>
+                            {groupedMessages[dateKey].map(
+                              (message: WhatsappMessage) => (
+                                <WhatsappMessageItem
+                                  key={message.id}
+                                  message={message}
+                                />
+                              )
+                            )}
+                            <div className="text-center text-xs">{dateKey}</div>
                           </Fragment>
-                        ))}
+                        ))
+                      ) : (
+                        <div className="flex items-center justify-center py-8">
+                          <p className="text-muted-foreground text-sm">
+                            Henüz mesaj yok
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                <form className="flex w-full flex-none gap-2">
+                <form
+                  className="flex w-full flex-none gap-2"
+                  onSubmit={handleSendMessage}
+                >
                   <div className="border-input bg-card focus-within:ring-ring flex flex-1 items-center gap-2 rounded-md border px-2 py-1 focus-within:ring-1 focus-within:outline-hidden lg:gap-4">
                     <div className="space-x-1">
                       <Button
@@ -432,23 +551,32 @@ export function WhatsappChats() {
                       </Button>
                     </div>
                     <label className="flex-1">
-                      <span className="sr-only">Chat Text Box</span>
+                      <span className="sr-only">Mesaj Metni</span>
                       <input
                         type="text"
-                        placeholder="Type your messages..."
+                        placeholder="Mesaj metni giriniz..."
                         className="h-8 w-full bg-inherit focus-visible:outline-hidden"
+                        value={messageText}
+                        onChange={(e) => handleTyping(e.target.value)}
+                        disabled={isSending}
                       />
                     </label>
                     <Button
                       variant="ghost"
                       size="icon"
+                      type="submit"
                       className="hidden sm:inline-flex"
+                      disabled={isSending || !messageText.trim()}
                     >
                       <Send size={20} />
                     </Button>
                   </div>
-                  <Button className="h-full sm:hidden">
-                    <Send size={18} /> Send
+                  <Button
+                    type="submit"
+                    className="h-full sm:hidden"
+                    disabled={isSending || !messageText.trim()}
+                  >
+                    <Send size={18} /> Gönder
                   </Button>
                 </form>
               </div>

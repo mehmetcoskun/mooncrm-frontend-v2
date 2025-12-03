@@ -3,12 +3,12 @@ import { getProfilePicture } from '@/services/whatsapp-service';
 import whatsappAvatar from '@/assets/whatsapp-avatar.png';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-type WhatsAppAvatarProps = {
+interface WhatsappAvatarProps {
   session: string;
   phone: string;
-};
+}
 
-export function WhatsAppAvatar({ session, phone }: WhatsAppAvatarProps) {
+export function WhatsappAvatar({ session, phone }: WhatsappAvatarProps) {
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {

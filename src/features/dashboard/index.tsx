@@ -59,7 +59,6 @@ export function Dashboard() {
 
   return (
     <>
-      {/* ===== Top Heading ===== */}
       <Header>
         <div className="ms-auto flex items-center space-x-4">
           <ThemeSwitch />
@@ -67,7 +66,6 @@ export function Dashboard() {
         </div>
       </Header>
 
-      {/* ===== Main ===== */}
       <Main fluid>
         <div className="mb-2 flex items-center justify-between space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Gösterge Paneli</h1>

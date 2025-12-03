@@ -28,7 +28,6 @@ const sidebarNavItems = [
 export function Account() {
   return (
     <>
-      {/* ===== Top Heading ===== */}
       <Header>
         <div className="ms-auto flex items-center space-x-4">
           <ThemeSwitch />

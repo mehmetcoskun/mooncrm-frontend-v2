@@ -81,7 +81,6 @@ export function Apps() {
 
   return (
     <>
-      {/* ===== Top Heading ===== */}
       <Header>
         <div className="ms-auto flex items-center gap-4">
           <ThemeSwitch />
@@ -89,7 +88,6 @@ export function Apps() {
         </div>
       </Header>
 
-      {/* ===== Content ===== */}
       <Main fixed fluid>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
