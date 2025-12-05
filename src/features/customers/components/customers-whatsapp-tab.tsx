@@ -211,194 +211,200 @@ export function CustomersWhatsappTab({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>WhatsApp Oturumu</Label>
-        <Select
-          value={selectedSession?.id.toString()}
-          onValueChange={(value) => {
-            const session = sessions.find((s) => s.id.toString() === value);
-            setSelectedSession(session || null);
-          }}
-          disabled={isLoadingSessions}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Bir oturum seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            {sessions.map((session) => (
-              <SelectItem key={session.id} value={session.id.toString()}>
-                {session.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {selectedSession && (
+    <div className="flex max-h-[60vh] flex-col">
+      <div className="flex-1 space-y-6 overflow-y-auto px-0.5">
         <div className="space-y-2">
-          <Label>Numara Durumu</Label>
-          <div
-            className={`rounded-md border p-3 ${
-              isValidating
-                ? 'border-muted bg-muted'
-                : isValid
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-red-500 bg-red-50'
-            }`}
+          <Label>WhatsApp Oturumu</Label>
+          <Select
+            value={selectedSession?.id.toString()}
+            onValueChange={(value) => {
+              const session = sessions.find((s) => s.id.toString() === value);
+              setSelectedSession(session || null);
+            }}
+            disabled={isLoadingSessions}
           >
-            {isValidating ? (
-              <div className="flex items-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                <span className="text-sm">Kontrol ediliyor...</span>
-              </div>
-            ) : isValid ? (
-              <div className="flex items-center text-green-700">
-                <Check className="mr-2 h-4 w-4" />
-                <span className="text-sm">WhatsApp kullanıyor ✓</span>
-              </div>
-            ) : (
-              <div className="flex items-center text-red-700">
-                <span className="text-sm">WhatsApp kullanmıyor</span>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Bir oturum seçin" />
+            </SelectTrigger>
+            <SelectContent>
+              {sessions.map((session) => (
+                <SelectItem key={session.id} value={session.id.toString()}>
+                  {session.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedSession && (
+          <div className="space-y-2">
+            <Label>Numara Durumu</Label>
+            <div
+              className={`rounded-md border p-3 ${
+                isValidating
+                  ? 'border-muted bg-muted'
+                  : isValid
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-red-500 bg-red-50'
+              }`}
+            >
+              {isValidating ? (
+                <div className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <span className="text-sm">Kontrol ediliyor...</span>
+                </div>
+              ) : isValid ? (
+                <div className="flex items-center text-green-700">
+                  <Check className="mr-2 h-4 w-4" />
+                  <span className="text-sm">WhatsApp kullanıyor ✓</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-red-700">
+                  <span className="text-sm">WhatsApp kullanmıyor</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <Label className={!isValid ? 'opacity-50' : ''}>
+            WhatsApp Şablonu (Opsiyonel)
+          </Label>
+          <Select
+            value={selectedTemplate?.id.toString() || ''}
+            onValueChange={(value) => {
+              if (value === 'none') {
+                setSelectedTemplate(null);
+              } else {
+                const template = templates.find(
+                  (t) => t.id.toString() === value
+                );
+                setSelectedTemplate(template || null);
+                if (template) {
+                  setCustomMessage('');
+                }
+              }
+            }}
+            disabled={isLoadingTemplates || !isValid}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Şablon seçin veya özel mesaj yazın" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Şablon kullanma</SelectItem>
+              {templates.map((template) => (
+                <SelectItem key={template.id} value={template.id.toString()}>
+                  {template.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {!selectedTemplate && (
+          <div className="space-y-2">
+            <Label className={!isValid ? 'opacity-50' : ''}>Özel Mesaj</Label>
+            <Textarea
+              placeholder="Mesajınızı buraya yazın..."
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              disabled={!isValid}
+              rows={4}
+            />
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <Label className={!isValid ? 'opacity-50' : ''}>
+            Dosya/Resim Ekle (Opsiyonel)
+          </Label>
+          <div className="space-y-2">
+            <Input
+              type="file"
+              accept="image/jpeg,image/png,image/jpg,application/pdf"
+              onChange={handleFileUpload}
+              disabled={!isValid}
+            />
+            {uploadedFile && (
+              <div className="bg-muted flex items-center gap-2 rounded-md p-2">
+                {uploadedFile.type.startsWith('image/') ? (
+                  <ImageIcon className="h-4 w-4" />
+                ) : (
+                  <FileIcon className="h-4 w-4" />
+                )}
+                <span className="text-sm">{uploadedFile.name}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setUploadedFile(null)}
+                  className="ml-auto"
+                >
+                  Kaldır
+                </Button>
               </div>
             )}
           </div>
         </div>
-      )}
 
-      <div className="space-y-2">
-        <Label className={!isValid ? 'opacity-50' : ''}>
-          WhatsApp Şablonu (Opsiyonel)
-        </Label>
-        <Select
-          value={selectedTemplate?.id.toString() || ''}
-          onValueChange={(value) => {
-            if (value === 'none') {
-              setSelectedTemplate(null);
-            } else {
-              const template = templates.find((t) => t.id.toString() === value);
-              setSelectedTemplate(template || null);
-              if (template) {
-                setCustomMessage('');
-              }
-            }
-          }}
-          disabled={isLoadingTemplates || !isValid}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Şablon seçin veya özel mesaj yazın" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Şablon kullanma</SelectItem>
-            {templates.map((template) => (
-              <SelectItem key={template.id} value={template.id.toString()}>
-                {template.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {!selectedTemplate && (
-        <div className="space-y-2">
-          <Label className={!isValid ? 'opacity-50' : ''}>Özel Mesaj</Label>
-          <Textarea
-            placeholder="Mesajınızı buraya yazın..."
-            value={customMessage}
-            onChange={(e) => setCustomMessage(e.target.value)}
-            disabled={!isValid}
-            rows={4}
-          />
-        </div>
-      )}
-
-      <div className="space-y-2">
-        <Label className={!isValid ? 'opacity-50' : ''}>
-          Dosya/Resim Ekle (Opsiyonel)
-        </Label>
-        <div className="space-y-2">
-          <Input
-            type="file"
-            accept="image/jpeg,image/png,image/jpg,application/pdf"
-            onChange={handleFileUpload}
-            disabled={!isValid}
-          />
-          {uploadedFile && (
-            <div className="bg-muted flex items-center gap-2 rounded-md p-2">
-              {uploadedFile.type.startsWith('image/') ? (
-                <ImageIcon className="h-4 w-4" />
-              ) : (
-                <FileIcon className="h-4 w-4" />
-              )}
-              <span className="text-sm">{uploadedFile.name}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setUploadedFile(null)}
-                className="ml-auto"
-              >
-                Kaldır
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {(selectedTemplate || customMessage || uploadedFile) && (
-        <div className="space-y-2">
-          <Label>Önizleme</Label>
-          <div className="bg-muted rounded-md p-4">
-            <div className="flex max-w-md items-start gap-3">
-              <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-                <MessageSquare className="text-primary h-4 w-4" />
-              </div>
-              <div className="bg-background flex-1 space-y-2 rounded-lg p-3 shadow-sm">
-                {uploadedFile && uploadedFile.type.startsWith('image/') && (
-                  <img
-                    src={`data:${uploadedFile.type};base64,${uploadedFile.base64}`}
-                    alt="Preview"
-                    className="h-auto w-full rounded-md"
-                  />
-                )}
-                {uploadedFile && !uploadedFile.type.startsWith('image/') && (
-                  <div className="bg-muted flex items-center gap-2 rounded-md p-2">
-                    <FileIcon className="h-4 w-4" />
-                    <span className="text-sm">{uploadedFile.name}</span>
+        {(selectedTemplate || customMessage || uploadedFile) && (
+          <div className="space-y-2">
+            <Label>Önizleme</Label>
+            <div className="bg-muted rounded-md p-4">
+              <div className="flex max-w-md items-start gap-3">
+                <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                  <MessageSquare className="text-primary h-4 w-4" />
+                </div>
+                <div className="bg-background flex-1 space-y-2 rounded-lg p-3 shadow-sm">
+                  {uploadedFile && uploadedFile.type.startsWith('image/') && (
+                    <img
+                      src={`data:${uploadedFile.type};base64,${uploadedFile.base64}`}
+                      alt="Preview"
+                      className="h-auto w-full rounded-md"
+                    />
+                  )}
+                  {uploadedFile && !uploadedFile.type.startsWith('image/') && (
+                    <div className="bg-muted flex items-center gap-2 rounded-md p-2">
+                      <FileIcon className="h-4 w-4" />
+                      <span className="text-sm">{uploadedFile.name}</span>
+                    </div>
+                  )}
+                  {(selectedTemplate?.message || customMessage) && (
+                    <p className="text-sm whitespace-pre-wrap">
+                      {selectedTemplate?.message || customMessage}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-end gap-1">
+                    <span className="text-muted-foreground text-xs">
+                      {new Date().toLocaleTimeString('tr-TR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <Check className="text-primary h-3 w-3" />
                   </div>
-                )}
-                {(selectedTemplate?.message || customMessage) && (
-                  <p className="text-sm whitespace-pre-wrap">
-                    {selectedTemplate?.message || customMessage}
-                  </p>
-                )}
-                <div className="flex items-center justify-end gap-1">
-                  <span className="text-muted-foreground text-xs">
-                    {new Date().toLocaleTimeString('tr-TR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                  <Check className="text-primary h-3 w-3" />
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSend}
-          disabled={
-            !selectedSession ||
-            !isValid ||
-            (!selectedTemplate && !customMessage && !uploadedFile) ||
-            isSending
-          }
-        >
-          {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Gönder
-        </Button>
+      <div className="flex-shrink-0 border-t pt-4">
+        <div className="flex justify-end">
+          <Button
+            onClick={handleSend}
+            disabled={
+              !selectedSession ||
+              !isValid ||
+              (!selectedTemplate && !customMessage && !uploadedFile) ||
+              isSending
+            }
+          >
+            {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Gönder
+          </Button>
+        </div>
       </div>
     </div>
   );

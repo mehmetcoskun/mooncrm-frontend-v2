@@ -42,8 +42,8 @@ export function CustomersCommunicationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>İletişim - {customer.name}</DialogTitle>
           <DialogDescription>
             {customer.phone && <span>Telefon: {customer.phone}</span>}
@@ -53,58 +53,70 @@ export function CustomersCommunicationDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        <div className="flex-1 overflow-y-auto py-1">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-4">
+              {canSendWhatsapp && (
+                <TabsTrigger
+                  value="whatsapp"
+                  className="flex items-center gap-2"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  WhatsApp
+                </TabsTrigger>
+              )}
+              {canSendSms && (
+                <TabsTrigger value="sms" className="flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  SMS
+                </TabsTrigger>
+              )}
+              {canSendEmail && (
+                <TabsTrigger value="email" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  E-Posta
+                </TabsTrigger>
+              )}
+              {canSendCall && (
+                <TabsTrigger value="phone" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Telefon
+                </TabsTrigger>
+              )}
+            </TabsList>
+
             {canSendWhatsapp && (
-              <TabsTrigger value="whatsapp" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                WhatsApp
-              </TabsTrigger>
+              <TabsContent value="whatsapp" className="mt-4">
+                <CustomersWhatsappTab
+                  customer={customer}
+                  onSuccess={onSuccess}
+                />
+              </TabsContent>
             )}
+
             {canSendSms && (
-              <TabsTrigger value="sms" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                SMS
-              </TabsTrigger>
+              <TabsContent value="sms" className="mt-4">
+                <CustomersSmsTab customer={customer} onSuccess={onSuccess} />
+              </TabsContent>
             )}
+
             {canSendEmail && (
-              <TabsTrigger value="email" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                E-Posta
-              </TabsTrigger>
+              <TabsContent value="email" className="mt-4">
+                <CustomersEmailTab customer={customer} onSuccess={onSuccess} />
+              </TabsContent>
             )}
+
             {canSendCall && (
-              <TabsTrigger value="phone" className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                Telefon
-              </TabsTrigger>
+              <TabsContent value="phone" className="mt-4">
+                <CustomersPhoneTab customer={customer} onSuccess={onSuccess} />
+              </TabsContent>
             )}
-          </TabsList>
-
-          {canSendWhatsapp && (
-            <TabsContent value="whatsapp" className="mt-4">
-              <CustomersWhatsappTab customer={customer} onSuccess={onSuccess} />
-            </TabsContent>
-          )}
-
-          {canSendSms && (
-            <TabsContent value="sms" className="mt-4">
-              <CustomersSmsTab customer={customer} onSuccess={onSuccess} />
-            </TabsContent>
-          )}
-
-          {canSendEmail && (
-            <TabsContent value="email" className="mt-4">
-              <CustomersEmailTab customer={customer} onSuccess={onSuccess} />
-            </TabsContent>
-          )}
-
-          {canSendCall && (
-            <TabsContent value="phone" className="mt-4">
-              <CustomersPhoneTab customer={customer} onSuccess={onSuccess} />
-            </TabsContent>
-          )}
-        </Tabs>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

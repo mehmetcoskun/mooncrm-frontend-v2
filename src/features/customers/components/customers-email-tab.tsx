@@ -134,125 +134,133 @@ export function CustomersEmailTab({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>E-posta Adresi</Label>
-        <div className="bg-muted rounded-md p-3">
-          <p className="text-sm font-medium">{customer.email}</p>
+    <div className="flex max-h-[60vh] flex-col">
+      <div className="flex-1 space-y-6 overflow-y-auto px-0.5">
+        <div className="space-y-2">
+          <Label>E-posta Adresi</Label>
+          <div className="bg-muted rounded-md p-3">
+            <p className="text-sm font-medium">{customer.email}</p>
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label>E-posta Şablonu (Opsiyonel)</Label>
-        <Select
-          value={selectedTemplate?.id.toString() || ''}
-          onValueChange={(value) => {
-            if (value === 'none') {
-              setSelectedTemplate(null);
-              setCustomHtml('');
-              setCustomSubject('');
-            } else {
-              const template = templates.find((t) => t.id.toString() === value);
-              setSelectedTemplate(template || null);
-              if (template) {
+        <div className="space-y-2">
+          <Label>E-posta Şablonu (Opsiyonel)</Label>
+          <Select
+            value={selectedTemplate?.id.toString() || ''}
+            onValueChange={(value) => {
+              if (value === 'none') {
+                setSelectedTemplate(null);
                 setCustomHtml('');
                 setCustomSubject('');
+              } else {
+                const template = templates.find(
+                  (t) => t.id.toString() === value
+                );
+                setSelectedTemplate(template || null);
+                if (template) {
+                  setCustomHtml('');
+                  setCustomSubject('');
+                }
               }
-            }
-          }}
-          disabled={isLoadingTemplates}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Şablon seçin veya özel tasarım yapın" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Şablon kullanma</SelectItem>
-            {templates.map((template) => (
-              <SelectItem key={template.id} value={template.id.toString()}>
-                {template.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+            }}
+            disabled={isLoadingTemplates}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Şablon seçin veya özel tasarım yapın" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Şablon kullanma</SelectItem>
+              {templates.map((template) => (
+                <SelectItem key={template.id} value={template.id.toString()}>
+                  {template.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-      {!selectedTemplate && (
-        <>
+        {!selectedTemplate && (
+          <>
+            <div className="space-y-2">
+              <Label>E-posta Konusu</Label>
+              <Input
+                placeholder="E-posta konusunu girin..."
+                value={customSubject}
+                onChange={(e) => setCustomSubject(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Özel E-posta Tasarımı</Label>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => setEditorOpen(true)}
+              >
+                <PaletteIcon className="mr-2 h-4 w-4" />
+                {customHtml
+                  ? 'E-Posta Tasarımını Düzenle'
+                  : 'E-Posta Tasarımı Oluştur'}
+              </Button>
+              {customHtml && (
+                <div className="bg-muted rounded-md p-3">
+                  <p className="text-muted-foreground text-xs">
+                    ✓ Tasarım hazır
+                  </p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {selectedTemplate && (
           <div className="space-y-2">
-            <Label>E-posta Konusu</Label>
-            <Input
-              placeholder="E-posta konusunu girin..."
-              value={customSubject}
-              onChange={(e) => setCustomSubject(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Özel E-posta Tasarımı</Label>
+            <Label>Şablon Önizleme</Label>
             <Button
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => setEditorOpen(true)}
+              onClick={() => {
+                setCustomHtml(selectedTemplate.html || '');
+                setCustomSubject(selectedTemplate.subject || '');
+                setEditorOpen(true);
+              }}
             >
               <PaletteIcon className="mr-2 h-4 w-4" />
-              {customHtml
-                ? 'E-Posta Tasarımını Düzenle'
-                : 'E-Posta Tasarımı Oluştur'}
+              Şablonu Görüntüle / Düzenle
             </Button>
-            {customHtml && (
-              <div className="bg-muted rounded-md p-3">
-                <p className="text-muted-foreground text-xs">✓ Tasarım hazır</p>
-              </div>
-            )}
+            <div className="bg-muted rounded-md p-3">
+              <p className="text-muted-foreground text-xs">
+                Konu: {selectedTemplate.subject}
+              </p>
+            </div>
           </div>
-        </>
-      )}
+        )}
 
-      {selectedTemplate && (
-        <div className="space-y-2">
-          <Label>Şablon Önizleme</Label>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => {
-              setCustomHtml(selectedTemplate.html || '');
-              setCustomSubject(selectedTemplate.subject || '');
-              setEditorOpen(true);
-            }}
-          >
-            <PaletteIcon className="mr-2 h-4 w-4" />
-            Şablonu Görüntüle / Düzenle
-          </Button>
-          <div className="bg-muted rounded-md p-3">
-            <p className="text-muted-foreground text-xs">
-              Konu: {selectedTemplate.subject}
+        {!isLoadingSettings && !settings?.mail_settings?.smtp_host && (
+          <div className="bg-destructive/10 border-destructive rounded-md border p-3">
+            <p className="text-destructive text-sm">
+              <strong>Uyarı:</strong> E-posta ayarları yapılmamış. Lütfen sistem
+              ayarlarından SMTP bilgilerini girin.
             </p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {!isLoadingSettings && !settings?.mail_settings?.smtp_host && (
-        <div className="bg-destructive/10 border-destructive rounded-md border p-3">
-          <p className="text-destructive text-sm">
-            <strong>Uyarı:</strong> E-posta ayarları yapılmamış. Lütfen sistem
-            ayarlarından SMTP bilgilerini girin.
-          </p>
+      <div className="flex-shrink-0 border-t pt-4">
+        <div className="flex justify-end">
+          <Button
+            onClick={handleSend}
+            disabled={
+              (!selectedTemplate && (!customHtml || !customSubject)) ||
+              !settings?.mail_settings?.smtp_host ||
+              isSending
+            }
+          >
+            {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Gönder
+          </Button>
         </div>
-      )}
-
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSend}
-          disabled={
-            (!selectedTemplate && (!customHtml || !customSubject)) ||
-            !settings?.mail_settings?.smtp_host ||
-            isSending
-          }
-        >
-          {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Gönder
-        </Button>
       </div>
 
       <EmailEditorSheet

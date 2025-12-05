@@ -97,91 +97,97 @@ export function CustomersSmsTab({ customer, onSuccess }: CustomersSmsTabProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>Telefon Numarası</Label>
-        <div className="bg-muted rounded-md p-3">
-          <p className="text-sm font-medium">{customer.phone}</p>
+    <div className="flex max-h-[60vh] flex-col">
+      <div className="flex-1 space-y-6 overflow-y-auto px-0.5">
+        <div className="space-y-2">
+          <Label>Telefon Numarası</Label>
+          <div className="bg-muted rounded-md p-3">
+            <p className="text-sm font-medium">{customer.phone}</p>
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label>SMS Şablonu (Opsiyonel)</Label>
-        <Select
-          value={selectedTemplate?.id.toString() || ''}
-          onValueChange={(value) => {
-            if (value === 'none') {
-              setSelectedTemplate(null);
-            } else {
-              const template = templates.find((t) => t.id.toString() === value);
-              setSelectedTemplate(template || null);
-              if (template) {
-                setCustomMessage('');
+        <div className="space-y-2">
+          <Label>SMS Şablonu (Opsiyonel)</Label>
+          <Select
+            value={selectedTemplate?.id.toString() || ''}
+            onValueChange={(value) => {
+              if (value === 'none') {
+                setSelectedTemplate(null);
+              } else {
+                const template = templates.find(
+                  (t) => t.id.toString() === value
+                );
+                setSelectedTemplate(template || null);
+                if (template) {
+                  setCustomMessage('');
+                }
               }
-            }
-          }}
-          disabled={isLoadingTemplates}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Şablon seçin veya özel mesaj yazın" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Şablon kullanma</SelectItem>
-            {templates.map((template) => (
-              <SelectItem key={template.id} value={template.id.toString()}>
-                {template.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {!selectedTemplate && (
-        <div className="space-y-2">
-          <Label>Özel Mesaj</Label>
-          <Textarea
-            placeholder="Mesajınızı buraya yazın..."
-            value={customMessage}
-            onChange={(e) => setCustomMessage(e.target.value)}
-            rows={4}
-          />
+            }}
+            disabled={isLoadingTemplates}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Şablon seçin veya özel mesaj yazın" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Şablon kullanma</SelectItem>
+              {templates.map((template) => (
+                <SelectItem key={template.id} value={template.id.toString()}>
+                  {template.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      )}
 
-      {(selectedTemplate || customMessage) && (
-        <div className="space-y-2">
-          <Label>Önizleme</Label>
-          <div className="bg-muted rounded-md p-4">
-            <div className="flex max-w-md items-start gap-3">
-              <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-                <MessageSquare className="text-primary h-4 w-4" />
-              </div>
-              <div className="bg-background flex-1 space-y-2 rounded-lg p-3 shadow-sm">
-                <p className="text-sm whitespace-pre-wrap">
-                  {selectedTemplate?.message || customMessage}
-                </p>
-                <div className="flex items-center justify-end">
-                  <span className="text-muted-foreground text-xs">
-                    {new Date().toLocaleTimeString('tr-TR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
+        {!selectedTemplate && (
+          <div className="space-y-2">
+            <Label>Özel Mesaj</Label>
+            <Textarea
+              placeholder="Mesajınızı buraya yazın..."
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              rows={4}
+            />
+          </div>
+        )}
+
+        {(selectedTemplate || customMessage) && (
+          <div className="space-y-2">
+            <Label>Önizleme</Label>
+            <div className="bg-muted rounded-md p-4">
+              <div className="flex max-w-md items-start gap-3">
+                <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                  <MessageSquare className="text-primary h-4 w-4" />
+                </div>
+                <div className="bg-background flex-1 space-y-2 rounded-lg p-3 shadow-sm">
+                  <p className="text-sm whitespace-pre-wrap">
+                    {selectedTemplate?.message || customMessage}
+                  </p>
+                  <div className="flex items-center justify-end">
+                    <span className="text-muted-foreground text-xs">
+                      {new Date().toLocaleTimeString('tr-TR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSend}
-          disabled={(!selectedTemplate && !customMessage) || isSending}
-        >
-          {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Gönder
-        </Button>
+      <div className="flex-shrink-0 border-t pt-4">
+        <div className="flex justify-end">
+          <Button
+            onClick={handleSend}
+            disabled={(!selectedTemplate && !customMessage) || isSending}
+          >
+            {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Gönder
+          </Button>
+        </div>
       </div>
     </div>
   );

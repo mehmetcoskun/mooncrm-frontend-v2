@@ -47,6 +47,8 @@ import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCustomersCustomerIdRouteImport } from './routes/_authenticated/customers/$customerId'
 import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated/account/security'
 import { Route as AuthenticatedAccountAppearanceRouteImport } from './routes/_authenticated/account/appearance'
+import { Route as AuthenticatedVapiPhoneNumbersIndexRouteImport } from './routes/_authenticated/vapi/phone-numbers/index'
+import { Route as AuthenticatedVapiAiAssistantsIndexRouteImport } from './routes/_authenticated/vapi/ai-assistants/index'
 import { Route as publicWebFormIframeUuidRouteImport } from './routes/(public)/web-form/iframe/$uuid'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -265,6 +267,18 @@ const AuthenticatedAccountAppearanceRoute =
     path: '/appearance',
     getParentRoute: () => AuthenticatedAccountRouteRoute,
   } as any)
+const AuthenticatedVapiPhoneNumbersIndexRoute =
+  AuthenticatedVapiPhoneNumbersIndexRouteImport.update({
+    id: '/vapi/phone-numbers/',
+    path: '/vapi/phone-numbers/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedVapiAiAssistantsIndexRoute =
+  AuthenticatedVapiAiAssistantsIndexRouteImport.update({
+    id: '/vapi/ai-assistants/',
+    path: '/vapi/ai-assistants/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const publicWebFormIframeUuidRoute = publicWebFormIframeUuidRouteImport.update({
   id: '/(public)/web-form/iframe/$uuid',
   path: '/web-form/iframe/$uuid',
@@ -310,6 +324,8 @@ export interface FileRoutesByFullPath {
   '/whatsapp-sessions': typeof AuthenticatedWhatsappSessionsIndexRoute
   '/whatsapp-templates': typeof AuthenticatedWhatsappTemplatesIndexRoute
   '/web-form/iframe/$uuid': typeof publicWebFormIframeUuidRoute
+  '/vapi/ai-assistants': typeof AuthenticatedVapiAiAssistantsIndexRoute
+  '/vapi/phone-numbers': typeof AuthenticatedVapiPhoneNumbersIndexRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof authSignInRoute
@@ -349,6 +365,8 @@ export interface FileRoutesByTo {
   '/whatsapp-sessions': typeof AuthenticatedWhatsappSessionsIndexRoute
   '/whatsapp-templates': typeof AuthenticatedWhatsappTemplatesIndexRoute
   '/web-form/iframe/$uuid': typeof publicWebFormIframeUuidRoute
+  '/vapi/ai-assistants': typeof AuthenticatedVapiAiAssistantsIndexRoute
+  '/vapi/phone-numbers': typeof AuthenticatedVapiPhoneNumbersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -391,6 +409,8 @@ export interface FileRoutesById {
   '/_authenticated/whatsapp-sessions/': typeof AuthenticatedWhatsappSessionsIndexRoute
   '/_authenticated/whatsapp-templates/': typeof AuthenticatedWhatsappTemplatesIndexRoute
   '/(public)/web-form/iframe/$uuid': typeof publicWebFormIframeUuidRoute
+  '/_authenticated/vapi/ai-assistants/': typeof AuthenticatedVapiAiAssistantsIndexRoute
+  '/_authenticated/vapi/phone-numbers/': typeof AuthenticatedVapiPhoneNumbersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -433,6 +453,8 @@ export interface FileRouteTypes {
     | '/whatsapp-sessions'
     | '/whatsapp-templates'
     | '/web-form/iframe/$uuid'
+    | '/vapi/ai-assistants'
+    | '/vapi/phone-numbers'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sign-in'
@@ -472,6 +494,8 @@ export interface FileRouteTypes {
     | '/whatsapp-sessions'
     | '/whatsapp-templates'
     | '/web-form/iframe/$uuid'
+    | '/vapi/ai-assistants'
+    | '/vapi/phone-numbers'
   id:
     | '__root__'
     | '/_authenticated'
@@ -513,6 +537,8 @@ export interface FileRouteTypes {
     | '/_authenticated/whatsapp-sessions/'
     | '/_authenticated/whatsapp-templates/'
     | '/(public)/web-form/iframe/$uuid'
+    | '/_authenticated/vapi/ai-assistants/'
+    | '/_authenticated/vapi/phone-numbers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -794,6 +820,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountAppearanceRouteImport
       parentRoute: typeof AuthenticatedAccountRouteRoute
     }
+    '/_authenticated/vapi/phone-numbers/': {
+      id: '/_authenticated/vapi/phone-numbers/'
+      path: '/vapi/phone-numbers'
+      fullPath: '/vapi/phone-numbers'
+      preLoaderRoute: typeof AuthenticatedVapiPhoneNumbersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vapi/ai-assistants/': {
+      id: '/_authenticated/vapi/ai-assistants/'
+      path: '/vapi/ai-assistants'
+      fullPath: '/vapi/ai-assistants'
+      preLoaderRoute: typeof AuthenticatedVapiAiAssistantsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/(public)/web-form/iframe/$uuid': {
       id: '/(public)/web-form/iframe/$uuid'
       path: '/web-form/iframe/$uuid'
@@ -851,6 +891,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedWhatsappChatsIndexRoute: typeof AuthenticatedWhatsappChatsIndexRoute
   AuthenticatedWhatsappSessionsIndexRoute: typeof AuthenticatedWhatsappSessionsIndexRoute
   AuthenticatedWhatsappTemplatesIndexRoute: typeof AuthenticatedWhatsappTemplatesIndexRoute
+  AuthenticatedVapiAiAssistantsIndexRoute: typeof AuthenticatedVapiAiAssistantsIndexRoute
+  AuthenticatedVapiPhoneNumbersIndexRoute: typeof AuthenticatedVapiPhoneNumbersIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -884,6 +926,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedWhatsappSessionsIndexRoute,
   AuthenticatedWhatsappTemplatesIndexRoute:
     AuthenticatedWhatsappTemplatesIndexRoute,
+  AuthenticatedVapiAiAssistantsIndexRoute:
+    AuthenticatedVapiAiAssistantsIndexRoute,
+  AuthenticatedVapiPhoneNumbersIndexRoute:
+    AuthenticatedVapiPhoneNumbersIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

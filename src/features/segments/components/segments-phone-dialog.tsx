@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getCustomersBySegmentId } from '@/services/customer-service';
 import {
   call,
-  getVapiAssistants,
+  getVapiAiAssistants,
   getVapiPhoneNumbers,
 } from '@/services/vapi-service';
 import { PhoneNumberFormat, PhoneNumberUtil } from 'google-libphonenumber';
@@ -89,7 +89,7 @@ export function SegmentsPhoneDialog({
   useEffect(() => {
     if (open) {
       setIsLoadingAssistants(true);
-      getVapiAssistants()
+      getVapiAiAssistants()
         .then((data) => {
           setAssistants(data);
         })

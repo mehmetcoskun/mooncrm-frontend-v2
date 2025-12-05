@@ -18,6 +18,7 @@ import {
   Folder,
   Phone,
   Facebook,
+  Brain,
 } from 'lucide-react';
 import { SettingsDailyReportSidebar } from '../components/settings-daily-report-sidebar';
 import { SettingsEmailSidebar } from '../components/settings-email-sidebar';
@@ -108,6 +109,20 @@ export const settings = [
     desc: 'Satış sürecine özel e-posta şablonları.',
     component: SettingsSalesEmailSidebar,
     permission: 'setting_SalesMail',
+  },
+  {
+    name: 'VAPI AI Asistanları',
+    logo: <Brain />,
+    desc: 'Yapay zeka asistanlarını oluşturun ve yönetin.',
+    route: '/vapi/ai-assistants',
+    permission: 'vapi_AssistantAccess',
+  },
+  {
+    name: 'VAPI Telefon Numaraları',
+    logo: <Phone />,
+    desc: 'Yapay zeka telefon numaralarını oluşturun ve yönetin.',
+    route: '/vapi/phone-numbers',
+    permission: 'vapi_PhoneNumberAccess',
   },
   {
     name: 'E-Posta Şablonları',

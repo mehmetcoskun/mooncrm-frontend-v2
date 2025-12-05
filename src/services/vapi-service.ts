@@ -1,22 +1,22 @@
 import { vapiApi } from '@/lib/vapi-api';
 
 // Vapi Assistants
-export const getVapiAssistants = async () => {
+export const getVapiAiAssistants = async () => {
   const response = await vapiApi.get('/assistant');
   return response.data;
 };
 
-export const createVapiAssistant = async (data: Record<string, unknown>) => {
+export const createVapiAiAssistant = async (data: Record<string, unknown>) => {
   const response = await vapiApi.post('/assistant', data);
   return response.data;
 };
 
-export const getVapiAssistant = async (id: string) => {
+export const getVapiAiAssistant = async (id: string) => {
   const response = await vapiApi.get(`/assistant/${id}`);
   return response.data;
 };
 
-export const updateVapiAssistant = async (
+export const updateVapiAiAssistant = async (
   id: string,
   data: Record<string, unknown>
 ) => {
@@ -24,7 +24,7 @@ export const updateVapiAssistant = async (
   return response.data;
 };
 
-export const destroyVapiAssistant = async (id: string) => {
+export const destroyVapiAiAssistant = async (id: string) => {
   const response = await vapiApi.delete(`/assistant/${id}`);
   return response.data;
 };

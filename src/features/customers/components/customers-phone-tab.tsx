@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import {
   callPhone,
-  getVapiAssistants,
+  getVapiAiAssistants,
   getVapiPhoneNumbers,
 } from '@/services/vapi-service';
 import { Loader2, Phone } from 'lucide-react';
@@ -52,7 +52,7 @@ export function CustomersPhoneTab({
 
   useEffect(() => {
     setIsLoadingAssistants(true);
-    getVapiAssistants()
+    getVapiAiAssistants()
       .then((data) => {
         setAssistants(data);
       })
@@ -135,92 +135,98 @@ export function CustomersPhoneTab({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>Müşteri Bilgileri</Label>
-        <div className="bg-muted space-y-2 rounded-md p-3">
-          <div>
-            <p className="text-muted-foreground text-xs">İsim:</p>
-            <p className="text-sm font-medium">{customer.name}</p>
+    <div className="flex max-h-[60vh] flex-col">
+      <div className="flex-1 space-y-6 overflow-y-auto px-0.5">
+        <div className="space-y-2">
+          <Label>Müşteri Bilgileri</Label>
+          <div className="bg-muted space-y-2 rounded-md p-3">
+            <div>
+              <p className="text-muted-foreground text-xs">İsim:</p>
+              <p className="text-sm font-medium">{customer.name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Telefon:</p>
+              <p className="text-sm font-medium">{customer.phone}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Danışman:</p>
+              <p className="text-sm font-medium">{customer.user.name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-xs">Organizasyon:</p>
+              <p className="text-sm font-medium">
+                {customer.organization.name}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-muted-foreground text-xs">Telefon:</p>
-            <p className="text-sm font-medium">{customer.phone}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-xs">Danışman:</p>
-            <p className="text-sm font-medium">{customer.user.name}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-xs">Organizasyon:</p>
-            <p className="text-sm font-medium">{customer.organization.name}</p>
-          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Asistan</Label>
+          <Select
+            value={selectedAssistant || undefined}
+            onValueChange={(value) => setSelectedAssistant(value)}
+            disabled={isLoadingAssistants}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Bir asistan seçin" />
+            </SelectTrigger>
+            <SelectContent>
+              {assistants.map((assistant) => (
+                <SelectItem key={assistant.id} value={assistant.id}>
+                  {assistant.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label className={!selectedAssistant ? 'opacity-50' : ''}>
+            Telefon Numarası
+          </Label>
+          <Select
+            value={selectedPhoneNumber || undefined}
+            onValueChange={(value) => setSelectedPhoneNumber(value)}
+            disabled={isLoadingPhoneNumbers || !selectedAssistant}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Bir telefon numarası seçin" />
+            </SelectTrigger>
+            <SelectContent>
+              {phoneNumbers.map((phoneNumber) => (
+                <SelectItem key={phoneNumber.id} value={phoneNumber.id}>
+                  {phoneNumber.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div
+          className={`rounded-md p-3 ${selectedAssistant && selectedPhoneNumber ? 'bg-muted' : 'bg-muted/30 opacity-50'}`}
+        >
+          <p className="text-muted-foreground text-sm">
+            <strong>Arama Bilgisi:</strong>
+          </p>
+          <p className="text-muted-foreground mt-1 text-xs">
+            Seçilen asistan ve telefon numarası ile müşteri aranacaktır.
+            Asistan, müşteri bilgilerine (ID, isim, danışman, organizasyon)
+            erişebilecektir.
+          </p>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Asistan</Label>
-        <Select
-          value={selectedAssistant || undefined}
-          onValueChange={(value) => setSelectedAssistant(value)}
-          disabled={isLoadingAssistants}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Bir asistan seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            {assistants.map((assistant) => (
-              <SelectItem key={assistant.id} value={assistant.id}>
-                {assistant.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label className={!selectedAssistant ? 'opacity-50' : ''}>
-          Telefon Numarası
-        </Label>
-        <Select
-          value={selectedPhoneNumber || undefined}
-          onValueChange={(value) => setSelectedPhoneNumber(value)}
-          disabled={isLoadingPhoneNumbers || !selectedAssistant}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Bir telefon numarası seçin" />
-          </SelectTrigger>
-          <SelectContent>
-            {phoneNumbers.map((phoneNumber) => (
-              <SelectItem key={phoneNumber.id} value={phoneNumber.id}>
-                {phoneNumber.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div
-        className={`rounded-md p-3 ${selectedAssistant && selectedPhoneNumber ? 'bg-muted' : 'bg-muted/30 opacity-50'}`}
-      >
-        <p className="text-muted-foreground text-sm">
-          <strong>Arama Bilgisi:</strong>
-        </p>
-        <p className="text-muted-foreground mt-1 text-xs">
-          Seçilen asistan ve telefon numarası ile müşteri aranacaktır. Asistan,
-          müşteri bilgilerine (ID, isim, danışman, organizasyon)
-          erişebilecektir.
-        </p>
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          onClick={handleCall}
-          disabled={!selectedAssistant || !selectedPhoneNumber || isCalling}
-        >
-          {isCalling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Aramayı Başlat
-        </Button>
+      <div className="flex-shrink-0 border-t pt-4">
+        <div className="flex justify-end">
+          <Button
+            onClick={handleCall}
+            disabled={!selectedAssistant || !selectedPhoneNumber || isCalling}
+          >
+            {isCalling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Aramayı Başlat
+          </Button>
+        </div>
       </div>
     </div>
   );
