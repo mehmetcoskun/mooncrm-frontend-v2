@@ -3,6 +3,10 @@ import { Building } from 'lucide-react';
 import { useOrganizationStore } from '@/stores/organization-store';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Header } from '@/components/layout/header';
+import { LeadSwitch } from '../lead-switch';
+import { ProfileDropdown } from '../profile-dropdown';
+import { ThemeSwitch } from '../theme-switch';
 
 interface OrganizationGuardProps {
   children: ReactNode;
@@ -94,27 +98,37 @@ export function OrganizationGuard({ children }: OrganizationGuardProps) {
   }
 
   return (
-    <div className="bg-background absolute inset-0 flex flex-col items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="mb-12 flex justify-center">
-          <div className="flex h-28 w-28 items-center justify-center rounded-full bg-black shadow-lg">
-            <Building className="h-14 w-14 text-white" />
-          </div>
+    <>
+      <Header>
+        <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
+          <ThemeSwitch />
+          <ProfileDropdown />
         </div>
+      </Header>
 
-        <div className="space-y-10 text-center">
-          <div>
-            <h2 className="text-foreground mb-6 text-3xl font-bold tracking-tight">
-              Firma Seçimi Gerekli
-            </h2>
+      <div className="bg-background flex flex-1 flex-col items-center justify-center">
+        <div className="w-full max-w-md">
+          <div className="mb-12 flex justify-center">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full bg-black shadow-lg">
+              <Building className="h-14 w-14 text-white" />
+            </div>
+          </div>
 
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              Bu sayfadaki içeriği görüntüleyebilmek için lütfen bir firma
-              seçin.
-            </p>
+          <div className="space-y-10 text-center">
+            <div>
+              <h2 className="text-foreground mb-6 text-3xl font-bold tracking-tight">
+                Firma Seçimi Gerekli
+              </h2>
+
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Bu sayfadaki içeriği görüntüleyebilmek için lütfen bir firma
+                seçin.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
