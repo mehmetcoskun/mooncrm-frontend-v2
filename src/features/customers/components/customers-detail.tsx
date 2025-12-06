@@ -57,6 +57,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { PermissionGuard } from '@/components/auth/permission-guard';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { MultiSelect } from '@/components/multi-select';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
@@ -69,6 +70,7 @@ import {
   type SalesInfo,
   type TravelInfo,
 } from '../data/schema';
+import { CustomersTeethDialog } from './customers-teeth-dialog';
 
 const getSidebarNavItems = (
   canAccessFiles: boolean,
@@ -172,6 +174,10 @@ export function CustomersDetail() {
   const [travelInfo, setTravelInfo] = useState<TravelInfo[]>([]);
   const [editingFileId, setEditingFileId] = useState<number | null>(null);
   const [editingFileName, setEditingFileName] = useState('');
+  const [teethDialogOpen, setTeethDialogOpen] = useState(false);
+  const [currentTravelIndex, setCurrentTravelIndex] = useState<number | null>(
+    null
+  );
 
   const {
     data: customer,
@@ -422,12 +428,12 @@ export function CustomersDetail() {
         appointment_date: '',
         appointment_time: '',
         doctor_id: null,
-        service: '',
+        teeth: [],
         is_custom_hotel: false,
-        partner_hotel_id: null,
+        hotel_id: null,
         hotel_name: '',
         is_custom_transfer: false,
-        partner_transfer_id: null,
+        transfer_id: null,
         transfer_name: '',
         room_type: '',
         person_count: '',
@@ -633,6 +639,7 @@ export function CustomersDetail() {
     <>
       <Header fixed>
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>
@@ -1430,21 +1437,23 @@ export function CustomersDetail() {
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor={`service_${index}`}>
-                                  Hizmet
-                                </Label>
-                                <Input
-                                  id={`service_${index}`}
-                                  placeholder="Örn: 4 İmplant + 24 Kuron"
-                                  value={travel.service}
-                                  onChange={(e) =>
-                                    updateTravel(
-                                      index,
-                                      'service',
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                                <Label>Diş Seçimi</Label>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    setCurrentTravelIndex(index);
+                                    setTeethDialogOpen(true);
+                                  }}
+                                >
+                                  {travel.teeth && travel.teeth.length > 0
+                                    ? `Seçilen Dişler: ${travel.teeth
+                                        .map((t) => t.tooth_number)
+                                        .sort((a, b) => a - b)
+                                        .join(', ')}`
+                                    : 'Diş Seç'}
+                                </Button>
                               </div>
                             </div>
 
@@ -1470,19 +1479,19 @@ export function CustomersDetail() {
 
                               {!travel.is_custom_hotel ? (
                                 <div className="space-y-2">
-                                  <Label htmlFor={`partner_hotel_id_${index}`}>
+                                  <Label htmlFor={`hotel_id_${index}`}>
                                     Otel
                                   </Label>
                                   <Select
                                     value={
-                                      travel.partner_hotel_id
-                                        ? String(travel.partner_hotel_id)
+                                      travel.hotel_id
+                                        ? String(travel.hotel_id)
                                         : ''
                                     }
                                     onValueChange={(value) =>
                                       updateTravel(
                                         index,
-                                        'partner_hotel_id',
+                                        'hotel_id',
                                         Number(value)
                                       )
                                     }
@@ -1588,21 +1597,19 @@ export function CustomersDetail() {
 
                               {!travel.is_custom_transfer ? (
                                 <div className="space-y-2">
-                                  <Label
-                                    htmlFor={`partner_transfer_id_${index}`}
-                                  >
+                                  <Label htmlFor={`transfer_id_${index}`}>
                                     Transfer
                                   </Label>
                                   <Select
                                     value={
-                                      travel.partner_transfer_id
-                                        ? String(travel.partner_transfer_id)
+                                      travel.transfer_id
+                                        ? String(travel.transfer_id)
                                         : ''
                                     }
                                     onValueChange={(value) =>
                                       updateTravel(
                                         index,
-                                        'partner_transfer_id',
+                                        'transfer_id',
                                         Number(value)
                                       )
                                     }
@@ -2073,6 +2080,18 @@ export function CustomersDetail() {
           </div>
         </div>
       </Main>
+
+      {currentTravelIndex !== null && (
+        <CustomersTeethDialog
+          open={teethDialogOpen}
+          onOpenChange={setTeethDialogOpen}
+          selectedTeeth={travelInfo[currentTravelIndex]?.teeth || []}
+          onTeethChange={(teeth) => {
+            updateTravel(currentTravelIndex, 'teeth', teeth);
+            setCurrentTravelIndex(null);
+          }}
+        />
+      )}
     </>
   );
 }

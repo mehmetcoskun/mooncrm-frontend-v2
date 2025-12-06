@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getProfilePicture } from '@/services/whatsapp-service';
-import whatsappAvatar from '@/assets/whatsapp-avatar.png';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface WhatsappChatsAvatarProps {
@@ -36,13 +35,13 @@ export function WhatsappChatsAvatar({
   return (
     <Avatar className="h-10 w-10 flex-shrink-0">
       <AvatarImage
-        src={profilePicture || whatsappAvatar}
+        src={profilePicture || '/images/whatsapp/avatar.png'}
         alt={session}
         onError={() => setProfilePicture(null)}
       />
       <AvatarFallback>
         <img
-          src={whatsappAvatar}
+          src="/images/whatsapp/avatar.png"
           alt={session}
           className="h-full w-full object-cover"
         />

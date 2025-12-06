@@ -16,6 +16,7 @@ import {
 import { PermissionGuard } from '@/components/auth/permission-guard';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { AppointmentsDialogs } from './components/appointments-dialogs';
@@ -169,6 +170,7 @@ export function Appointments() {
     <AppointmentsProvider>
       <Header fixed>
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

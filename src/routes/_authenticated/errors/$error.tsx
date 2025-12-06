@@ -28,6 +28,7 @@ function RouteComponent() {
     <>
       <Header fixed className="border-b">
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

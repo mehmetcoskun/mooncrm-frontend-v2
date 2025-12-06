@@ -13,6 +13,7 @@ import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
+import { LeadSwitch } from '@/components/lead-switch';
 import { DashboardOverview } from './components/dashboard-overview';
 import { DashboardUpcomingReminders } from './components/dashboard-upcoming-reminders';
 
@@ -61,6 +62,7 @@ export function Dashboard() {
     <>
       <Header>
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

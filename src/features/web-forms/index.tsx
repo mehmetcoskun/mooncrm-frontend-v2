@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getWebForms } from '@/services/web-form-service';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { WebFormsDialogs } from './components/web-forms-dialogs';
@@ -23,6 +24,7 @@ export function WebForms() {
     <WebFormsProvider>
       <Header fixed>
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

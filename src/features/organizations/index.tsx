@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getOrganizations } from '@/services/organization-service';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { OrganizationsDialogs } from './components/organizations-dialogs';
@@ -23,6 +24,7 @@ export function Organizations() {
     <OrganizationsProvider>
       <Header fixed>
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

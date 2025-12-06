@@ -30,16 +30,22 @@ export const salesInfoSchema = z.object({
 });
 export type SalesInfo = z.infer<typeof salesInfoSchema>;
 
+export const toothTreatmentSchema = z.object({
+  tooth_number: z.number(),
+  treatment: z.string(),
+});
+export type ToothTreatment = z.infer<typeof toothTreatmentSchema>;
+
 export const travelInfoSchema = z.object({
   appointment_date: z.string(),
   appointment_time: z.string(),
   doctor_id: z.number().nullable(),
-  service: z.string(),
+  teeth: z.array(toothTreatmentSchema).optional(),
   is_custom_hotel: z.boolean(),
-  partner_hotel_id: z.number().nullable(),
+  hotel_id: z.number().nullable(),
   hotel_name: z.string(),
   is_custom_transfer: z.boolean(),
-  partner_transfer_id: z.number().nullable(),
+  transfer_id: z.number().nullable(),
   transfer_name: z.string(),
   room_type: z.string(),
   person_count: z.string(),

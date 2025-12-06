@@ -147,7 +147,7 @@ export function getCustomersColumns({
       ),
       cell: ({ row }) => {
         const category = row.getValue('category') as Customer['category'];
-        return <div>{category.title}</div>;
+        return <div>{category?.title}</div>;
       },
     },
     {

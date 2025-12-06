@@ -11,6 +11,11 @@ const fetchSettings = async () => {
 
 let VAPI_API_KEY: string | undefined;
 
+export const clearVapiCache = () => {
+  VAPI_API_KEY = undefined;
+  settingsCache = null;
+};
+
 export const fetchVapiApiKey = async () => {
   if (!VAPI_API_KEY) {
     const settings = await fetchSettings();
@@ -37,9 +42,15 @@ const vapiApi = axios.create({
 
 vapiApi.interceptors.request.use(async (config) => {
   const apiKey = await fetchVapiApiKey();
-  if (apiKey) {
-    config.headers.Authorization = `Bearer ${apiKey}`;
+  if (!apiKey) {
+    return Promise.reject(
+      new Error(
+        'VAPI API key yapılandırılmamış. Lütfen ayarlardan API key ekleyin.'
+      )
+    );
   }
+  config.headers.Authorization = `Bearer ${apiKey}`;
+
   return config;
 });
 

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useSearch } from '@tanstack/react-router';
-import Logo from '@/assets/logo.png';
 import { ChangePasswordForm } from './components/change-password-form';
 import { TwoFactorForm } from './components/two-factor-form';
 import { UserAuthForm } from './components/user-auth-form';
@@ -31,7 +30,7 @@ export function SignIn() {
       <div className="relative hidden h-full flex-col p-10 text-white lg:flex">
         <div className="dark:bg-background absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
-          <img src={Logo} width={180} height={36} alt="MoonCRM" />
+          <img src="/images/logo.png" width={180} height={36} alt="MoonCRM" />
         </div>
 
         <div className="relative z-20 mt-auto flex flex-1 flex-col justify-center">

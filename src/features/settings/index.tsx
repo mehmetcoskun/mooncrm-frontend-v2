@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { settings } from './data/settings';
@@ -91,6 +92,7 @@ export function Settings() {
     <>
       <Header>
         <div className="ms-auto flex items-center gap-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

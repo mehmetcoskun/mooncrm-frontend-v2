@@ -37,7 +37,6 @@ export function NavLogo() {
   const isSuperUserValue = useMemo(() => isSuperUser(), [isSuperUser]);
 
   useEffect(() => {
-    // User bilgisi ile current organization'ı al
     if (user && !currentOrganization) {
       getCurrentOrganizationFromUser(user);
     }

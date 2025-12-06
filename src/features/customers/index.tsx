@@ -11,6 +11,7 @@ import {
 } from '@/components/advanced-filter-dialog';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { CustomersDialogs } from './components/customers-dialogs';
@@ -84,6 +85,7 @@ export function Customers() {
     <CustomersProvider>
       <Header fixed>
         <div className="ms-auto flex items-center space-x-4">
+          <LeadSwitch />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>
