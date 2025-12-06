@@ -232,7 +232,7 @@ export function RolesActionDialog({
         onOpenChange(state);
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader className="text-start">
           <DialogTitle>{isEdit ? 'Rol Düzenle' : 'Yeni Rol Ekle'}</DialogTitle>
           <DialogDescription>
