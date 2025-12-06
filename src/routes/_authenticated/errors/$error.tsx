@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Header } from '@/components/layout/header';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ForbiddenError } from '@/features/errors/forbidden';
