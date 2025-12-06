@@ -1,14 +1,22 @@
 import { Plus } from 'lucide-react';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import { useStatuses } from './statuses-provider';
 
 export function StatusesPrimaryButtons() {
   const { setOpen } = useStatuses();
+
+  const { hasPermission } = usePermissions();
+
+  const canCreate = hasPermission('status_Create');
+
   return (
     <div className="flex gap-2">
-      <Button className="space-x-1" onClick={() => setOpen('add')}>
-        <span>Durum Ekle</span> <Plus size={18} />
-      </Button>
+      {canCreate && (
+        <Button className="space-x-1" onClick={() => setOpen('add')}>
+          <span>Durum Ekle</span> <Plus size={18} />
+        </Button>
+      )}
     </div>
   );
 }

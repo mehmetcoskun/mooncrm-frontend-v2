@@ -36,11 +36,11 @@ import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedPermissionsIndexRouteImport } from './routes/_authenticated/permissions/index'
 import { Route as AuthenticatedOrganizationsIndexRouteImport } from './routes/_authenticated/organizations/index'
 import { Route as AuthenticatedHotelsIndexRouteImport } from './routes/_authenticated/hotels/index'
-import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedEmailTemplatesIndexRouteImport } from './routes/_authenticated/email-templates/index'
 import { Route as AuthenticatedDoctorsIndexRouteImport } from './routes/_authenticated/doctors/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
 import { Route as AuthenticatedCategoriesIndexRouteImport } from './routes/_authenticated/categories/index'
+import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/index'
 import { Route as AuthenticatedCalendarIndexRouteImport } from './routes/_authenticated/calendar/index'
 import { Route as AuthenticatedAppointmentsIndexRouteImport } from './routes/_authenticated/appointments/index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
@@ -202,12 +202,6 @@ const AuthenticatedHotelsIndexRoute =
     path: '/hotels/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedHelpCenterIndexRoute =
-  AuthenticatedHelpCenterIndexRouteImport.update({
-    id: '/help-center/',
-    path: '/help-center/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedEmailTemplatesIndexRoute =
   AuthenticatedEmailTemplatesIndexRouteImport.update({
     id: '/email-templates/',
@@ -230,6 +224,12 @@ const AuthenticatedCategoriesIndexRoute =
   AuthenticatedCategoriesIndexRouteImport.update({
     id: '/categories/',
     path: '/categories/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCampaignsIndexRoute =
+  AuthenticatedCampaignsIndexRouteImport.update({
+    id: '/campaigns/',
+    path: '/campaigns/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCalendarIndexRoute =
@@ -308,11 +308,11 @@ export interface FileRoutesByFullPath {
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/appointments': typeof AuthenticatedAppointmentsIndexRoute
   '/calendar': typeof AuthenticatedCalendarIndexRoute
+  '/campaigns': typeof AuthenticatedCampaignsIndexRoute
   '/categories': typeof AuthenticatedCategoriesIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/doctors': typeof AuthenticatedDoctorsIndexRoute
   '/email-templates': typeof AuthenticatedEmailTemplatesIndexRoute
-  '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/hotels': typeof AuthenticatedHotelsIndexRoute
   '/organizations': typeof AuthenticatedOrganizationsIndexRoute
   '/permissions': typeof AuthenticatedPermissionsIndexRoute
@@ -350,11 +350,11 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountIndexRoute
   '/appointments': typeof AuthenticatedAppointmentsIndexRoute
   '/calendar': typeof AuthenticatedCalendarIndexRoute
+  '/campaigns': typeof AuthenticatedCampaignsIndexRoute
   '/categories': typeof AuthenticatedCategoriesIndexRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/doctors': typeof AuthenticatedDoctorsIndexRoute
   '/email-templates': typeof AuthenticatedEmailTemplatesIndexRoute
-  '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/hotels': typeof AuthenticatedHotelsIndexRoute
   '/organizations': typeof AuthenticatedOrganizationsIndexRoute
   '/permissions': typeof AuthenticatedPermissionsIndexRoute
@@ -395,11 +395,11 @@ export interface FileRoutesById {
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/appointments/': typeof AuthenticatedAppointmentsIndexRoute
   '/_authenticated/calendar/': typeof AuthenticatedCalendarIndexRoute
+  '/_authenticated/campaigns/': typeof AuthenticatedCampaignsIndexRoute
   '/_authenticated/categories/': typeof AuthenticatedCategoriesIndexRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/doctors/': typeof AuthenticatedDoctorsIndexRoute
   '/_authenticated/email-templates/': typeof AuthenticatedEmailTemplatesIndexRoute
-  '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/hotels/': typeof AuthenticatedHotelsIndexRoute
   '/_authenticated/organizations/': typeof AuthenticatedOrganizationsIndexRoute
   '/_authenticated/permissions/': typeof AuthenticatedPermissionsIndexRoute
@@ -440,11 +440,11 @@ export interface FileRouteTypes {
     | '/account/'
     | '/appointments'
     | '/calendar'
+    | '/campaigns'
     | '/categories'
     | '/customers'
     | '/doctors'
     | '/email-templates'
-    | '/help-center'
     | '/hotels'
     | '/organizations'
     | '/permissions'
@@ -482,11 +482,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/appointments'
     | '/calendar'
+    | '/campaigns'
     | '/categories'
     | '/customers'
     | '/doctors'
     | '/email-templates'
-    | '/help-center'
     | '/hotels'
     | '/organizations'
     | '/permissions'
@@ -526,11 +526,11 @@ export interface FileRouteTypes {
     | '/_authenticated/account/'
     | '/_authenticated/appointments/'
     | '/_authenticated/calendar/'
+    | '/_authenticated/campaigns/'
     | '/_authenticated/categories/'
     | '/_authenticated/customers/'
     | '/_authenticated/doctors/'
     | '/_authenticated/email-templates/'
-    | '/_authenticated/help-center/'
     | '/_authenticated/hotels/'
     | '/_authenticated/organizations/'
     | '/_authenticated/permissions/'
@@ -756,13 +756,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHotelsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/help-center/': {
-      id: '/_authenticated/help-center/'
-      path: '/help-center'
-      fullPath: '/help-center'
-      preLoaderRoute: typeof AuthenticatedHelpCenterIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/email-templates/': {
       id: '/_authenticated/email-templates/'
       path: '/email-templates'
@@ -789,6 +782,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof AuthenticatedCategoriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/campaigns/': {
+      id: '/_authenticated/campaigns/'
+      path: '/campaigns'
+      fullPath: '/campaigns'
+      preLoaderRoute: typeof AuthenticatedCampaignsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/calendar/': {
@@ -889,11 +889,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppointmentsIndexRoute: typeof AuthenticatedAppointmentsIndexRoute
   AuthenticatedCalendarIndexRoute: typeof AuthenticatedCalendarIndexRoute
+  AuthenticatedCampaignsIndexRoute: typeof AuthenticatedCampaignsIndexRoute
   AuthenticatedCategoriesIndexRoute: typeof AuthenticatedCategoriesIndexRoute
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedDoctorsIndexRoute: typeof AuthenticatedDoctorsIndexRoute
   AuthenticatedEmailTemplatesIndexRoute: typeof AuthenticatedEmailTemplatesIndexRoute
-  AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedHotelsIndexRoute: typeof AuthenticatedHotelsIndexRoute
   AuthenticatedOrganizationsIndexRoute: typeof AuthenticatedOrganizationsIndexRoute
   AuthenticatedPermissionsIndexRoute: typeof AuthenticatedPermissionsIndexRoute
@@ -923,11 +923,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppointmentsIndexRoute: AuthenticatedAppointmentsIndexRoute,
   AuthenticatedCalendarIndexRoute: AuthenticatedCalendarIndexRoute,
+  AuthenticatedCampaignsIndexRoute: AuthenticatedCampaignsIndexRoute,
   AuthenticatedCategoriesIndexRoute: AuthenticatedCategoriesIndexRoute,
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedDoctorsIndexRoute: AuthenticatedDoctorsIndexRoute,
   AuthenticatedEmailTemplatesIndexRoute: AuthenticatedEmailTemplatesIndexRoute,
-  AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedHotelsIndexRoute: AuthenticatedHotelsIndexRoute,
   AuthenticatedOrganizationsIndexRoute: AuthenticatedOrganizationsIndexRoute,
   AuthenticatedPermissionsIndexRoute: AuthenticatedPermissionsIndexRoute,

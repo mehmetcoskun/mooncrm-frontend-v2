@@ -76,7 +76,6 @@ export function SegmentsWhatsappDialog({
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // Load sessions
   useEffect(() => {
     if (open) {
       setIsLoadingSessions(true);
@@ -108,7 +107,6 @@ export function SegmentsWhatsappDialog({
     }
   }, [open]);
 
-  // Load customers when session is selected
   useEffect(() => {
     if (!selectedSession || !currentRow?.id) {
       setCustomers([]);
@@ -130,7 +128,6 @@ export function SegmentsWhatsappDialog({
       });
   }, [selectedSession, currentRow?.id]);
 
-  // Validate customers for WhatsApp
   useEffect(() => {
     if (!selectedSession || customers.length === 0) {
       setValidatedCustomers([]);
@@ -284,7 +281,6 @@ export function SegmentsWhatsappDialog({
         `${selectedCustomers.length} müşteriye WhatsApp mesajı gönderilmeye başlandı.`
       );
 
-      // Reset form
       setSelectedSession(null);
       setSelectedTemplate(null);
       setUploadedFile(null);
@@ -316,7 +312,6 @@ export function SegmentsWhatsappDialog({
 
         <div className="flex-1 overflow-y-auto">
           <div className="space-y-6 px-6 py-4">
-            {/* Session Selection */}
             <div className="space-y-2">
               <Label>WhatsApp Oturumu</Label>
               <Select
@@ -342,7 +337,6 @@ export function SegmentsWhatsappDialog({
               </Select>
             </div>
 
-            {/* Customer Selection */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className={!selectedSession ? 'opacity-50' : ''}>
@@ -445,7 +439,6 @@ export function SegmentsWhatsappDialog({
               )}
             </div>
 
-            {/* Template Selection */}
             <div className="space-y-2">
               <Label
                 className={
@@ -486,7 +479,6 @@ export function SegmentsWhatsappDialog({
               </Select>
             </div>
 
-            {/* File Upload */}
             <div className="space-y-2">
               <Label className={!selectedTemplate ? 'opacity-50' : ''}>
                 Dosya/Resim Ekle (Opsiyonel)
@@ -519,7 +511,6 @@ export function SegmentsWhatsappDialog({
               </div>
             </div>
 
-            {/* Interval Info */}
             <div
               className={`rounded-md p-3 ${selectedTemplate ? 'bg-muted' : 'bg-muted/30 opacity-50'}`}
             >
@@ -531,7 +522,6 @@ export function SegmentsWhatsappDialog({
               </p>
             </div>
 
-            {/* Preview */}
             <div className="space-y-2">
               <Label className={!selectedTemplate ? 'opacity-50' : ''}>
                 Önizleme
@@ -585,7 +575,6 @@ export function SegmentsWhatsappDialog({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="shrink-0 border-t px-6 py-4">
           <div className="flex items-center justify-end gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>

@@ -12,10 +12,12 @@ type DataTableRowActionsProps = {
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const { setOpen, setCurrentRow } = useStatuses();
 
-  const { hasPermission } = usePermissions();
+  const { hasPermission, isSuperUser } = usePermissions();
 
   const canEdit = hasPermission('status_Edit');
   const canDelete = hasPermission('status_Delete');
+
+  const isDisabled = row.original.is_global && !isSuperUser();
 
   if (!canEdit && !canDelete) return null;
 
@@ -25,6 +27,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <Button
           variant="ghost"
           size="sm"
+          disabled={isDisabled}
           onClick={() => {
             setCurrentRow(row.original);
             setOpen('edit');
@@ -37,6 +40,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <Button
           variant="ghost"
           size="sm"
+          disabled={isDisabled}
           onClick={() => {
             setCurrentRow(row.original);
             setOpen('delete');

@@ -1,14 +1,22 @@
 import { Plus } from 'lucide-react';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import { useCustomers } from './customers-provider';
 
 export function CustomersPrimaryButtons() {
   const { setOpen } = useCustomers();
+
+  const { hasPermission } = usePermissions();
+
+  const canCreate = hasPermission('customer_Create');
+
   return (
     <div className="flex gap-2">
-      <Button className="space-x-1" onClick={() => setOpen('add')}>
-        <span>Müşteri Ekle</span> <Plus size={18} />
-      </Button>
+      {canCreate && (
+        <Button className="space-x-1" onClick={() => setOpen('add')}>
+          <span>Müşteri Ekle</span> <Plus size={18} />
+        </Button>
+      )}
     </div>
   );
 }

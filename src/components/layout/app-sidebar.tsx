@@ -13,6 +13,7 @@ import {
   ListTree,
   CalendarDays,
   Calendar,
+  Send,
 } from 'lucide-react';
 import { useLayout } from '@/context/layout-provider';
 import {
@@ -91,9 +92,24 @@ const menuItems: NavMenuItems = {
     },
     {
       title: 'Segmentler',
-      url: '/segments',
       icon: Filter,
-      permission: 'segment_Access',
+      items: [
+        {
+          title: 'Segmentler',
+          url: '/segments',
+          icon: Filter,
+          permission: 'segment_Access',
+        },
+        {
+          title: 'Kampanyalar',
+          url: '/campaigns',
+          icon: Send,
+          anyPermission: [
+            'whatsapp_message_status_Access',
+            'email_message_status_Access',
+          ],
+        },
+      ],
     },
     {
       title: 'Kullanıcılar',

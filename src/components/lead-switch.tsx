@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 
 const twoFactorSchema = z.object({
   code: z.string().min(6, 'Doğrulama kodu en az 6 karakter olmalıdır'),
@@ -129,7 +130,7 @@ export function LeadSwitch() {
   };
 
   return (
-    <>
+    <PermissionGuard roleId={3}>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="scale-95 rounded-full">
@@ -220,6 +221,6 @@ export function LeadSwitch() {
           </Form>
         </DialogContent>
       </Dialog>
-    </>
+    </PermissionGuard>
   );
 }
