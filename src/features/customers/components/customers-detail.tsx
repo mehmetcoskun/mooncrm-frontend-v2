@@ -645,7 +645,7 @@ export function CustomersDetail() {
         </div>
       </Header>
 
-      <Main fluid>
+      <Main fixed fluid>
         <div className="mb-4 flex items-center justify-between lg:mb-6">
           <div className="space-y-0.5">
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
@@ -660,6 +660,7 @@ export function CustomersDetail() {
             </Button>
           </PermissionGuard>
         </div>
+
         <Separator className="my-4 lg:my-6" />
 
         <div className="flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-12">
@@ -708,7 +709,7 @@ export function CustomersDetail() {
             </ScrollArea>
           </aside>
 
-          <div className="flex w-full flex-col overflow-y-hidden p-1">
+          <ScrollArea className="flex w-full flex-col overflow-y-hidden p-1">
             <div className="rounded-lg border p-6">
               {activeSection === 'personal' && (
                 <div className="space-y-6">
@@ -2077,7 +2078,7 @@ export function CustomersDetail() {
                 </div>
               )}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </Main>
 

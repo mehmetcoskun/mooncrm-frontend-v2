@@ -3,7 +3,6 @@ import {
   Building2,
   Users,
   User,
-  Calendar,
   MessageSquare,
   BarChart3,
   FileBarChart,
@@ -11,6 +10,9 @@ import {
   Shield,
   Lock,
   Settings,
+  ListTree,
+  CalendarDays,
+  Calendar,
 } from 'lucide-react';
 import { useLayout } from '@/context/layout-provider';
 import {
@@ -41,19 +43,25 @@ const menuItems: NavMenuItems = {
     },
     {
       title: 'Müşteriler',
-      icon: Users,
+      url: '/customers',
+      icon: User,
+      permission: 'customer_Access',
+    },
+    {
+      title: 'Randevular',
+      icon: Calendar,
       items: [
-        {
-          title: 'Müşteriler',
-          url: '/customers',
-          icon: User,
-          permission: 'customer_Access',
-        },
         {
           title: 'Randevular',
           url: '/appointments',
-          icon: Calendar,
+          icon: ListTree,
           permission: 'appointment_Access',
+        },
+        {
+          title: 'Takvim',
+          url: '/calendar',
+          icon: CalendarDays,
+          permission: 'calendar_Access',
         },
       ],
     },

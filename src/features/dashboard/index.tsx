@@ -11,9 +11,9 @@ import {
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
+import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { LeadSwitch } from '@/components/lead-switch';
 import { DashboardOverview } from './components/dashboard-overview';
 import { DashboardUpcomingReminders } from './components/dashboard-upcoming-reminders';
 

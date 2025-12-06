@@ -93,10 +93,10 @@ export function CustomersTeethDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 space-y-8 overflow-y-auto px-4 py-4">
+        <div className="flex-1 space-y-8 overflow-y-auto px-2 py-4 sm:px-4">
           <div className="space-y-3">
             <h3 className="text-center text-sm font-semibold">Üst Dişler</h3>
-            <div className="flex justify-between gap-1 px-4">
+            <div className="flex justify-between gap-0.5 px-1 sm:gap-1 sm:px-4">
               {upperTeeth.map((toothNumber) => (
                 <button
                   key={toothNumber}
@@ -110,7 +110,7 @@ export function CustomersTeethDialog({
                     <img
                       src={`/images/teeth/${toothNumber}.svg`}
                       alt={`Diş ${toothNumber}`}
-                      className={`h-20 w-auto transition-all ${
+                      className={`h-12 w-auto transition-all sm:h-20 ${
                         isToothSelected(toothNumber)
                           ? 'drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]'
                           : 'grayscale hover:grayscale-0'
@@ -118,7 +118,7 @@ export function CustomersTeethDialog({
                     />
                   </div>
                   <span
-                    className={`mt-1 text-xs font-medium ${
+                    className={`mt-0.5 text-[9px] font-medium sm:mt-1 sm:text-xs ${
                       isToothSelected(toothNumber)
                         ? 'text-blue-600 dark:text-blue-400'
                         : 'text-muted-foreground'
@@ -135,7 +135,7 @@ export function CustomersTeethDialog({
 
           <div className="space-y-3">
             <h3 className="text-center text-sm font-semibold">Alt Dişler</h3>
-            <div className="flex justify-between gap-1 px-4">
+            <div className="flex justify-between gap-0.5 px-1 sm:gap-1 sm:px-4">
               {lowerTeeth.map((toothNumber) => (
                 <button
                   key={toothNumber}
@@ -146,7 +146,7 @@ export function CustomersTeethDialog({
                   }`}
                 >
                   <span
-                    className={`mb-1 text-xs font-medium ${
+                    className={`mb-0.5 text-[9px] font-medium sm:mb-1 sm:text-xs ${
                       isToothSelected(toothNumber)
                         ? 'text-blue-600 dark:text-blue-400'
                         : 'text-muted-foreground'
@@ -158,7 +158,7 @@ export function CustomersTeethDialog({
                     <img
                       src={`/images/teeth/${toothNumber}.svg`}
                       alt={`Diş ${toothNumber}`}
-                      className={`h-20 w-auto transition-all ${
+                      className={`h-12 w-auto transition-all sm:h-20 ${
                         isToothSelected(toothNumber)
                           ? 'drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]'
                           : 'grayscale hover:grayscale-0'
