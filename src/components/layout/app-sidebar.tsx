@@ -67,12 +67,6 @@ const menuItems: NavMenuItems = {
       ],
     },
     {
-      title: 'Sohbetler',
-      url: '/whatsapp-chats',
-      icon: MessageSquare,
-      permission: 'whatsapp_chat_Access',
-    },
-    {
       title: 'İstatistikler',
       icon: BarChart3,
       items: [
@@ -89,6 +83,12 @@ const menuItems: NavMenuItems = {
           permission: 'report_Access',
         },
       ],
+    },
+    {
+      title: 'Sohbetler',
+      url: '/whatsapp-chats',
+      icon: MessageSquare,
+      permission: 'whatsapp_chat_Access',
     },
     {
       title: 'Segmentler',
