@@ -117,12 +117,12 @@ export function Appointments() {
         'Gidiş Uçak': travelInfo?.departure_flight_code || '-',
         'Dönüş Alınma Saati (3 saat öncesi)': pickupTime,
         Otel:
-          travelInfo?.partner_hotel?.name ||
+          travelInfo?.hotel?.name ||
           travelInfo?.hotel_name ||
           'Özel Otel',
         'Oda Tipi': travelInfo?.room_type || '-',
         Transfer:
-          travelInfo?.partner_transfer?.name ||
+          travelInfo?.transfer?.name ||
           travelInfo?.transfer_name ||
           'Özel Transfer',
         Danışman: appointment.user.name,

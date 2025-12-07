@@ -198,7 +198,7 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
       if (!travelInfo) return <span className="text-muted-foreground">-</span>;
 
       const hotelName =
-        travelInfo.partner_hotel?.name || travelInfo.hotel_name || 'Özel Otel';
+        travelInfo.hotel?.name || travelInfo.hotel_name || 'Özel Otel';
 
       return (
         <div className="flex items-center space-x-2">
@@ -218,7 +218,7 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
       if (!travelInfo) return <span className="text-muted-foreground">-</span>;
 
       const transferName =
-        travelInfo.partner_transfer?.name ||
+        travelInfo.transfer?.name ||
         travelInfo.transfer_name ||
         'Özel Transfer';
 
@@ -231,7 +231,7 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     },
   },
   {
-    accessorKey: 'consultant',
+    accessorKey: 'user',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Danışman" />
     ),

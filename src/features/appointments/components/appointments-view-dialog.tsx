@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { type ToothTreatment } from '@/features/customers/data/schema';
 import { type Appointment } from '../data/schema';
 
 interface AppointmentsViewDialogProps {
@@ -153,14 +154,32 @@ export function AppointmentsViewDialog({
                     <span>{travelInfo.doctor?.name || '-'}</span>
                   </div>
                 </div>
-                <div>
-                  <label className="text-muted-foreground text-sm font-medium">
-                    Hizmet
-                  </label>
-                  <div className="mt-1">
-                    <span>{travelInfo.service || '-'}</span>
+                {travelInfo.teeth && travelInfo.teeth.length > 0 && (
+                  <div className="col-span-2">
+                    <label className="text-muted-foreground text-sm font-medium">
+                      Tedavi Planı
+                    </label>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {travelInfo.teeth.map((tooth: ToothTreatment) => (
+                        <Badge
+                          key={tooth.tooth_number}
+                          variant="outline"
+                          className="flex items-center gap-1 px-2 py-1"
+                        >
+                          <span className="font-semibold">
+                            {tooth.tooth_number}
+                          </span>
+                          {tooth.treatment && (
+                            <>
+                              <span className="text-muted-foreground">-</span>
+                              <span>{tooth.treatment}</span>
+                            </>
+                          )}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -268,7 +287,7 @@ export function AppointmentsViewDialog({
                   </label>
                   <div className="mt-1">
                     <span>
-                      {travelInfo.partner_hotel?.name ||
+                      {travelInfo.hotel?.name ||
                         travelInfo.hotel_name ||
                         'Özel Otel'}
                     </span>
@@ -310,7 +329,7 @@ export function AppointmentsViewDialog({
                   </label>
                   <div className="mt-1">
                     <span>
-                      {travelInfo.partner_transfer?.name ||
+                      {travelInfo.transfer?.name ||
                         travelInfo.transfer_name ||
                         'Özel Transfer'}
                     </span>

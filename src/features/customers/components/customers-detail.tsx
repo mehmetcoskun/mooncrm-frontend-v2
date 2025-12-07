@@ -1438,7 +1438,7 @@ export function CustomersDetail() {
                               </div>
 
                               <div className="space-y-2">
-                                <Label>Diş Seçimi</Label>
+                                <Label>Tedavi Planı</Label>
                                 <Button
                                   type="button"
                                   variant="outline"
@@ -1474,11 +1474,29 @@ export function CustomersDetail() {
                                   }
                                 />
                                 <Label htmlFor={`is_custom_hotel_${index}`}>
-                                  Anlaşmalı Otel
+                                  Özel Otel
                                 </Label>
                               </div>
 
-                              {!travel.is_custom_hotel ? (
+                              {travel.is_custom_hotel ? (
+                                <div className="space-y-2">
+                                  <Label htmlFor={`hotel_name_${index}`}>
+                                    Otel Adı
+                                  </Label>
+                                  <Input
+                                    id={`hotel_name_${index}`}
+                                    placeholder="Otel adını girin"
+                                    value={travel.hotel_name}
+                                    onChange={(e) =>
+                                      updateTravel(
+                                        index,
+                                        'hotel_name',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              ) : (
                                 <div className="space-y-2">
                                   <Label htmlFor={`hotel_id_${index}`}>
                                     Otel
@@ -1516,24 +1534,6 @@ export function CustomersDetail() {
                                       )}
                                     </SelectContent>
                                   </Select>
-                                </div>
-                              ) : (
-                                <div className="space-y-2">
-                                  <Label htmlFor={`hotel_name_${index}`}>
-                                    Otel Adı
-                                  </Label>
-                                  <Input
-                                    id={`hotel_name_${index}`}
-                                    placeholder="Otel adını girin"
-                                    value={travel.hotel_name}
-                                    onChange={(e) =>
-                                      updateTravel(
-                                        index,
-                                        'hotel_name',
-                                        e.target.value
-                                      )
-                                    }
-                                  />
                                 </div>
                               )}
 
@@ -1592,11 +1592,29 @@ export function CustomersDetail() {
                                   }
                                 />
                                 <Label htmlFor={`is_custom_transfer_${index}`}>
-                                  Anlaşmalı Transfer
+                                  Özel Transfer
                                 </Label>
                               </div>
 
-                              {!travel.is_custom_transfer ? (
+                              {travel.is_custom_transfer ? (
+                                <div className="space-y-2">
+                                  <Label htmlFor={`transfer_name_${index}`}>
+                                    Transfer Adı
+                                  </Label>
+                                  <Input
+                                    id={`transfer_name_${index}`}
+                                    placeholder="Transfer firması adını girin"
+                                    value={travel.transfer_name}
+                                    onChange={(e) =>
+                                      updateTravel(
+                                        index,
+                                        'transfer_name',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                              ) : (
                                 <div className="space-y-2">
                                   <Label htmlFor={`transfer_id_${index}`}>
                                     Transfer
@@ -1634,24 +1652,6 @@ export function CustomersDetail() {
                                       )}
                                     </SelectContent>
                                   </Select>
-                                </div>
-                              ) : (
-                                <div className="space-y-2">
-                                  <Label htmlFor={`transfer_name_${index}`}>
-                                    Transfer Adı
-                                  </Label>
-                                  <Input
-                                    id={`transfer_name_${index}`}
-                                    placeholder="Transfer firması adını girin"
-                                    value={travel.transfer_name}
-                                    onChange={(e) =>
-                                      updateTravel(
-                                        index,
-                                        'transfer_name',
-                                        e.target.value
-                                      )
-                                    }
-                                  />
                                 </div>
                               )}
                             </div>
