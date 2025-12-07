@@ -109,7 +109,7 @@ export function getCustomersColumns({
               onValueChange={handleUserChange}
             >
               <SelectTrigger className="h-8 w-[180px] bg-white">
-                <SelectValue>{user?.name ?? 'Danışman seçin'}</SelectValue>
+                <SelectValue placeholder="Danışman seçin" />
               </SelectTrigger>
               <SelectContent>
                 {users
@@ -189,7 +189,7 @@ export function getCustomersColumns({
               onValueChange={handleStatusChange}
             >
               <SelectTrigger className="h-8 w-[180px] bg-white">
-                <SelectValue>{status?.title ?? 'Durum seçin'}</SelectValue>
+                <SelectValue placeholder="Durum seçin" />
               </SelectTrigger>
               <SelectContent>
                 {statuses?.map((s) => (

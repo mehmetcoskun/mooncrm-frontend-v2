@@ -48,6 +48,7 @@ export function LeadSwitch() {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [pendingChecked, setPendingChecked] = useState<boolean>(false);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [requiresTwoFactor, setRequiresTwoFactor] = useState<boolean>(false);
 
   const form = useForm<z.infer<typeof twoFactorSchema>>({
     resolver: zodResolver(twoFactorSchema),
@@ -74,7 +75,53 @@ export function LeadSwitch() {
 
     setEnabled(checked);
     setPendingChecked(checked);
-    setDialogOpen(true);
+
+    if (!user.two_factor_enabled) {
+      setRequiresTwoFactor(false);
+      setDialogOpen(true);
+    } else {
+      setRequiresTwoFactor(true);
+      setDialogOpen(true);
+    }
+  };
+
+  const handleDirectUpdate = async () => {
+    if (!user?.id) {
+      toast.error('Hata', {
+        description: 'Kullanıcı bilgisi bulunamadı.',
+      });
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+
+      const currentWorkSchedule = user.work_schedule || {
+        is_active: false,
+        days: [],
+      };
+      const updatedWorkSchedule = {
+        ...currentWorkSchedule,
+        is_active: pendingChecked,
+      };
+
+      await updateUser(user.id, {
+        work_schedule: updatedWorkSchedule,
+      });
+
+      setDialogOpen(false);
+
+      toast.success('Başarılı', {
+        description: `Lead alma ${pendingChecked ? 'aktif' : 'pasif'} edildi.`,
+      });
+    } catch (error) {
+      toast.error('Hata', {
+        description: `İşlem sırasında bir hata oluştu: ${error instanceof AxiosError ? error.response?.data.message : 'Bilinmeyen hata'}`,
+      });
+      setEnabled(!pendingChecked);
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleVerifyAndUpdate = async (
@@ -158,42 +205,79 @@ export function LeadSwitch() {
 
       <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>İki Faktörlü Doğrulama</DialogTitle>
-            <DialogDescription>
-              Lead alma durumunu {pendingChecked ? 'aktif' : 'pasif'} etmek için
-              lütfen 2FA kodunuzu girin.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleVerifyAndUpdate)}
-              className="space-y-4"
-            >
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Doğrulama Kodu</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="000000"
-                        maxLength={10}
-                        autoComplete="one-time-code"
-                        autoFocus
-                        disabled={isVerifying}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Authenticator uygulamanızdan 6 haneli kodu girin veya 10
-                      haneli kurtarma kodunuzu kullanın.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {requiresTwoFactor ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>İki Faktörlü Doğrulama</DialogTitle>
+                <DialogDescription>
+                  Lead alma durumunu {pendingChecked ? 'aktif' : 'pasif'} etmek
+                  için lütfen 2FA kodunuzu girin.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleVerifyAndUpdate)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Doğrulama Kodu</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="000000"
+                            maxLength={10}
+                            autoComplete="one-time-code"
+                            autoFocus
+                            disabled={isVerifying}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Authenticator uygulamanızdan 6 haneli kodu girin veya
+                          10 haneli kurtarma kodunuzu kullanın.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleDialogClose(false)}
+                      disabled={isVerifying}
+                    >
+                      İptal
+                    </Button>
+                    <Button type="submit" disabled={isVerifying}>
+                      {isVerifying ? (
+                        <>
+                          <Loader2 className="mr-2 animate-spin" />
+                          Doğrulanıyor...
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="mr-2" />
+                          Doğrula
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Lead Alma Durumunu Değiştir</DialogTitle>
+                <DialogDescription>
+                  Lead alma durumunu {pendingChecked ? 'aktif' : 'pasif'} etmek
+                  istediğinizden emin misiniz?
+                </DialogDescription>
+              </DialogHeader>
               <DialogFooter>
                 <Button
                   type="button"
@@ -203,22 +287,23 @@ export function LeadSwitch() {
                 >
                   İptal
                 </Button>
-                <Button type="submit" disabled={isVerifying}>
+                <Button
+                  type="button"
+                  onClick={handleDirectUpdate}
+                  disabled={isVerifying}
+                >
                   {isVerifying ? (
                     <>
                       <Loader2 className="mr-2 animate-spin" />
-                      Doğrulanıyor...
+                      Güncelleniyor...
                     </>
                   ) : (
-                    <>
-                      <Shield className="mr-2" />
-                      Doğrula
-                    </>
+                    'Onayla'
                   )}
                 </Button>
               </DialogFooter>
-            </form>
-          </Form>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </PermissionGuard>
