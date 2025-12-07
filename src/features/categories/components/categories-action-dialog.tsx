@@ -144,7 +144,7 @@ export function CategoriesActionDialog({
         onOpenChange(state);
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader className="text-start">
           <DialogTitle>
             {isEdit ? 'Kategori Düzenle' : 'Yeni Kategori Ekle'}

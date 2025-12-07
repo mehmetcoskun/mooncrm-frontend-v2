@@ -37,19 +37,14 @@ import { MultiSelect } from '@/components/multi-select';
 import { SelectDropdown } from '@/components/select-dropdown';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Ad Soyad gereklidir.'),
-  email: z.email({
-    error: (iss) =>
-      iss.input === '' ? 'E-Posta adresi gereklidir.' : undefined,
-  }),
+  name: z.string().optional(),
+  email: z.string().optional(),
   phone: z.string().min(1, 'Telefon numarası gereklidir.'),
-  country: z.string().optional(),
+  country: z.string().min(1, 'Ülke seçimi gereklidir.'),
   user_id: z.number().min(1, 'Danışman seçimi gereklidir.'),
   category_id: z.number().min(1, 'Kategori seçimi gereklidir.'),
-  service_ids: z
-    .array(z.number())
-    .min(1, 'En az bir hizmet seçimi gereklidir.'),
-  status_id: z.number().min(1, 'Durum seçimi gereklidir.'),
+  service_ids: z.array(z.number()).optional(),
+  status_id: z.number().optional(),
   isEdit: z.boolean(),
 });
 type CustomerForm = z.infer<typeof formSchema>;
@@ -332,7 +327,7 @@ export function CustomersActionDialog({
                     <FormControl>
                       <MultiSelect
                         options={serviceOptions}
-                        defaultValue={field.value.map(String)}
+                        defaultValue={(field.value ?? []).map(String)}
                         onValueChange={(values) =>
                           field.onChange(values.map(Number))
                         }
