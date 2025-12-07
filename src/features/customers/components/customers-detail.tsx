@@ -464,24 +464,50 @@ export function CustomersDetail() {
 
   const getFieldNameInTurkish = (fieldName: string) => {
     const fieldNames: Record<string, string> = {
+      customer: 'Müşteri',
+      organization_id: 'Firma',
+      user_id: 'Danışman',
+      category_id: 'Kategori',
+      status_id: 'Durum',
       name: 'Ad Soyad',
       email: 'E-Posta',
       phone: 'Telefon',
       country: 'Ülke',
       notes: 'Notlar',
-      created_at: 'Kayıt Tarihi',
-      user_id: 'Danışman',
-      category_id: 'Kategori',
-      status_id: 'Durum',
-      reminder: 'Hatırlatıcı',
       phone_calls: 'Telefon Görüşmeleri',
+      reminder: 'Hatırlatıcı',
+      sales_info: 'Satış Bilgileri',
+      travel_info: 'Seyahat Bilgileri',
       payment_notes: 'Ödeme Notları',
-      ad_name: 'Reklam Adı',
-      adset_name: 'Reklam Grubu Adı',
-      campaign_name: 'Kampanya Adı',
-      lead_form_id: 'Lead Form ID',
+      created_at: 'Kayıt Tarihi',
     };
     return fieldNames[fieldName] || fieldName;
+  };
+
+  const formatJsonValue = (value: unknown): string => {
+    if (value === null || value === undefined) return 'null';
+    if (typeof value === 'boolean') return value.toString();
+    if (typeof value === 'string') return value || '-';
+    if (typeof value === 'number') return value.toString();
+    if (Array.isArray(value)) {
+      return value.length > 0 ? `${value.length} öğe` : 'Boş';
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    return String(value);
+  };
+
+  const isJsonObject = (value: string): boolean => {
+    if (!value || value === 'null') return false;
+    try {
+      const parsed = JSON.parse(value);
+      return (
+        typeof parsed === 'object' && !Array.isArray(parsed) && parsed !== null
+      );
+    } catch {
+      return false;
+    }
   };
 
   const formatLogValue = (value: string, fieldName: string) => {
@@ -504,6 +530,13 @@ export function CustomersDetail() {
       }
       if (fieldName === 'phone_calls') {
         return `${parsed.length || 0} görüşme`;
+      }
+      if (
+        typeof parsed === 'object' &&
+        !Array.isArray(parsed) &&
+        parsed !== null
+      ) {
+        return JSON.stringify(parsed);
       }
 
       return value;
@@ -2038,29 +2071,113 @@ export function CustomersDetail() {
                               </div>
 
                               {log.action_type === 'update' && (
-                                <div className="grid gap-2 pt-2 md:grid-cols-2">
-                                  <div className="bg-muted/50 rounded p-3">
-                                    <p className="text-muted-foreground mb-1 text-xs font-medium">
-                                      Eski Değer
-                                    </p>
-                                    <p className="text-sm break-words">
-                                      {formatLogValue(
-                                        log.old_value,
-                                        log.field_name
-                                      )}
-                                    </p>
-                                  </div>
-                                  <div className="bg-primary/10 rounded p-3">
-                                    <p className="text-muted-foreground mb-1 text-xs font-medium">
-                                      Yeni Değer
-                                    </p>
-                                    <p className="text-sm break-words">
-                                      {formatLogValue(
-                                        log.new_value,
-                                        log.field_name
-                                      )}
-                                    </p>
-                                  </div>
+                                <div className="pt-2">
+                                  {isJsonObject(log.old_value) ||
+                                  isJsonObject(log.new_value) ? (
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                      <div className="bg-muted/50 rounded p-3">
+                                        <p className="text-muted-foreground mb-2 text-xs font-medium">
+                                          Eski Değer
+                                        </p>
+                                        <div className="space-y-1.5">
+                                          {(() => {
+                                            try {
+                                              const oldParsed = log.old_value
+                                                ? JSON.parse(log.old_value)
+                                                : {};
+                                              return Object.entries(
+                                                oldParsed
+                                              ).map(([key, value]) => (
+                                                <div
+                                                  key={key}
+                                                  className="text-sm"
+                                                >
+                                                  <span className="font-medium">
+                                                    {key}:
+                                                  </span>{' '}
+                                                  <span className="text-muted-foreground">
+                                                    {formatJsonValue(value)}
+                                                  </span>
+                                                </div>
+                                              ));
+                                            } catch {
+                                              return (
+                                                <p className="text-sm break-words">
+                                                  {formatLogValue(
+                                                    log.old_value,
+                                                    log.field_name
+                                                  )}
+                                                </p>
+                                              );
+                                            }
+                                          })()}
+                                        </div>
+                                      </div>
+                                      <div className="bg-primary/10 rounded p-3">
+                                        <p className="text-muted-foreground mb-2 text-xs font-medium">
+                                          Yeni Değer
+                                        </p>
+                                        <div className="space-y-1.5">
+                                          {(() => {
+                                            try {
+                                              const newParsed = log.new_value
+                                                ? JSON.parse(log.new_value)
+                                                : {};
+                                              return Object.entries(
+                                                newParsed
+                                              ).map(([key, value]) => (
+                                                <div
+                                                  key={key}
+                                                  className="text-sm"
+                                                >
+                                                  <span className="font-medium">
+                                                    {key}:
+                                                  </span>{' '}
+                                                  <span className="text-muted-foreground">
+                                                    {formatJsonValue(value)}
+                                                  </span>
+                                                </div>
+                                              ));
+                                            } catch {
+                                              return (
+                                                <p className="text-sm break-words">
+                                                  {formatLogValue(
+                                                    log.new_value,
+                                                    log.field_name
+                                                  )}
+                                                </p>
+                                              );
+                                            }
+                                          })()}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                      <div className="bg-muted/50 rounded p-3">
+                                        <p className="text-muted-foreground mb-1 text-xs font-medium">
+                                          Eski Değer
+                                        </p>
+                                        <p className="text-sm break-words">
+                                          {formatLogValue(
+                                            log.old_value,
+                                            log.field_name
+                                          )}
+                                        </p>
+                                      </div>
+                                      <div className="bg-primary/10 rounded p-3">
+                                        <p className="text-muted-foreground mb-1 text-xs font-medium">
+                                          Yeni Değer
+                                        </p>
+                                        <p className="text-sm break-words">
+                                          {formatLogValue(
+                                            log.new_value,
+                                            log.field_name
+                                          )}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
 
