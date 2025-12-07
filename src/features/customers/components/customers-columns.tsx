@@ -90,7 +90,7 @@ export function getCustomersColumns({
       ),
       cell: ({ row }) => {
         const customer = row.original;
-        const user = row.getValue('user') as Customer['user'];
+        const user = row.getValue('user') as Customer['user'] | null;
 
         const handleUserChange = async (userId: string) => {
           try {
@@ -104,9 +104,12 @@ export function getCustomersColumns({
 
         return (
           <div className="w-full">
-            <Select value={user.id.toString()} onValueChange={handleUserChange}>
+            <Select
+              value={user?.id.toString() ?? ''}
+              onValueChange={handleUserChange}
+            >
               <SelectTrigger className="h-8 w-[180px] bg-white">
-                <SelectValue>{user.name}</SelectValue>
+                <SelectValue>{user?.name ?? 'Danışman seçin'}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {users
@@ -137,7 +140,17 @@ export function getCustomersColumns({
         <DataTableColumnHeader column={column} title="Telefon" />
       ),
       cell: ({ row }) => {
-        return <div>{row.getValue('phone')}</div>;
+        const phone = row.getValue('phone') as Customer['phone'];
+
+        if (!phone || phone.length <= 6) {
+          return phone || '';
+        }
+
+        const firstPart = phone.slice(0, 3);
+        const lastPart = phone.slice(-4);
+        const middlePart = '*'.repeat(phone.length - 7);
+
+        return `${firstPart}${middlePart}${lastPart}`;
       },
     },
     {
@@ -157,7 +170,7 @@ export function getCustomersColumns({
       ),
       cell: ({ row }) => {
         const customer = row.original;
-        const status = row.getValue('status') as Customer['status'];
+        const status = row.getValue('status') as Customer['status'] | null;
 
         const handleStatusChange = async (statusId: string) => {
           try {
@@ -172,11 +185,11 @@ export function getCustomersColumns({
         return (
           <div className="w-full">
             <Select
-              value={status.id.toString()}
+              value={status?.id.toString() ?? ''}
               onValueChange={handleStatusChange}
             >
               <SelectTrigger className="h-8 w-[180px] bg-white">
-                <SelectValue>{status.title}</SelectValue>
+                <SelectValue>{status?.title ?? 'Durum seçin'}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {statuses?.map((s) => (

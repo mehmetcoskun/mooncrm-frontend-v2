@@ -52,11 +52,11 @@ type FieldType =
   | 'satisfaction_survey'
   | 'warranty_sent'
   | 'rpt'
-  | 'created_at'
-  | 'updated_at'
   | 'ad_name'
   | 'adset_name'
-  | 'campaign_name';
+  | 'campaign_name'
+  | 'created_at'
+  | 'updated_at';
 
 // Filtre koşulu
 export interface FilterCondition {
