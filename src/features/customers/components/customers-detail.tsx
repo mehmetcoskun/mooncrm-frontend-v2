@@ -64,6 +64,7 @@ import { Main } from '@/components/layout/main';
 import { LeadSwitch } from '@/components/lead-switch';
 import { MultiSelect } from '@/components/multi-select';
 import { ProfileDropdown } from '@/components/profile-dropdown';
+import { SearchableSelect } from '@/components/searchable-select';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { ForbiddenError } from '@/features/errors/forbidden';
 import { GeneralError } from '@/features/errors/general-error';
@@ -927,7 +928,7 @@ export function CustomersDetail() {
                       <Label htmlFor="user_id">
                         Danışman <span className="text-destructive">*</span>
                       </Label>
-                      <Select
+                      {/* <Select
                         value={formData.user_id ? String(formData.user_id) : ''}
                         onValueChange={(value) =>
                           setFormData((prev) => ({
@@ -948,14 +949,26 @@ export function CustomersDetail() {
                             )
                           )}
                         </SelectContent>
-                      </Select>
+                      </Select> */}
+                      <SearchableSelect
+                        value={formData.user_id ? String(formData.user_id) : ''}
+                        onValueChange={(value) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            user_id: Number(value),
+                          }))
+                        }
+                        placeholder="Danışman seçin"
+                        searchPlaceholder="Danışman ara..."
+                        items={userOptions}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="category_id">
                         Kategori <span className="text-destructive">*</span>
                       </Label>
-                      <Select
+                      <SearchableSelect
                         value={
                           formData.category_id
                             ? String(formData.category_id)
@@ -967,56 +980,25 @@ export function CustomersDetail() {
                             category_id: Number(value),
                           }))
                         }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Kategori seçin" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categoryOptions.map(
-                            (category: { value: string; label: string }) => (
-                              <SelectItem
-                                key={category.value}
-                                value={category.value}
-                              >
-                                {category.label}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Kategori seçin"
+                        searchPlaceholder="Kategori ara..."
+                        items={categoryOptions}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="status_id">
                         Durum <span className="text-destructive">*</span>
                       </Label>
-                      <Select
-                        value={
-                          formData.status_id ? String(formData.status_id) : ''
-                        }
+                      <SearchableSelect
+                        value={formData.status_id ? String(formData.status_id) : ''}
                         onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            status_id: Number(value),
-                          }))
+                          setFormData((prev) => ({ ...prev, status_id: Number(value) }))
                         }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Durum seçin" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statusOptions.map(
-                            (status: { value: string; label: string }) => (
-                              <SelectItem
-                                key={status.value}
-                                value={status.value}
-                              >
-                                {status.label}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Durum seçin"
+                        searchPlaceholder="Durum ara..."
+                        items={statusOptions}
+                      />
                     </div>
 
                     <div className="space-y-2">

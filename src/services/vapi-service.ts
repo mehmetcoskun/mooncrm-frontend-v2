@@ -11,11 +11,6 @@ export const createVapiAiAssistant = async (data: Record<string, unknown>) => {
   return response.data;
 };
 
-export const getVapiAiAssistant = async (id: string) => {
-  const response = await vapiApi.get(`/assistant/${id}`);
-  return response.data;
-};
-
 export const updateVapiAiAssistant = async (
   id: string,
   data: Record<string, unknown>
@@ -43,11 +38,6 @@ export const getVapiPhoneNumbers = async () => {
 
 export const createVapiPhoneNumber = async (data: Record<string, unknown>) => {
   const response = await vapiApi.post('/phone-number', data);
-  return response.data;
-};
-
-export const getVapiPhoneNumber = async (id: string) => {
-  const response = await vapiApi.get(`/phone-number/${id}`);
   return response.data;
 };
 

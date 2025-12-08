@@ -10,11 +10,6 @@ export async function createPermission(payload: Record<string, unknown>) {
   return response.data;
 }
 
-export async function getPermission(id: number) {
-  const response = await api.get(`/permission/${id}`);
-  return response.data;
-}
-
 export async function updatePermission(
   id: number,
   payload: Record<string, unknown>

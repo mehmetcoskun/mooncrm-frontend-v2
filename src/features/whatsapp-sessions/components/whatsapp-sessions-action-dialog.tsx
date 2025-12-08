@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { createSession } from '@/services/whatsapp-service';
 import { createWhatsappSession } from '@/services/whatsapp-session-service';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -55,7 +56,13 @@ export function WhatsappSessionsActionDialog({
 
   const onSubmit = async (values: WhatsappSessionForm) => {
     try {
-      await createWhatsappSession(values);
+      const whatsappSession = await createWhatsappSession(values);
+
+      await createSession({
+        name: whatsappSession.title,
+        start: true,
+      });
+
       toast.success('WhatsApp oturumu eklendi', {
         description: `${values.title} WhatsApp oturumu başarıyla eklendi.`,
       });

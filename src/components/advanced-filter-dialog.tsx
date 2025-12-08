@@ -422,9 +422,11 @@ function FilterRow({
           <Select
             value={filter.field}
             onValueChange={(value) => {
+              const fieldType = value as FieldType;
+              const firstOperator = FIELD_CONFIG[fieldType].operators[0];
               onUpdate(filter.id, {
-                field: value as FieldType,
-                operator: '',
+                field: fieldType,
+                operator: firstOperator,
                 value: undefined,
               });
             }}

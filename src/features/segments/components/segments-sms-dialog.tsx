@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getCustomersBySegmentId } from '@/services/customer-service';
+import { bulkSendSms } from '@/services/marketing-sms-service';
+import { getSmsTemplates } from '@/services/sms-template-service';
 import { Loader2, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -24,9 +27,6 @@ import {
 } from '@/components/ui/sheet';
 import { type Customer } from '@/features/customers/data/schema';
 import { type SmsTemplate } from '@/features/sms-templates/data/schema';
-import { getCustomersBySegmentId } from '@/services/customer-service';
-import { sendSms } from '@/services/marketing-sms-service';
-import { getSmsTemplates } from '@/services/sms-template-service';
 import { type Segment } from '../data/schema';
 
 type SegmentsSmsDialogProps = {
@@ -45,12 +45,13 @@ export function SegmentsSmsDialog({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [templates, setTemplates] = useState<SmsTemplate[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<SmsTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<SmsTemplate | null>(
+    null
+  );
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  // Load templates and customers
   useEffect(() => {
     if (open) {
       setIsLoadingTemplates(true);
@@ -69,7 +70,6 @@ export function SegmentsSmsDialog({
         setIsLoadingCustomers(true);
         getCustomersBySegmentId(currentRow.id)
           .then((data) => {
-            // Filter customers with phone numbers
             const customersWithPhone = data.filter((c: Customer) => c.phone);
             setCustomers(customersWithPhone);
           })
@@ -89,7 +89,9 @@ export function SegmentsSmsDialog({
     } else {
       const customersToSelect = customers.slice(0, 256);
       if (customers.length > 256) {
-        toast.warning('Maksimum 256 müşteri seçilebilir. İlk 256 müşteri seçildi.');
+        toast.warning(
+          'Maksimum 256 müşteri seçilebilir. İlk 256 müşteri seçildi.'
+        );
       }
       setSelectedCustomers(customersToSelect);
     }
@@ -98,7 +100,9 @@ export function SegmentsSmsDialog({
   const handleCustomerToggle = (customer: Customer) => {
     const isSelected = selectedCustomers.some((c) => c.id === customer.id);
     if (isSelected) {
-      setSelectedCustomers(selectedCustomers.filter((c) => c.id !== customer.id));
+      setSelectedCustomers(
+        selectedCustomers.filter((c) => c.id !== customer.id)
+      );
     } else {
       if (selectedCustomers.length >= 256) {
         toast.error('Maksimum 256 müşteri seçebilirsiniz.');
@@ -109,7 +113,11 @@ export function SegmentsSmsDialog({
   };
 
   const handleSend = async () => {
-    if (!selectedTemplate || selectedCustomers.length === 0 || !currentRow?.id) {
+    if (
+      !selectedTemplate ||
+      selectedCustomers.length === 0 ||
+      !currentRow?.id
+    ) {
       toast.error('Lütfen şablon seçin ve en az bir müşteri seçin.');
       return;
     }
@@ -117,18 +125,19 @@ export function SegmentsSmsDialog({
     setIsSending(true);
 
     try {
-      const response = await sendSms({
+      const response = await bulkSendSms({
         segment_id: currentRow.id,
         sms_template_id: selectedTemplate.id,
       });
 
       toast.success(
         `Toplam ${response.total_count} SMS'den ${response.success_count} adedi başarıyla gönderildi${
-          response.fail_count > 0 ? `, ${response.fail_count} adedi başarısız oldu` : ''
+          response.fail_count > 0
+            ? `, ${response.fail_count} adedi başarısız oldu`
+            : ''
         }.`
       );
 
-      // Reset form
       setSelectedTemplate(null);
       setSelectedCustomers([]);
       setCustomers([]);
@@ -136,7 +145,7 @@ export function SegmentsSmsDialog({
       onSuccess?.();
       onOpenChange(false);
     } catch {
-      toast.error('SMS\'ler gönderilirken bir hata oluştu.');
+      toast.error("SMS'ler gönderilirken bir hata oluştu.");
     } finally {
       setIsSending(false);
     }
@@ -163,8 +172,8 @@ export function SegmentsSmsDialog({
                 <Label>Müşteriler (Maksimum 256)</Label>
                 {customers.length > 0 && (
                   <Badge variant="secondary">
-                    {selectedCustomers.length} / {Math.min(customers.length, 256)}{' '}
-                    seçili
+                    {selectedCustomers.length} /{' '}
+                    {Math.min(customers.length, 256)} seçili
                   </Badge>
                 )}
               </div>
@@ -188,7 +197,8 @@ export function SegmentsSmsDialog({
                   <div className="border-muted flex items-center gap-2 border-b p-3">
                     <Checkbox
                       checked={
-                        selectedCustomers.length === Math.min(customers.length, 256)
+                        selectedCustomers.length ===
+                        Math.min(customers.length, 256)
                       }
                       onCheckedChange={handleSelectAll}
                     />
@@ -207,7 +217,12 @@ export function SegmentsSmsDialog({
                               : 'hover:bg-muted cursor-pointer'
                           }`}
                           onClick={() => {
-                            if (index < 256 || selectedCustomers.some((c) => c.id === customer.id)) {
+                            if (
+                              index < 256 ||
+                              selectedCustomers.some(
+                                (c) => c.id === customer.id
+                              )
+                            ) {
                               handleCustomerToggle(customer);
                             }
                           }}
@@ -279,7 +294,7 @@ export function SegmentsSmsDialog({
                 Önizleme
               </Label>
               {!selectedTemplate ? (
-                <div className="border-muted flex flex-col items-center justify-center rounded-md border bg-muted/30 p-8 opacity-50">
+                <div className="border-muted bg-muted/30 flex flex-col items-center justify-center rounded-md border p-8 opacity-50">
                   <MessageSquare className="text-muted-foreground mb-2 h-8 w-8" />
                   <p className="text-muted-foreground text-sm">
                     Önizleme için bir şablon seçin.
@@ -292,7 +307,7 @@ export function SegmentsSmsDialog({
                       <MessageSquare className="text-primary h-4 w-4" />
                     </div>
                     <div className="bg-background flex-1 space-y-2 rounded-lg p-3 shadow-sm">
-                      <p className="whitespace-pre-wrap text-sm">
+                      <p className="text-sm whitespace-pre-wrap">
                         {selectedTemplate.message}
                       </p>
                       <div className="flex items-center justify-end">
@@ -320,9 +335,7 @@ export function SegmentsSmsDialog({
             <Button
               onClick={handleSend}
               disabled={
-                !selectedTemplate ||
-                selectedCustomers.length === 0 ||
-                isSending
+                !selectedTemplate || selectedCustomers.length === 0 || isSending
               }
             >
               {isSending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -334,4 +347,3 @@ export function SegmentsSmsDialog({
     </Sheet>
   );
 }
-

@@ -55,13 +55,6 @@ export const stopTyping = async (data: Record<string, unknown>) => {
   return response.data;
 };
 
-export const getContact = async (contactId: string, session: string) => {
-  const response = await whatsappApi.get(
-    `/contacts?contactId=${contactId}&session=${session}`
-  );
-  return response.data;
-};
-
 export const checkExists = async (session: string, phone: string) => {
   const response = await whatsappApi.get(
     `/contacts/check-exists?session=${session}&phone=${phone}`

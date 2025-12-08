@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/multi-select';
-import { SelectDropdown } from '@/components/select-dropdown';
+import { SearchableSelect } from '@/components/searchable-select';
 
 const formSchema = z.object({
   name: z.string().optional(),
@@ -264,13 +264,13 @@ export function CustomersActionDialog({
                   <FormItem className="space-y-2">
                     <FormLabel>Ülke</FormLabel>
                     <FormControl>
-                      <SelectDropdown
-                        defaultValue={field.value}
+                      <SearchableSelect
+                        value={field.value}
                         onValueChange={field.onChange}
                         placeholder="Ülke seçin"
+                        searchPlaceholder="Ülke ara..."
                         items={countryOptions}
-                        isControlled={true}
-                        className="w-full"
+                        modalPopover={true}
                       />
                     </FormControl>
                     <FormMessage />
@@ -285,13 +285,13 @@ export function CustomersActionDialog({
                   <FormItem className="space-y-2">
                     <FormLabel>Danışman</FormLabel>
                     <FormControl>
-                      <SelectDropdown
-                        defaultValue={String(field.value || '')}
+                      <SearchableSelect
+                        value={String(field.value || '')}
                         onValueChange={(value) => field.onChange(Number(value))}
                         placeholder="Danışman seçin"
+                        searchPlaceholder="Danışman ara..."
                         items={userOptions}
-                        isControlled={true}
-                        className="w-full"
+                        modalPopover={true}
                       />
                     </FormControl>
                     <FormMessage />
@@ -306,13 +306,13 @@ export function CustomersActionDialog({
                   <FormItem className="space-y-2">
                     <FormLabel>Kategori</FormLabel>
                     <FormControl>
-                      <SelectDropdown
-                        defaultValue={String(field.value || '')}
+                      <SearchableSelect
+                        value={String(field.value || '')}
                         onValueChange={(value) => field.onChange(Number(value))}
                         placeholder="Kategori seçin"
+                        searchPlaceholder="Kategori ara..."
                         items={categoryOptions}
-                        isControlled={true}
-                        className="w-full"
+                        modalPopover={true}
                       />
                     </FormControl>
                     <FormMessage />
@@ -350,13 +350,13 @@ export function CustomersActionDialog({
                   <FormItem className="space-y-2">
                     <FormLabel>Durum</FormLabel>
                     <FormControl>
-                      <SelectDropdown
-                        defaultValue={String(field.value || '')}
+                      <SearchableSelect
+                        value={String(field.value || '')}
                         onValueChange={(value) => field.onChange(Number(value))}
                         placeholder="Durum seçin"
+                        searchPlaceholder="Durum ara..."
                         items={statusOptions}
-                        isControlled={true}
-                        className="w-full"
+                        modalPopover={true}
                       />
                     </FormControl>
                     <FormMessage />

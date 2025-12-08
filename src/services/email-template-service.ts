@@ -10,11 +10,6 @@ export async function createEmailTemplate(payload: Record<string, unknown>) {
   return response.data;
 }
 
-export async function getEmailTemplate(id: number) {
-  const response = await api.get(`/template/email/${id}`);
-  return response.data;
-}
-
 export async function updateEmailTemplate(
   id: number,
   payload: Record<string, unknown>

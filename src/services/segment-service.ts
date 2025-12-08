@@ -10,11 +10,6 @@ export async function createSegment(payload: Record<string, unknown>) {
   return response.data;
 }
 
-export async function getSegment(id: number) {
-  const response = await api.get(`/segment/${id}`);
-  return response.data;
-}
-
 export async function updateSegment(
   id: number,
   payload: Record<string, unknown>

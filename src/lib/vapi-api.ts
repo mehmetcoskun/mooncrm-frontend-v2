@@ -16,7 +16,7 @@ export const clearVapiCache = () => {
   settingsCache = null;
 };
 
-export const fetchVapiApiKey = async () => {
+const fetchVapiApiKey = async () => {
   if (!VAPI_API_KEY) {
     const settings = await fetchSettings();
     if (settings) {

@@ -10,14 +10,6 @@ export async function createWhatsappSession(payload: Record<string, unknown>) {
   return response.data;
 }
 
-export async function updateWhatsappSession(
-  id: number,
-  payload: Record<string, unknown>
-) {
-  const response = await api.put(`/whatsapp/session/${id}`, payload);
-  return response.data;
-}
-
 export async function destroyWhatsappSession(id: number) {
   const response = await api.delete(`/whatsapp/session/${id}`);
   return response.data;

@@ -61,24 +61,6 @@ export const travelInfoSchema = z.object({
 });
 export type TravelInfo = z.infer<typeof travelInfoSchema>;
 
-export const customerFileSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  file_path: z.string(),
-  created_at: z.coerce.date(),
-});
-export type CustomerFile = z.infer<typeof customerFileSchema>;
-
-export const customerLogSchema = z.object({
-  id: z.number(),
-  field: z.string(),
-  old_value: z.string().nullable(),
-  new_value: z.string().nullable(),
-  user: userSchema,
-  created_at: z.coerce.date(),
-});
-export type CustomerLog = z.infer<typeof customerLogSchema>;
-
 export const customerSchema = z.object({
   id: z.number(),
   organization_id: z.number(),
@@ -110,5 +92,3 @@ export const customerSchema = z.object({
   status: statusSchema,
 });
 export type Customer = z.infer<typeof customerSchema>;
-
-export const customerListSchema = z.array(customerSchema);
