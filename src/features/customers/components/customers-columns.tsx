@@ -68,9 +68,11 @@ export function getCustomersColumns({
         <DataTableColumnHeader column={column} title="ID" />
       ),
       cell: ({ row }) => (
-        <div className="inline-flex items-center gap-1 rounded-md bg-gradient-to-br from-gray-100 to-gray-200 px-2 py-1">
-          <Hash className="h-3 w-3" />
-          <span>{row.getValue('id')}</span>
+        <div className="inline-flex items-center gap-1 rounded-md bg-gradient-to-br from-gray-100 to-gray-200 px-2 py-1 dark:from-gray-700 dark:to-gray-800">
+          <Hash className="h-3 w-3 text-gray-700 dark:text-gray-200" />
+          <span className="text-gray-900 dark:text-gray-100">
+            {row.getValue('id')}
+          </span>
         </div>
       ),
     },
@@ -90,16 +92,21 @@ export function getCustomersColumns({
               'inline-flex items-center gap-2 rounded-2xl border px-3 py-1',
               isDuplicate
                 ? 'border-zinc-700 bg-gradient-to-br from-zinc-800 to-zinc-900 text-white'
-                : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100'
+                : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-700 dark:from-gray-700 dark:to-gray-800'
             )}
           >
             <Calendar
               className={cn(
                 'h-4 w-4 shrink-0',
-                isDuplicate ? 'text-white' : 'text-gray-500'
+                isDuplicate ? 'text-white' : 'text-gray-500 dark:text-gray-300'
               )}
             />
-            <span className="text-sm font-medium whitespace-nowrap">
+            <span
+              className={cn(
+                'text-sm font-medium whitespace-nowrap',
+                isDuplicate ? '' : 'text-gray-900 dark:text-gray-100'
+              )}
+            >
               {format(row.getValue('created_at'), 'dd MMMM yyyy HH:mm:ss', {
                 locale: tr,
               })}
@@ -213,9 +220,9 @@ export function getCustomersColumns({
       cell: ({ row }) => {
         const category = row.getValue('category') as Customer['category'];
         return (
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-1">
-            <Tag className="h-4 w-4 shrink-0" />
-            <span className="text-sm font-medium whitespace-nowrap">
+          <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-1 dark:border-gray-700 dark:from-gray-700 dark:to-gray-800">
+            <Tag className="h-4 w-4 shrink-0 text-gray-700 dark:text-gray-300" />
+            <span className="text-sm font-medium whitespace-nowrap text-gray-900 dark:text-gray-100">
               {category?.title}
             </span>
           </div>
