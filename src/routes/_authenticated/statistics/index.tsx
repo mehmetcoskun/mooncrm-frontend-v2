@@ -5,7 +5,7 @@ import { Statistics } from '@/features/statistics';
 
 const StatisticsWithAuth = withPermissionRequired(
   withOrganizationRequired(Statistics),
-  { permission: 'statistics_Access' }
+  { permission: 'statistic_Access' }
 );
 
 export const Route = createFileRoute('/_authenticated/statistics/')({

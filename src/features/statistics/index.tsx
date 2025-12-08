@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStatistics } from '@/services/statistics-service';
-import { BarChart3, TrendingUp } from 'lucide-react';
+import { BarChart3, Download, TrendingUp } from 'lucide-react';
+import { utils, writeFile } from 'xlsx';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -15,6 +17,7 @@ import {
   AdvancedFilterDialog,
   type FilterCondition,
 } from '@/components/advanced-filter-dialog';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
 import { LeadSwitch } from '@/components/lead-switch';
@@ -68,6 +71,100 @@ export function Statistics() {
       conversionRate: contacts > 0 ? (sales / contacts) * 100 : 0,
     };
   }, [totalStats]);
+
+  const exportToExcel = () => {
+    if (!statisticsData?.length) {
+      return;
+    }
+
+    const flattenStatistics = (
+      data: Statistic[],
+      level = 0
+    ): Array<{
+      Kategori: string;
+      'İletişim Sayısı': number;
+      'İletişim %': string;
+      'Teklif Sayısı': number;
+      'Teklif %': string;
+      'Satış Sayısı': number;
+      'Satış %': string;
+      'İptal Sayısı': number;
+      'İptal %': string;
+    }> => {
+      const result: Array<{
+        Kategori: string;
+        'İletişim Sayısı': number;
+        'İletişim %': string;
+        'Teklif Sayısı': number;
+        'Teklif %': string;
+        'Satış Sayısı': number;
+        'Satış %': string;
+        'İptal Sayısı': number;
+        'İptal %': string;
+      }> = [];
+
+      data.forEach((item) => {
+        const indent = '    '.repeat(level);
+        const categoryName = `${indent}${level > 0 ? '└─ ' : ''}${item.type}`;
+
+        result.push({
+          Kategori: categoryName,
+          'İletişim Sayısı': item.contacts.total,
+          'İletişim %': `%${item.contacts.percentage.toFixed(1)}`,
+          'Teklif Sayısı': item.offers.total,
+          'Teklif %': `%${item.offers.percentage.toFixed(1)}`,
+          'Satış Sayısı': item.sales.total,
+          'Satış %': `%${item.sales.percentage.toFixed(1)}`,
+          'İptal Sayısı': item.canceled.total,
+          'İptal %': `%${item.canceled.percentage.toFixed(1)}`,
+        });
+
+        if (item.children && item.children.length > 0) {
+          result.push(...flattenStatistics(item.children, level + 1));
+        }
+      });
+
+      return result;
+    };
+
+    const excelData = flattenStatistics(statisticsData);
+
+    if (totalStats && percentages) {
+      excelData.push({
+        Kategori: 'TOPLAM',
+        'İletişim Sayısı': totalStats.contacts,
+        'İletişim %': '%100',
+        'Teklif Sayısı': totalStats.offers,
+        'Teklif %': `%${percentages.offerRate.toFixed(1)}`,
+        'Satış Sayısı': totalStats.sales,
+        'Satış %': `%${percentages.salesRate.toFixed(1)}`,
+        'İptal Sayısı': totalStats.canceled,
+        'İptal %': `%${percentages.cancelRate.toFixed(1)}`,
+      });
+    }
+
+    const worksheet = utils.json_to_sheet(excelData);
+    const workbook = utils.book_new();
+
+    utils.book_append_sheet(workbook, worksheet, 'İstatistikler');
+
+    const columnWidths = [
+      { wch: 35 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 12 },
+      { wch: 15 },
+      { wch: 12 },
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    writeFile(workbook, `istatistikler-${dateStr}.xlsx`);
+  };
 
   return (
     <>
@@ -163,6 +260,18 @@ export function Statistics() {
                   initialLogicalOperator={logicalOperator}
                   activeFilterCount={activeFilters.length}
                 />
+                <PermissionGuard permission="statistic_Export">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportToExcel}
+                    disabled={!statisticsData?.length}
+                    className="flex items-center space-x-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Excel'e Aktar</span>
+                  </Button>
+                </PermissionGuard>
               </div>
             </div>
 
