@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { AxiosError } from 'axios';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import { getCategories } from '@/services/category-service';
@@ -347,7 +348,9 @@ export function CustomersDetail() {
     },
     onError: (error: unknown) => {
       const errorMessage =
-        error instanceof Error ? error.message : 'Bir hata oluştu.';
+        error instanceof AxiosError
+          ? error.response?.data.message
+          : 'Bir hata oluştu.';
       toast.error('Hata', {
         description: errorMessage,
       });
@@ -392,6 +395,7 @@ export function CustomersDetail() {
       service_ids: formData.service_ids,
       sales_info: salesInfo,
       travel_info: travelInfo,
+      created_at: restFormData.created_at,
     };
     updateMutation.mutate(dataToSave);
   };

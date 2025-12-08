@@ -45,6 +45,7 @@ const formSchema = z.object({
   category_id: z.number().min(1, 'Kategori seçimi gereklidir.'),
   service_ids: z.array(z.number()).optional(),
   status_id: z.number().optional(),
+  created_at: z.string().optional(),
   isEdit: z.boolean(),
 });
 type CustomerForm = z.infer<typeof formSchema>;
@@ -98,6 +99,7 @@ export function CustomersActionDialog({
       category_id: 0,
       service_ids: [],
       status_id: 0,
+      created_at: '',
       isEdit: false,
     },
   });
@@ -355,6 +357,20 @@ export function CustomersActionDialog({
                         isControlled={true}
                         className="w-full"
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="created_at"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel>Kayıt Tarihi</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

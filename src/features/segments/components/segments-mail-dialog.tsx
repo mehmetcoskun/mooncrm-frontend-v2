@@ -161,7 +161,7 @@ export function SegmentsMailDialog({
         email: customer.email,
       }));
 
-      await sendBulkEmailScheduler({
+      const response = await sendBulkEmailScheduler({
         customers: formattedCustomers,
         subject: selectedTemplate.subject,
         body: selectedTemplate.html,
@@ -174,6 +174,21 @@ export function SegmentsMailDialog({
           smtp_from_name: settings.mail_settings.smtp_from_name,
         },
       });
+
+      const campaignKey = response?.data?.key || response?.data;
+      if (campaignKey) {
+        const storageKey = 'email_campaign_keys';
+        const existingKeys = JSON.parse(
+          localStorage.getItem(storageKey) || '[]'
+        );
+        const campaignData = {
+          key: campaignKey,
+          createdAt: new Date().toISOString(),
+          totalCustomers: formattedCustomers.length,
+        };
+        const updatedKeys = [campaignData, ...existingKeys];
+        localStorage.setItem(storageKey, JSON.stringify(updatedKeys));
+      }
 
       toast.success(
         `${formattedCustomers.length} adet e-posta gönderilmeye başlandı.`

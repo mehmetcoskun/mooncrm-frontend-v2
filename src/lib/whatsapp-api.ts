@@ -73,7 +73,7 @@ whatsappApi.interceptors.request.use(async (config) => {
 });
 
 const whatsappSchedulerApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_WHATSAPP_SCHEDULER_API_URL,
 });
 
 export const fetchWhatsappMedia = async (mediaUrl: string): Promise<string> => {

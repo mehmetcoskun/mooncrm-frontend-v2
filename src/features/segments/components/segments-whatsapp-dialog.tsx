@@ -250,9 +250,10 @@ export function SegmentsWhatsappDialog({
 
       const interval = 90;
 
+      let response;
       if (uploadedFile) {
         if (uploadedFile.type.startsWith('image/')) {
-          await sendBulkImageScheduler({
+          response = await sendBulkImageScheduler({
             customers: formattedCustomers,
             text: selectedTemplate.message,
             image: uploadedFile.base64,
@@ -260,7 +261,7 @@ export function SegmentsWhatsappDialog({
             interval,
           });
         } else {
-          await sendBulkFileScheduler({
+          response = await sendBulkFileScheduler({
             customers: formattedCustomers,
             text: selectedTemplate.message,
             file: uploadedFile.base64,
@@ -269,12 +270,27 @@ export function SegmentsWhatsappDialog({
           });
         }
       } else {
-        await sendBulkTextScheduler({
+        response = await sendBulkTextScheduler({
           customers: formattedCustomers,
           text: selectedTemplate.message,
           session: selectedSession,
           interval,
         });
+      }
+
+      const campaignKey = response?.data?.key || response?.data;
+      if (campaignKey) {
+        const storageKey = 'whatsapp_campaign_keys';
+        const existingKeys = JSON.parse(
+          localStorage.getItem(storageKey) || '[]'
+        );
+        const campaignData = {
+          key: campaignKey,
+          createdAt: new Date().toISOString(),
+          totalCustomers: selectedCustomers.length,
+        };
+        const updatedKeys = [campaignData, ...existingKeys];
+        localStorage.setItem(storageKey, JSON.stringify(updatedKeys));
       }
 
       toast.success(
