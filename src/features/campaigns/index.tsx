@@ -19,6 +19,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -43,7 +44,20 @@ const STORAGE_KEYS = {
 type CampaignType = 'whatsapp' | 'email';
 
 export function Campaigns() {
-  const [campaignType, setCampaignType] = useState<CampaignType>('whatsapp');
+  const { hasPermission } = usePermissions();
+
+  const hasWhatsappAccess = hasPermission('whatsapp_message_status_Access');
+  const hasEmailAccess = hasPermission('email_message_status_Access');
+
+  const getDefaultCampaignType = (): CampaignType => {
+    if (hasWhatsappAccess) return 'whatsapp';
+    if (hasEmailAccess) return 'email';
+    return 'whatsapp';
+  };
+
+  const [campaignType, setCampaignType] = useState<CampaignType>(
+    getDefaultCampaignType()
+  );
   const [campaignKey, setCampaignKey] = useState('');
   const [campaignStatus, setCampaignStatus] = useState<CampaignStatus | null>(
     null
@@ -269,18 +283,22 @@ export function Campaigns() {
         </div>
 
         <div className="mb-4 flex gap-2">
-          <Button
-            variant={campaignType === 'whatsapp' ? 'default' : 'outline'}
-            onClick={() => setCampaignType('whatsapp')}
-          >
-            WhatsApp
-          </Button>
-          <Button
-            variant={campaignType === 'email' ? 'default' : 'outline'}
-            onClick={() => setCampaignType('email')}
-          >
-            E-Posta
-          </Button>
+          {hasWhatsappAccess && (
+            <Button
+              variant={campaignType === 'whatsapp' ? 'default' : 'outline'}
+              onClick={() => setCampaignType('whatsapp')}
+            >
+              WhatsApp
+            </Button>
+          )}
+          {hasEmailAccess && (
+            <Button
+              variant={campaignType === 'email' ? 'default' : 'outline'}
+              onClick={() => setCampaignType('email')}
+            >
+              E-Posta
+            </Button>
+          )}
         </div>
 
         <div className="space-y-4">
