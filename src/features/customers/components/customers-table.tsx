@@ -99,7 +99,15 @@ export function CustomersTable({
 
   return (
     <div className='space-y-4 max-sm:has-[div[role="toolbar"]]:mb-16'>
-      <DataTableToolbar table={table} searchPlaceholder="Ara..." />
+      <div className="flex items-center justify-between gap-4">
+        <DataTableToolbar table={table} searchPlaceholder="Ara..." />
+        <div className="bg-muted/50 flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm">
+          <span className="text-muted-foreground font-medium">Toplam:</span>
+          <span className="font-semibold">
+            {totalRecords.toLocaleString('tr-TR')}
+          </span>
+        </div>
+      </div>
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

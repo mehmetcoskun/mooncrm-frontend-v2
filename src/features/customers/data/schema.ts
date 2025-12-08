@@ -9,6 +9,8 @@ export const phoneCallSchema = z.object({
   date: z.string(),
   time: z.string(),
   notes: z.string(),
+  is_ai_call: z.boolean().optional(),
+  recording_url: z.string().optional(),
 });
 export type PhoneCall = z.infer<typeof phoneCallSchema>;
 

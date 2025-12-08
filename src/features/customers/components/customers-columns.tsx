@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { type ColumnDef } from '@tanstack/react-table';
 import { updateCustomer } from '@/services/customer-service';
 import { tr } from 'date-fns/locale';
+import { Calendar, Hash, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -66,7 +67,12 @@ export function getCustomersColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" />
       ),
-      cell: ({ row }) => <div>{row.getValue('id')}</div>,
+      cell: ({ row }) => (
+        <div className="inline-flex items-center gap-1 rounded-md bg-gradient-to-br from-gray-100 to-gray-200 px-2 py-1">
+          <Hash className="h-3 w-3" />
+          <span>{row.getValue('id')}</span>
+        </div>
+      ),
     },
     {
       accessorKey: 'created_at',
@@ -74,11 +80,30 @@ export function getCustomersColumns({
         <DataTableColumnHeader column={column} title="Oluşturulma Tarihi" />
       ),
       cell: ({ row }) => {
+        const customer = row.original;
+        const isDuplicate =
+          customer.duplicate_count > 0 && !customer.duplicate_checked;
+
         return (
-          <div>
-            {format(row.getValue('created_at'), 'dd MMMM yyyy HH:mm:ss', {
-              locale: tr,
-            })}
+          <div
+            className={cn(
+              'inline-flex items-center gap-2 rounded-2xl border px-3 py-1',
+              isDuplicate
+                ? 'border-zinc-700 bg-gradient-to-br from-zinc-800 to-zinc-900 text-white'
+                : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100'
+            )}
+          >
+            <Calendar
+              className={cn(
+                'h-4 w-4 shrink-0',
+                isDuplicate ? 'text-white' : 'text-gray-500'
+              )}
+            />
+            <span className="text-sm font-medium whitespace-nowrap">
+              {format(row.getValue('created_at'), 'dd MMMM yyyy HH:mm:ss', {
+                locale: tr,
+              })}
+            </span>
           </div>
         );
       },
@@ -142,15 +167,42 @@ export function getCustomersColumns({
       cell: ({ row }) => {
         const phone = row.getValue('phone') as Customer['phone'];
 
+        const handleCopyPhone = async () => {
+          if (!phone) return;
+
+          try {
+            await navigator.clipboard.writeText(phone);
+            toast.success('Telefon numarası kopyalandı');
+          } catch (_error) {
+            toast.error('Telefon numarası kopyalanırken bir hata oluştu');
+          }
+        };
+
         if (!phone || phone.length <= 6) {
-          return phone || '';
+          return (
+            <div
+              onClick={handleCopyPhone}
+              className="hover:text-primary flex cursor-pointer items-center gap-2"
+            >
+              <span>{phone || ''}</span>
+            </div>
+          );
         }
 
         const firstPart = phone.slice(0, 3);
         const lastPart = phone.slice(-4);
         const middlePart = '*'.repeat(phone.length - 7);
+        const maskedPhone = `${firstPart}${middlePart}${lastPart}`;
 
-        return `${firstPart}${middlePart}${lastPart}`;
+        return (
+          <div
+            onClick={handleCopyPhone}
+            className="hover:text-primary flex cursor-pointer items-center gap-2"
+            title="Kopyalamak için tıklayın"
+          >
+            <span>{maskedPhone}</span>
+          </div>
+        );
       },
     },
     {
@@ -160,7 +212,14 @@ export function getCustomersColumns({
       ),
       cell: ({ row }) => {
         const category = row.getValue('category') as Customer['category'];
-        return <div>{category?.title}</div>;
+        return (
+          <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-1">
+            <Tag className="h-4 w-4 shrink-0" />
+            <span className="text-sm font-medium whitespace-nowrap">
+              {category?.title}
+            </span>
+          </div>
+        );
       },
     },
     {

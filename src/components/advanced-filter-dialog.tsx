@@ -268,6 +268,7 @@ function FilterRow({
           placeholder="Değer seçin"
           className="w-full"
           disabled={isDisabled}
+          modalPopover={true}
         />
       );
     }

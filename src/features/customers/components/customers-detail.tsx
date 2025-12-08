@@ -35,6 +35,9 @@ import {
   Edit2,
   Download,
   X,
+  Copy,
+  Sparkles,
+  Bot,
 } from 'lucide-react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -335,8 +338,12 @@ export function CustomersDetail() {
       if (customer.travel_info && Array.isArray(customer.travel_info)) {
         setTravelInfo(customer.travel_info);
       }
+
+      if (customer.duplicate_count > 0 && !customer.duplicate_checked) {
+        updateCustomer(Number(customerId), { duplicate_checked: true });
+      }
     }
-  }, [customer]);
+  }, [customer, customerId]);
 
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -685,9 +692,17 @@ export function CustomersDetail() {
       <Main fixed fluid>
         <div className="mb-4 flex items-center justify-between lg:mb-6">
           <div className="space-y-0.5">
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-              {customer?.name}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                {customer?.name}
+              </h1>
+              {customer && customer.duplicate_count > 0 && (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 px-3 py-1 text-sm font-medium text-white">
+                  <Copy className="h-3.5 w-3.5" />
+                  <span>{customer.duplicate_count} Tekrarlı</span>
+                </div>
+              )}
+            </div>
             <p className="text-muted-foreground">#{customerId}</p>
           </div>
 
@@ -1132,20 +1147,45 @@ export function CustomersDetail() {
                       {phoneCalls.map((call, index) => (
                         <div
                           key={index}
-                          className="space-y-4 rounded-lg border p-4"
+                          className={cn(
+                            'space-y-4 rounded-lg border p-4',
+                            call.is_ai_call &&
+                              'border-violet-200 bg-violet-50/50 dark:border-violet-800 dark:bg-violet-950/20'
+                          )}
                         >
                           <div className="flex items-center justify-between">
-                            <h4 className="font-medium">
-                              {index + 1}. Görüşme
-                            </h4>
-                            <Button
-                              onClick={() => deletePhoneCall(index)}
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive"
-                            >
-                              Sil
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              {call.is_ai_call ? (
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/50">
+                                  <Bot className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                                </div>
+                              ) : (
+                                <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+                                  <Phone className="text-muted-foreground h-4 w-4" />
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="font-medium">
+                                  {index + 1}. Görüşme
+                                </h4>
+                                {call.is_ai_call && (
+                                  <div className="flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400">
+                                    <Sparkles className="h-3 w-3" />
+                                    <span>Yapay Zeka Araması</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {!call.is_ai_call && (
+                              <Button
+                                onClick={() => deletePhoneCall(index)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                Sil
+                              </Button>
+                            )}
                           </div>
 
                           <div className="grid gap-4 md:grid-cols-2">
@@ -1160,6 +1200,11 @@ export function CustomersDetail() {
                                 onChange={(e) =>
                                   updatePhoneCall(index, 'date', e.target.value)
                                 }
+                                disabled={call.is_ai_call}
+                                className={cn(
+                                  call.is_ai_call &&
+                                    'border-violet-200 bg-violet-100/50 dark:border-violet-800 dark:bg-violet-900/30'
+                                )}
                               />
                             </div>
 
@@ -1174,24 +1219,73 @@ export function CustomersDetail() {
                                 onChange={(e) =>
                                   updatePhoneCall(index, 'time', e.target.value)
                                 }
+                                disabled={call.is_ai_call}
+                                className={cn(
+                                  call.is_ai_call &&
+                                    'border-violet-200 bg-violet-100/50 dark:border-violet-800 dark:bg-violet-900/30'
+                                )}
                               />
                             </div>
                           </div>
 
                           <div className="space-y-2">
                             <Label htmlFor={`call-notes-${index}`}>
-                              Görüşme Notları
+                              {call.is_ai_call
+                                ? 'AI Görüşme Özeti'
+                                : 'Görüşme Notları'}
                             </Label>
                             <Textarea
                               id={`call-notes-${index}`}
-                              placeholder="Görüşme notlarını buraya yazın..."
+                              placeholder={
+                                call.is_ai_call
+                                  ? ''
+                                  : 'Görüşme notlarını buraya yazın...'
+                              }
                               rows={3}
                               value={call.notes}
                               onChange={(e) =>
                                 updatePhoneCall(index, 'notes', e.target.value)
                               }
+                              disabled={call.is_ai_call}
+                              className={cn(
+                                call.is_ai_call &&
+                                  'border-violet-200 bg-violet-100/50 dark:border-violet-800 dark:bg-violet-900/30'
+                              )}
                             />
                           </div>
+
+                          {call.is_ai_call && (
+                            <div className="space-y-3">
+                              {call.recording_url && (
+                                <div className="space-y-2">
+                                  <Label>Görüşme Kaydı</Label>
+                                  <audio
+                                    controls
+                                    className="h-10 w-full"
+                                    preload="metadata"
+                                  >
+                                    <source
+                                      src={call.recording_url}
+                                      type="audio/wav"
+                                    />
+                                    <source
+                                      src={call.recording_url}
+                                      type="audio/mpeg"
+                                    />
+                                    Tarayıcınız ses dosyasını desteklemiyor.
+                                  </audio>
+                                </div>
+                              )}
+                              <div className="flex items-start gap-2 rounded-md bg-violet-100/70 p-3 text-sm text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                                <Bot className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                                <span>
+                                  Bu görüşme yapay zeka asistanı tarafından
+                                  otomatik olarak gerçekleştirilmiş ve kayıt
+                                  edilmiştir.
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Field Mapping Schema
 export const fieldMappingSchema = z.object({
   field_key: z.string(),
   field_label: z.string(),
@@ -8,7 +7,6 @@ export const fieldMappingSchema = z.object({
 });
 export type FieldMapping = z.infer<typeof fieldMappingSchema>;
 
-// Lead Form Field Schema
 export const leadFormFieldSchema = z.object({
   key: z.string(),
   label: z.string(),
@@ -16,7 +14,6 @@ export const leadFormFieldSchema = z.object({
 });
 export type LeadFormField = z.infer<typeof leadFormFieldSchema>;
 
-// Facebook Lead Form Schema
 export const facebookLeadFormSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -25,7 +22,6 @@ export const facebookLeadFormSchema = z.object({
 });
 export type FacebookLeadForm = z.infer<typeof facebookLeadFormSchema>;
 
-// Category Schema
 export const categorySchema = z.object({
   id: z.number(),
   organization_id: z.number(),
@@ -44,7 +40,6 @@ export type Category = z.infer<typeof categorySchema>;
 
 export const categoryListSchema = z.array(categorySchema);
 
-// Customer Fields for mapping
 export const CUSTOMER_FIELDS = [
   { value: 'name', label: 'Ad Soyad' },
   { value: 'email', label: 'E-posta' },
