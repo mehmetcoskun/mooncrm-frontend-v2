@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { z } from 'zod';
 import { AxiosError } from 'axios';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
@@ -76,6 +77,29 @@ import {
   type TravelInfo,
 } from '../data/schema';
 import { CustomersTeethDialog } from './customers-teeth-dialog';
+
+const formSchema = z
+  .object({
+    name: z.string().min(1, { message: 'Ad Soyad alanı zorunludur.' }),
+    phone: z.string().min(1, { message: 'Telefon alanı zorunludur.' }),
+    country: z.string().min(1, { message: 'Ülke alanı zorunludur.' }),
+    user_id: z.number().min(1, { message: 'Danışman seçimi zorunludur.' }),
+    category_id: z.number().min(1, { message: 'Kategori seçimi zorunludur.' }),
+    status_id: z.number().min(1, { message: 'Durum seçimi zorunludur.' }),
+    sales_date: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.status_id === 8) {
+        return data.sales_date && data.sales_date.trim() !== '';
+      }
+      return true;
+    },
+    {
+      message: 'Satış Tarihi alanı zorunludur.',
+      path: ['sales_date'],
+    }
+  );
 
 const getSidebarNavItems = (
   canAccessFiles: boolean,
@@ -373,6 +397,24 @@ export function CustomersDetail() {
   };
 
   const handleSave = () => {
+    const validationResult = formSchema.safeParse({
+      name: formData.name,
+      phone: formData.phone,
+      country: formData.country,
+      user_id: formData.user_id,
+      category_id: formData.category_id,
+      status_id: formData.status_id,
+      sales_date: salesInfo.sales_date,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.issues[0];
+      toast.error('Hata', {
+        description: firstError.message,
+      });
+      return;
+    }
+
     const {
       ad_name,
       adset_name,
@@ -991,9 +1033,14 @@ export function CustomersDetail() {
                         Durum <span className="text-destructive">*</span>
                       </Label>
                       <SearchableSelect
-                        value={formData.status_id ? String(formData.status_id) : ''}
+                        value={
+                          formData.status_id ? String(formData.status_id) : ''
+                        }
                         onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, status_id: Number(value) }))
+                          setFormData((prev) => ({
+                            ...prev,
+                            status_id: Number(value),
+                          }))
                         }
                         placeholder="Durum seçin"
                         searchPlaceholder="Durum ara..."
@@ -1281,7 +1328,9 @@ export function CustomersDetail() {
                     <h3 className="text-lg font-semibold">Satış Bilgileri</h3>
 
                     <div className="space-y-2">
-                      <Label htmlFor="sales_date">Satış Tarihi</Label>
+                      <Label htmlFor="sales_date">
+                        Satış Tarihi <span className="text-destructive">*</span>
+                      </Label>
                       <Input
                         id="sales_date"
                         type="date"

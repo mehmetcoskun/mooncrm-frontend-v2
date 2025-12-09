@@ -55,6 +55,7 @@ type FieldType =
   | 'ad_name'
   | 'adset_name'
   | 'campaign_name'
+  | 'sales_date'
   | 'created_at'
   | 'updated_at';
 
@@ -148,6 +149,11 @@ const FIELD_CONFIG: Record<
     label: 'Kampanya Adı',
     operators: ['contains'],
     type: 'text',
+  },
+  sales_date: {
+    label: 'Satış Tarihi',
+    operators: ['eq', 'between'],
+    type: 'date',
   },
   created_at: {
     label: 'Kayıt Tarihi',
