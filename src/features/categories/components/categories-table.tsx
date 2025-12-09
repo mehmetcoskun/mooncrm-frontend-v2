@@ -10,7 +10,6 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  type ColumnFiltersState,
   type PaginationState,
 } from '@tanstack/react-table';
 import { Loader2 } from 'lucide-react';
@@ -37,21 +36,21 @@ declare module '@tanstack/react-table' {
 type DataTableProps = {
   data: Category[];
   isLoading?: boolean;
+  search: string;
+  onSearchChange: (search: string) => void;
 };
 
 export function CategoriesTable({
   data,
   isLoading = false,
+  search,
+  onSearchChange,
 }: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Local state management for table (uncomment to use local-only state, not synced with URL)
-  const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>(
-    []
-  );
   const [pagination, onPaginationChange] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -64,12 +63,12 @@ export function CategoriesTable({
       sorting,
       pagination,
       rowSelection,
-      columnFilters,
       columnVisibility,
+      globalFilter: search,
     },
     enableRowSelection: true,
     onPaginationChange,
-    onColumnFiltersChange,
+    onGlobalFilterChange: onSearchChange,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
@@ -83,11 +82,7 @@ export function CategoriesTable({
 
   return (
     <div className='space-y-4 max-sm:has-[div[role="toolbar"]]:mb-16'>
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder="Ara..."
-        searchKey="title"
-      />
+      <DataTableToolbar table={table} searchPlaceholder="Ara..." />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

@@ -53,7 +53,7 @@ export function Customers() {
     setLogicalOperator(logicalOp);
   };
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['customers', queryFilters],
     queryFn: () => getCustomers(queryFilters),
   });
@@ -115,6 +115,7 @@ export function Customers() {
           <CustomersTable
             data={customers}
             isLoading={isLoading}
+            isFetching={isFetching}
             search={search}
             onSearchChange={setSearch}
             pagination={pagination}

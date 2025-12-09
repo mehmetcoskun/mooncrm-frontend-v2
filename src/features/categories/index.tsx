@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '@/services/category-service';
 import { Header } from '@/components/layout/header';
@@ -11,6 +12,8 @@ import { CategoriesProvider } from './components/categories-provider';
 import { CategoriesTable } from './components/categories-table';
 
 export function Categories() {
+  const [search, setSearch] = useState('');
+
   const {
     data: categories = [],
     isLoading,
@@ -43,7 +46,12 @@ export function Categories() {
           <CategoriesPrimaryButtons />
         </div>
         <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-y-0 lg:space-x-12">
-          <CategoriesTable data={categories} isLoading={isLoading} />
+          <CategoriesTable
+            data={categories}
+            isLoading={isLoading}
+            search={search}
+            onSearchChange={setSearch}
+          />
         </div>
       </Main>
 

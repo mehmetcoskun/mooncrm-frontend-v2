@@ -8,8 +8,9 @@ import {
   useReactTable,
   type PaginationState,
 } from '@tanstack/react-table';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -18,6 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table';
 import { type Category } from '@/features/categories/data/schema';
 import { type Service } from '@/features/services/data/schema';
@@ -37,6 +43,7 @@ declare module '@tanstack/react-table' {
 type DataTableProps = {
   data: Customer[];
   isLoading?: boolean;
+  isFetching?: boolean;
   pagination: PaginationState;
   setPagination: (
     pagination: PaginationState | ((prev: PaginationState) => PaginationState)
@@ -54,6 +61,7 @@ type DataTableProps = {
 export function CustomersTable({
   data,
   isLoading = false,
+  isFetching = false,
   search,
   onSearchChange,
   pagination,
@@ -100,7 +108,25 @@ export function CustomersTable({
   return (
     <div className='space-y-4 max-sm:has-[div[role="toolbar"]]:mb-16'>
       <div className="flex items-center justify-between gap-4">
-        <DataTableToolbar table={table} searchPlaceholder="Ara..." />
+        <div className="flex items-center gap-2">
+          <DataTableToolbar table={table} searchPlaceholder="Ara..." />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="h-8 w-8"
+              >
+                <RefreshCw
+                  className={cn('h-4 w-4', isFetching && 'animate-spin')}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Yenile</TooltipContent>
+          </Tooltip>
+        </div>
         <div className="bg-muted/50 flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm">
           <span className="text-muted-foreground font-medium">Toplam:</span>
           <span className="font-semibold">

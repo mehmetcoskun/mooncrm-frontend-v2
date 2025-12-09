@@ -21,6 +21,13 @@ export const categoriesColumns: ColumnDef<Category>[] = [
     cell: ({ row }) => <div>{row.getValue('title')}</div>,
   },
   {
+    accessorKey: 'lead_form_id',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Lead Form ID" />
+    ),
+    cell: ({ row }) => <div>{row.getValue('lead_form_id')}</div>,
+  },
+  {
     accessorKey: 'created_at',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Oluşturulma Tarihi" />

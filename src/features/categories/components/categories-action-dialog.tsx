@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { SearchableSelect } from '@/components/searchable-select';
 import { SelectDropdown } from '@/components/select-dropdown';
 import type { AiAssistant } from '@/features/vapi/ai-assistants/data/schema';
 import type { PhoneNumber } from '@/features/vapi/phone-numbers/data/schema';
@@ -478,23 +479,17 @@ export function CategoriesActionDialog({
                     <FormLabel>Üst Kategori</FormLabel>
                     <div className="flex items-center gap-2">
                       <FormControl>
-                        <SelectDropdown
-                          defaultValue={field.value?.toString() || ''}
+                        <SearchableSelect
+                          value={field.value?.toString() || ''}
                           onValueChange={(value) => {
                             field.onChange(value ? parseInt(value, 10) : null);
                           }}
                           placeholder="Üst kategori seçin (opsiyonel)"
-                          items={categories
-                            .filter(
-                              (cat: Category) =>
-                                !isEdit || cat.id !== currentRow?.id
-                            )
-                            .map((cat: Category) => ({
-                              value: String(cat.id),
-                              label: cat.title,
-                            }))}
-                          isControlled={true}
-                          className="w-full"
+                          items={categories.map((cat: Category) => ({
+                            value: String(cat.id),
+                            label: cat.title,
+                          }))}
+                          modalPopover={true}
                         />
                       </FormControl>
                       {field.value && (
