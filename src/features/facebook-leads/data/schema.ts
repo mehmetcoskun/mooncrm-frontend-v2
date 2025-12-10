@@ -1,5 +1,19 @@
 import { z } from 'zod';
 
+export const facebookPageSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  access_token: z.string(),
+});
+export type FacebookPage = z.infer<typeof facebookPageSchema>;
+
+export const facebookFormSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.string(),
+});
+export type FacebookForm = z.infer<typeof facebookFormSchema>;
+
 export const facebookLeadSchema = z.object({
   id: z.string(),
   created_time: z.string(),

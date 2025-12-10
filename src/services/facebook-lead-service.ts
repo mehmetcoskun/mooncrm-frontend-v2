@@ -1,6 +1,20 @@
 import api from '@/lib/api';
 
-export async function getFacebookLeads(params?: {
+export async function getFacebookPages() {
+  const response = await api.get('/facebook/pages');
+  return response.data;
+}
+
+export async function getFacebookForms(pageId: string) {
+  const response = await api.get('/facebook/forms', {
+    params: { page_id: pageId },
+  });
+  return response.data;
+}
+
+export async function getFacebookLeads(params: {
+  page_id: string;
+  form_id: string;
   limit?: number;
   after?: string;
   before?: string;
