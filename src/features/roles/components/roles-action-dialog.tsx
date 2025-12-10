@@ -10,6 +10,7 @@ import { getAvailablePermissions } from '@/services/permission-service';
 import { createRole, updateRole } from '@/services/role-service';
 import { getStatuses } from '@/services/status-service';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -232,8 +233,8 @@ export function RolesActionDialog({
         onOpenChange(state);
       }}
     >
-      <DialogContent className="sm:max-w-3xl">
-        <DialogHeader className="text-start">
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-3xl">
+        <DialogHeader className="flex-shrink-0 text-start">
           <DialogTitle>{isEdit ? 'Rol Düzenle' : 'Yeni Rol Ekle'}</DialogTitle>
           <DialogDescription>
             {isEdit
@@ -242,7 +243,7 @@ export function RolesActionDialog({
             İşlem tamamlandığında kaydet'e tıklayın.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-1">
+        <div className="flex-1 overflow-y-auto py-1">
           <Form {...form}>
             <form
               id="role-form"
@@ -398,115 +399,114 @@ export function RolesActionDialog({
                   name="permissions"
                   render={({ field }) => (
                     <FormItem className="space-y-4">
-                      <FormLabel className="text-base font-medium">
-                        Yetkiler
-                      </FormLabel>
-
-                      {/* Tümünü Seç */}
-                      <div className="bg-muted/30 flex items-center justify-start rounded-lg p-3">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="select-all-permissions"
-                            checked={
-                              permissions.length > 0 &&
-                              permissions.every((p: { id: number }) =>
-                                field.value?.includes(p.id)
-                              )
-                            }
-                            onCheckedChange={() => handleGlobalSelectAll()}
-                          />
-                          <label
-                            htmlFor="select-all-permissions"
-                            className="cursor-pointer font-medium"
-                          >
-                            Tüm Yetkiler Seç/Kaldır
-                          </label>
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-base font-medium">
+                          Yetkiler
+                        </FormLabel>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleGlobalSelectAll}
+                        >
+                          {permissions.length > 0 &&
+                          permissions.every((p: { id: number }) =>
+                            field.value?.includes(p.id)
+                          )
+                            ? 'Tümünü Kaldır'
+                            : 'Tümünü Seç'}
+                        </Button>
                       </div>
 
                       <FormControl>
-                        <ScrollArea className="h-80 w-full rounded-lg border">
-                          <div className="p-4">
-                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                              {groupedPermissions.map(
-                                (category: {
-                                  title: string;
-                                  actions: Record<
-                                    string,
-                                    { id: number; title: string; slug: string }
-                                  >;
-                                }) => (
-                                  <div
-                                    key={category.title}
-                                    className="bg-card rounded-lg border"
-                                  >
-                                    {/* Kategori Başlığı */}
-                                    <div className="bg-muted/30 border-b p-3">
-                                      <div className="flex items-center space-x-2">
-                                        <Checkbox
-                                          id={`category-${category.title}`}
-                                          checked={
-                                            Object.values(category.actions)
-                                              .length > 0 &&
-                                            Object.values(
-                                              category.actions
-                                            ).every((action) =>
-                                              field.value?.includes(action.id)
-                                            )
-                                          }
-                                          onCheckedChange={() =>
-                                            handleCategorySelectAll(category)
-                                          }
-                                        />
-                                        <label
-                                          htmlFor={`category-${category.title}`}
-                                          className="cursor-pointer text-sm font-medium"
-                                        >
-                                          {category.title}
-                                        </label>
-                                      </div>
-                                    </div>
+                        <div className="space-y-2">
+                          {groupedPermissions.map(
+                            (category: {
+                              title: string;
+                              actions: Record<
+                                string,
+                                { id: number; title: string; slug: string }
+                              >;
+                            }) => {
+                              const categoryPermissionIds = Object.values(
+                                category.actions
+                              ).map((a) => a.id);
+                              const selectedCount =
+                                categoryPermissionIds.filter((id) =>
+                                  field.value?.includes(id)
+                                ).length;
+                              const totalCount = categoryPermissionIds.length;
+                              const allSelected =
+                                totalCount > 0 && selectedCount === totalCount;
 
-                                    {/* Kategori Aksiyonları */}
-                                    <div className="p-3">
-                                      <div className="space-y-2">
-                                        {Object.entries(category.actions).map(
-                                          ([actionKey, action]) => (
-                                            <div
-                                              key={`${category.title}-${actionKey}`}
-                                              className="flex items-center space-x-2"
-                                            >
-                                              <Checkbox
-                                                id={`${category.title}-${actionKey}`}
-                                                checked={
-                                                  field.value?.includes(
-                                                    action.id
-                                                  ) || false
-                                                }
-                                                onCheckedChange={(checked) =>
-                                                  handlePermissionChange(
-                                                    action.id,
-                                                    checked as boolean
-                                                  )
-                                                }
-                                              />
-                                              <label
-                                                htmlFor={`${category.title}-${actionKey}`}
-                                                className="hover:text-foreground cursor-pointer text-sm"
-                                              >
-                                                {actionKey}
-                                              </label>
-                                            </div>
-                                          )
-                                        )}
-                                      </div>
-                                    </div>
+                              return (
+                                <div
+                                  key={category.title}
+                                  className="rounded-lg border"
+                                >
+                                  {/* Modül Başlığı */}
+                                  <div className="bg-muted/30 flex items-center justify-between border-b px-4 py-2.5">
+                                    <label
+                                      htmlFor={`category-${category.title}`}
+                                      className="flex cursor-pointer items-center gap-3"
+                                    >
+                                      <Checkbox
+                                        id={`category-${category.title}`}
+                                        checked={allSelected}
+                                        onCheckedChange={() =>
+                                          handleCategorySelectAll(category)
+                                        }
+                                      />
+                                      <span className="font-medium">
+                                        {category.title}
+                                      </span>
+                                    </label>
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
+                                      {selectedCount}/{totalCount}
+                                    </Badge>
                                   </div>
-                                )
-                              )}
-                            </div>
-                          </div>
-                        </ScrollArea>
+
+                                  {/* Yetkiler */}
+                                  <div className="flex flex-wrap gap-2 p-3">
+                                    {Object.entries(category.actions).map(
+                                      ([actionKey, action]) => {
+                                        const isChecked =
+                                          field.value?.includes(action.id) ||
+                                          false;
+                                        return (
+                                          <label
+                                            key={action.id}
+                                            htmlFor={`perm-${action.id}`}
+                                            className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+                                              isChecked
+                                                ? 'border-primary bg-primary/10 text-primary'
+                                                : 'hover:bg-muted/50'
+                                            }`}
+                                          >
+                                            <Checkbox
+                                              id={`perm-${action.id}`}
+                                              checked={isChecked}
+                                              onCheckedChange={(checked) =>
+                                                handlePermissionChange(
+                                                  action.id,
+                                                  checked as boolean
+                                                )
+                                              }
+                                            />
+                                            {actionKey}
+                                          </label>
+                                        );
+                                      }
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -516,7 +516,7 @@ export function RolesActionDialog({
             </form>
           </Form>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0 border-t pt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
