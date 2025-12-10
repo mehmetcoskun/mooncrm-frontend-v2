@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/sidebar';
 import { NavLogo } from './nav-logo';
 import { NavMenu } from './nav-menu';
+import { NavMoonAdsPromo } from './nav-moonads-promo';
 import { NavUser } from './nav-user';
 import type { NavMenuItems } from './types';
 
@@ -153,6 +154,8 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <NavMenu items={menuItems.items} />
+
+        <NavMoonAdsPromo />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

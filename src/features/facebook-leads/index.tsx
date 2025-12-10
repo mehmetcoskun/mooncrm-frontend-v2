@@ -5,17 +5,11 @@ import {
   getFacebookLeads,
   getFacebookPages,
 } from '@/services/facebook-lead-service';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Header } from '@/components/layout/header';
 import { Main } from '@/components/layout/main';
 import { LeadSwitch } from '@/components/lead-switch';
 import { ProfileDropdown } from '@/components/profile-dropdown';
+import { SearchableSelect } from '@/components/searchable-select';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { FacebookLeadsDialogs } from './components/facebook-leads-dialogs';
 import { FacebookLeadsProvider } from './components/facebook-leads-provider';
@@ -132,53 +126,47 @@ export function FacebookLeads() {
               Facebook'tan gelen tüm lead'leri buradan görüntüleyebilirsiniz.
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium">Sayfa:</span>
-            <Select
-              value={selectedPageId || ''}
-              onValueChange={handlePageChange}
-              disabled={isPagesLoading || pages.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={isPagesLoading ? 'Yükleniyor...' : 'Sayfa seçin'}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {pages.map((page) => (
-                  <SelectItem key={page.id} value={page.id}>
-                    {page.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="text-sm font-medium">Form:</span>
-            <Select
-              value={selectedFormId || ''}
-              onValueChange={handleFormChange}
-              disabled={!selectedPageId || isFormsLoading || forms.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={
-                    !selectedPageId
-                      ? 'Önce sayfa seçin'
-                      : isFormsLoading
-                        ? 'Yükleniyor...'
-                        : forms.length === 0
-                          ? 'Form bulunamadı'
-                          : 'Form seçin'
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {forms.map((form) => (
-                  <SelectItem key={form.id} value={form.id}>
-                    {form.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="flex flex-1 items-center gap-2 sm:flex-initial">
+              <span className="w-12 text-sm font-medium sm:w-auto">Sayfa:</span>
+              <SearchableSelect
+                value={selectedPageId || ''}
+                onValueChange={handlePageChange}
+                disabled={pages.length === 0}
+                isPending={isPagesLoading}
+                placeholder="Sayfa seçin"
+                searchPlaceholder="Sayfa ara..."
+                emptyMessage="Sayfa bulunamadı."
+                items={pages.map((page) => ({
+                  label: page.name,
+                  value: page.id,
+                }))}
+                className="flex-1 sm:flex-initial"
+              />
+            </div>
+            <div className="flex flex-1 items-center gap-2 sm:flex-initial">
+              <span className="w-12 text-sm font-medium sm:w-auto">Form:</span>
+              <SearchableSelect
+                value={selectedFormId || ''}
+                onValueChange={handleFormChange}
+                disabled={!selectedPageId || forms.length === 0}
+                isPending={isFormsLoading}
+                placeholder={
+                  !selectedPageId
+                    ? 'Önce sayfa seçin'
+                    : forms.length === 0
+                      ? 'Form bulunamadı'
+                      : 'Form seçin'
+                }
+                searchPlaceholder="Form ara..."
+                emptyMessage="Form bulunamadı."
+                items={forms.map((form) => ({
+                  label: form.name,
+                  value: form.id,
+                }))}
+                className="flex-1 sm:flex-initial"
+              />
+            </div>
           </div>
         </div>
 

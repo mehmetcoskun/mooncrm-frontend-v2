@@ -733,24 +733,22 @@ export function CustomersDetail() {
       </Header>
 
       <Main fixed fluid>
-        <div className="mb-4 flex items-center justify-between lg:mb-6">
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                {customer?.name}
-              </h1>
-              {customer && customer.duplicate_count > 0 && (
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 px-3 py-1 text-sm font-medium text-white">
-                  <Copy className="h-3.5 w-3.5" />
-                  <span>{customer.duplicate_count} Tekrarlı</span>
-                </div>
-              )}
-            </div>
+        <div className="mb-4 flex items-center justify-between gap-4 lg:mb-6">
+          <div className="min-w-0 flex-1 space-y-1">
+            <h1 className="truncate text-2xl font-bold tracking-tight md:text-3xl">
+              {customer?.name}
+            </h1>
             <p className="text-muted-foreground">#{customerId}</p>
+            {customer && customer.duplicate_count > 0 && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 px-2.5 py-1 text-xs font-medium text-white">
+                <Copy className="h-3 w-3" />
+                <span>{customer.duplicate_count} Tekrarlı</span>
+              </div>
+            )}
           </div>
 
           <PermissionGuard permission="customer_Edit">
-            <Button onClick={handleSave} disabled={updateMutation.isPending}>
+            <Button onClick={handleSave} disabled={updateMutation.isPending} className="shrink-0">
               {updateMutation.isPending ? 'Kaydediliyor...' : 'Kaydet'}
             </Button>
           </PermissionGuard>
