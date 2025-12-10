@@ -36,6 +36,7 @@ import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedPermissionsIndexRouteImport } from './routes/_authenticated/permissions/index'
 import { Route as AuthenticatedOrganizationsIndexRouteImport } from './routes/_authenticated/organizations/index'
 import { Route as AuthenticatedHotelsIndexRouteImport } from './routes/_authenticated/hotels/index'
+import { Route as AuthenticatedFacebookLeadsIndexRouteImport } from './routes/_authenticated/facebook-leads/index'
 import { Route as AuthenticatedEmailTemplatesIndexRouteImport } from './routes/_authenticated/email-templates/index'
 import { Route as AuthenticatedDoctorsIndexRouteImport } from './routes/_authenticated/doctors/index'
 import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authenticated/customers/index'
@@ -202,6 +203,12 @@ const AuthenticatedHotelsIndexRoute =
     path: '/hotels/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFacebookLeadsIndexRoute =
+  AuthenticatedFacebookLeadsIndexRouteImport.update({
+    id: '/facebook-leads/',
+    path: '/facebook-leads/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmailTemplatesIndexRoute =
   AuthenticatedEmailTemplatesIndexRouteImport.update({
     id: '/email-templates/',
@@ -313,6 +320,7 @@ export interface FileRoutesByFullPath {
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/doctors': typeof AuthenticatedDoctorsIndexRoute
   '/email-templates': typeof AuthenticatedEmailTemplatesIndexRoute
+  '/facebook-leads': typeof AuthenticatedFacebookLeadsIndexRoute
   '/hotels': typeof AuthenticatedHotelsIndexRoute
   '/organizations': typeof AuthenticatedOrganizationsIndexRoute
   '/permissions': typeof AuthenticatedPermissionsIndexRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/doctors': typeof AuthenticatedDoctorsIndexRoute
   '/email-templates': typeof AuthenticatedEmailTemplatesIndexRoute
+  '/facebook-leads': typeof AuthenticatedFacebookLeadsIndexRoute
   '/hotels': typeof AuthenticatedHotelsIndexRoute
   '/organizations': typeof AuthenticatedOrganizationsIndexRoute
   '/permissions': typeof AuthenticatedPermissionsIndexRoute
@@ -400,6 +409,7 @@ export interface FileRoutesById {
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/doctors/': typeof AuthenticatedDoctorsIndexRoute
   '/_authenticated/email-templates/': typeof AuthenticatedEmailTemplatesIndexRoute
+  '/_authenticated/facebook-leads/': typeof AuthenticatedFacebookLeadsIndexRoute
   '/_authenticated/hotels/': typeof AuthenticatedHotelsIndexRoute
   '/_authenticated/organizations/': typeof AuthenticatedOrganizationsIndexRoute
   '/_authenticated/permissions/': typeof AuthenticatedPermissionsIndexRoute
@@ -445,6 +455,7 @@ export interface FileRouteTypes {
     | '/customers'
     | '/doctors'
     | '/email-templates'
+    | '/facebook-leads'
     | '/hotels'
     | '/organizations'
     | '/permissions'
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '/customers'
     | '/doctors'
     | '/email-templates'
+    | '/facebook-leads'
     | '/hotels'
     | '/organizations'
     | '/permissions'
@@ -531,6 +543,7 @@ export interface FileRouteTypes {
     | '/_authenticated/customers/'
     | '/_authenticated/doctors/'
     | '/_authenticated/email-templates/'
+    | '/_authenticated/facebook-leads/'
     | '/_authenticated/hotels/'
     | '/_authenticated/organizations/'
     | '/_authenticated/permissions/'
@@ -756,6 +769,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHotelsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/facebook-leads/': {
+      id: '/_authenticated/facebook-leads/'
+      path: '/facebook-leads'
+      fullPath: '/facebook-leads'
+      preLoaderRoute: typeof AuthenticatedFacebookLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/email-templates/': {
       id: '/_authenticated/email-templates/'
       path: '/email-templates'
@@ -894,6 +914,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCustomersIndexRoute: typeof AuthenticatedCustomersIndexRoute
   AuthenticatedDoctorsIndexRoute: typeof AuthenticatedDoctorsIndexRoute
   AuthenticatedEmailTemplatesIndexRoute: typeof AuthenticatedEmailTemplatesIndexRoute
+  AuthenticatedFacebookLeadsIndexRoute: typeof AuthenticatedFacebookLeadsIndexRoute
   AuthenticatedHotelsIndexRoute: typeof AuthenticatedHotelsIndexRoute
   AuthenticatedOrganizationsIndexRoute: typeof AuthenticatedOrganizationsIndexRoute
   AuthenticatedPermissionsIndexRoute: typeof AuthenticatedPermissionsIndexRoute
@@ -928,6 +949,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCustomersIndexRoute: AuthenticatedCustomersIndexRoute,
   AuthenticatedDoctorsIndexRoute: AuthenticatedDoctorsIndexRoute,
   AuthenticatedEmailTemplatesIndexRoute: AuthenticatedEmailTemplatesIndexRoute,
+  AuthenticatedFacebookLeadsIndexRoute: AuthenticatedFacebookLeadsIndexRoute,
   AuthenticatedHotelsIndexRoute: AuthenticatedHotelsIndexRoute,
   AuthenticatedOrganizationsIndexRoute: AuthenticatedOrganizationsIndexRoute,
   AuthenticatedPermissionsIndexRoute: AuthenticatedPermissionsIndexRoute,

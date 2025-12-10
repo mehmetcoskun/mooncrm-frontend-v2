@@ -62,6 +62,13 @@ export const settings = [
     permission: 'setting_Facebook',
   },
   {
+    name: "Facebook Lead'leri",
+    logo: <Facebook />,
+    desc: "Facebook'tan gelen lead'leri görüntüleyin ve yönetin.",
+    route: '/facebook-leads',
+    permission: 'facebook_lead_Access',
+  },
+  {
     name: 'VAPI AI Ayarları',
     logo: <Phone />,
     desc: 'VAPI AI ses asistanı entegrasyonu için ayarlar.',
