@@ -75,7 +75,10 @@ export function CustomersTable({
 }: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    updated_at: false,
+    email: false,
+  });
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const pageCount = Math.ceil(totalRecords / pagination.pageSize);

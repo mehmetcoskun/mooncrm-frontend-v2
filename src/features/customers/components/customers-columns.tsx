@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { Link } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
 import { updateCustomer } from '@/services/customer-service';
 import { tr } from 'date-fns/locale';
@@ -116,6 +117,22 @@ export function getCustomersColumns({
       },
     },
     {
+      accessorKey: 'updated_at',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Güncellenme Tarihi" />
+      ),
+      cell: ({ row }) => {
+        return (
+          <div className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 px-3 py-1 dark:border-gray-700 dark:from-gray-700 dark:to-gray-800">
+            <Calendar className="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-300" />
+            {format(row.getValue('updated_at'), 'dd MMMM yyyy HH:mm:ss', {
+              locale: tr,
+            })}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: 'user',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Danışman" />
@@ -163,7 +180,15 @@ export function getCustomersColumns({
         <DataTableColumnHeader column={column} title="Müşteri Adı" />
       ),
       cell: ({ row }) => {
-        return <div>{row.getValue('name')}</div>;
+        return (
+          <Link
+            to="/customers/$customerId"
+            params={{ customerId: row.original.id.toString() }}
+            className="hover:text-primary hover:underline"
+          >
+            {row.getValue('name')}
+          </Link>
+        );
       },
     },
     {
@@ -208,6 +233,36 @@ export function getCustomersColumns({
             title="Kopyalamak için tıklayın"
           >
             <span>{maskedPhone}</span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'email',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Email" />
+      ),
+      cell: ({ row }) => {
+        const email = row.getValue('email') as string | null;
+
+        const handleCopyEmail = async () => {
+          if (!email) return;
+
+          try {
+            await navigator.clipboard.writeText(email);
+            toast.success('Email kopyalandı');
+          } catch (_error) {
+            toast.error('Email kopyalanırken bir hata oluştu');
+          }
+        };
+
+        return (
+          <div
+            onClick={handleCopyEmail}
+            className="hover:text-primary flex cursor-pointer items-center gap-2"
+            title="Kopyalamak için tıklayın"
+          >
+            <span>{email || ''}</span>
           </div>
         );
       },
