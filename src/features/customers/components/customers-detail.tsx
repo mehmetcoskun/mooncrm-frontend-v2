@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { AxiosError } from 'axios';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams } from '@tanstack/react-router';
 import { getCategories } from '@/services/category-service';
@@ -70,36 +72,94 @@ import { ThemeSwitch } from '@/components/theme-switch';
 import { ForbiddenError } from '@/features/errors/forbidden';
 import { GeneralError } from '@/features/errors/general-error';
 import { NotFoundError } from '@/features/errors/not-found-error';
-import {
-  type Customer,
-  type PhoneCall,
-  type SalesInfo,
-  type TravelInfo,
-} from '../data/schema';
+import { type Customer, type TravelInfo } from '../data/schema';
 import { CustomersTeethDialog } from './customers-teeth-dialog';
+
+const phoneCallSchema = z.object({
+  date: z.string(),
+  time: z.string(),
+  notes: z.string(),
+  is_ai_call: z.boolean().optional(),
+  recording_url: z.string().optional(),
+});
+
+const salesInfoSchema = z.object({
+  sales_date: z.string(),
+  trustpilot_review: z.boolean(),
+  google_maps_review: z.boolean(),
+  satisfaction_survey: z.boolean(),
+  warranty_sent: z.boolean(),
+  rpt: z.boolean(),
+  health_notes: z.string(),
+});
+
+const toothSchema = z.object({
+  tooth_number: z.number(),
+  treatment: z.string(),
+});
+
+const travelInfoSchema = z.object({
+  appointment_date: z.string(),
+  appointment_time: z.string(),
+  doctor_id: z.number().nullable(),
+  teeth: z.array(toothSchema),
+  is_custom_hotel: z.boolean(),
+  hotel_id: z.number().nullable(),
+  hotel_name: z.string(),
+  is_custom_transfer: z.boolean(),
+  transfer_id: z.number().nullable(),
+  transfer_name: z.string(),
+  room_type: z.string(),
+  person_count: z.string(),
+  notes: z.string(),
+  arrival_date: z.string(),
+  arrival_time: z.string(),
+  arrival_flight_code: z.string(),
+  departure_date: z.string(),
+  departure_time: z.string(),
+  departure_flight_code: z.string(),
+});
+
+const reminderSchema = z.object({
+  status: z.boolean(),
+  date: z.string().nullable(),
+  notes: z.string().nullable(),
+});
 
 const formSchema = z
   .object({
-    name: z.string().min(1, { message: 'Ad Soyad alanı zorunludur.' }),
-    phone: z.string().min(1, { message: 'Telefon alanı zorunludur.' }),
-    country: z.string().min(1, { message: 'Ülke alanı zorunludur.' }),
     user_id: z.number().min(1, { message: 'Danışman seçimi zorunludur.' }),
     category_id: z.number().min(1, { message: 'Kategori seçimi zorunludur.' }),
     status_id: z.number().min(1, { message: 'Durum seçimi zorunludur.' }),
-    sales_date: z.string().optional(),
+    service_ids: z.array(z.number()),
+    name: z.string().min(1, { message: 'Ad Soyad alanı zorunludur.' }),
+    email: z.string().optional(),
+    phone: z.string().min(1, { message: 'Telefon alanı zorunludur.' }),
+    country: z.string().min(1, { message: 'Ülke alanı zorunludur.' }),
+    notes: z.string().optional(),
+    payment_notes: z.string().optional(),
+    created_at: z.string().optional(),
+    reminder: reminderSchema,
+    phone_calls: z.array(phoneCallSchema),
+    sales_info: salesInfoSchema,
+    travel_info: z.array(travelInfoSchema),
   })
   .refine(
     (data) => {
       if (data.status_id === 8) {
-        return data.sales_date && data.sales_date.trim() !== '';
+        return (
+          data.sales_info.sales_date && data.sales_info.sales_date.trim() !== ''
+        );
       }
       return true;
     },
     {
       message: 'Satış Tarihi alanı zorunludur.',
-      path: ['sales_date'],
+      path: ['sales_info', 'sales_date'],
     }
   );
+
+type CustomerFormValues = z.infer<typeof formSchema>;
 
 const getSidebarNavItems = (
   canAccessFiles: boolean,
@@ -169,38 +229,58 @@ export function CustomersDetail() {
 
   const [activeSection, setActiveSection] = useState('personal');
 
-  const [formData, setFormData] = useState({
-    user_id: 0,
-    category_id: 0,
-    status_id: 0,
-    service_ids: [] as number[],
-    name: '',
-    email: '',
-    phone: '',
-    country: '',
-    notes: '',
-    payment_notes: '',
+  const [facebookLeadInfo, setFacebookLeadInfo] = useState({
     ad_name: '',
     adset_name: '',
     campaign_name: '',
     lead_form_id: '',
-    created_at: '',
-    reminder_enabled: false,
-    reminder_date: '',
-    reminder_notes: '',
   });
 
-  const [phoneCalls, setPhoneCalls] = useState<PhoneCall[]>([]);
-  const [salesInfo, setSalesInfo] = useState<SalesInfo>({
-    sales_date: '',
-    trustpilot_review: false,
-    google_maps_review: false,
-    satisfaction_survey: false,
-    warranty_sent: false,
-    rpt: false,
-    health_notes: '',
+  const form = useForm<CustomerFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      user_id: 0,
+      category_id: 0,
+      status_id: 0,
+      service_ids: [],
+      name: '',
+      email: '',
+      phone: '',
+      country: '',
+      notes: '',
+      payment_notes: '',
+      created_at: '',
+      reminder: {
+        status: false,
+        date: null,
+        notes: null,
+      },
+      phone_calls: [],
+      sales_info: {
+        sales_date: '',
+        trustpilot_review: false,
+        google_maps_review: false,
+        satisfaction_survey: false,
+        warranty_sent: false,
+        rpt: false,
+        health_notes: '',
+      },
+      travel_info: [],
+    },
   });
-  const [travelInfo, setTravelInfo] = useState<TravelInfo[]>([]);
+
+  const {
+    watch,
+    setValue,
+    getValues,
+    formState: { dirtyFields },
+  } = form;
+
+  const phoneCalls = watch('phone_calls');
+  const salesInfo = watch('sales_info');
+  const travelInfo = watch('travel_info');
+  const reminderEnabled = watch('reminder.status');
+
   const [editingFileId, setEditingFileId] = useState<number | null>(null);
   const [editingFileName, setEditingFileName] = useState('');
   const [teethDialogOpen, setTeethDialogOpen] = useState(false);
@@ -328,7 +408,7 @@ export function CustomersDetail() {
 
   useEffect(() => {
     if (customer) {
-      setFormData({
+      form.reset({
         user_id: customer.user_id || 0,
         category_id: customer.category_id || 0,
         status_id: customer.status_id || 0,
@@ -339,36 +419,41 @@ export function CustomersDetail() {
         country: customer.country || '',
         notes: customer.notes || '',
         payment_notes: customer.payment_notes || '',
+        created_at: customer.created_at?.toString() || '',
+        reminder: {
+          status: customer.reminder?.status || false,
+          date: customer.reminder?.date || null,
+          notes: customer.reminder?.notes || null,
+        },
+        phone_calls: customer.phone_calls || [],
+        sales_info: {
+          sales_date: customer.sales_info?.sales_date || '',
+          trustpilot_review: customer.sales_info?.trustpilot_review || false,
+          google_maps_review: customer.sales_info?.google_maps_review || false,
+          satisfaction_survey:
+            customer.sales_info?.satisfaction_survey || false,
+          warranty_sent: customer.sales_info?.warranty_sent || false,
+          rpt: customer.sales_info?.rpt || false,
+          health_notes: customer.sales_info?.health_notes || '',
+        },
+        travel_info:
+          customer.travel_info && Array.isArray(customer.travel_info)
+            ? customer.travel_info
+            : [],
+      });
+
+      setFacebookLeadInfo({
         ad_name: customer.ad_name || '',
         adset_name: customer.adset_name || '',
         campaign_name: customer.campaign_name || '',
         lead_form_id: customer.lead_form_id || '',
-        created_at: customer.created_at?.toString() || '',
-        reminder_enabled: customer.reminder?.status || false,
-        reminder_date: customer.reminder?.date || '',
-        reminder_notes: customer.reminder?.notes || '',
       });
-      setPhoneCalls(customer.phone_calls || []);
-      if (customer.sales_info) {
-        setSalesInfo({
-          sales_date: customer.sales_info.sales_date || '',
-          trustpilot_review: customer.sales_info.trustpilot_review || false,
-          google_maps_review: customer.sales_info.google_maps_review || false,
-          satisfaction_survey: customer.sales_info.satisfaction_survey || false,
-          warranty_sent: customer.sales_info.warranty_sent || false,
-          rpt: customer.sales_info.rpt || false,
-          health_notes: customer.sales_info.health_notes || '',
-        });
-      }
-      if (customer.travel_info && Array.isArray(customer.travel_info)) {
-        setTravelInfo(customer.travel_info);
-      }
 
       if (customer.duplicate_count > 0 && !customer.duplicate_checked) {
         updateCustomer(Number(customerId), { duplicate_checked: true });
       }
     }
-  }, [customer, customerId]);
+  }, [customer, customerId, form]);
 
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -389,23 +474,10 @@ export function CustomersDetail() {
     },
   });
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
-
   const handleSave = () => {
-    const validationResult = formSchema.safeParse({
-      name: formData.name,
-      phone: formData.phone,
-      country: formData.country,
-      user_id: formData.user_id,
-      category_id: formData.category_id,
-      status_id: formData.status_id,
-      sales_date: salesInfo.sales_date,
-    });
+    const values = getValues();
+
+    const validationResult = formSchema.safeParse(values);
 
     if (!validationResult.success) {
       const firstError = validationResult.error.issues[0];
@@ -415,50 +487,71 @@ export function CustomersDetail() {
       return;
     }
 
-    const {
-      ad_name,
-      adset_name,
-      campaign_name,
-      lead_form_id,
-      reminder_enabled,
-      reminder_date,
-      reminder_notes,
-      ...restFormData
-    } = formData;
+    const dataToSave: Record<string, unknown> = {};
 
-    const dataToSave: Record<string, unknown> = {
-      user_id: restFormData.user_id,
-      category_id: restFormData.category_id,
-      status_id: restFormData.status_id,
-      name: restFormData.name,
-      email: restFormData.email,
-      phone: restFormData.phone,
-      country: restFormData.country,
-      notes: restFormData.notes,
-      phone_calls: phoneCalls,
-      reminder: {
-        status: formData.reminder_enabled,
-        date: formData.reminder_date,
-        notes: formData.reminder_notes,
-      },
-      payment_notes: restFormData.payment_notes,
-      service_ids: formData.service_ids,
-      sales_info: salesInfo,
-      travel_info: travelInfo,
-      created_at: restFormData.created_at,
+    const isDirty = (path: string): boolean => {
+      const parts = path.split('.');
+      let current: unknown = dirtyFields;
+      for (const part of parts) {
+        if (current && typeof current === 'object' && part in current) {
+          current = (current as Record<string, unknown>)[part];
+        } else {
+          return false;
+        }
+      }
+      return Boolean(current);
     };
+
+    if (isDirty('user_id')) dataToSave.user_id = values.user_id;
+    if (isDirty('category_id')) dataToSave.category_id = values.category_id;
+    if (isDirty('status_id')) dataToSave.status_id = values.status_id;
+    if (isDirty('service_ids')) dataToSave.service_ids = values.service_ids;
+    if (isDirty('name')) dataToSave.name = values.name;
+    if (isDirty('email')) dataToSave.email = values.email;
+    if (isDirty('phone')) dataToSave.phone = values.phone;
+    if (isDirty('country')) dataToSave.country = values.country;
+    if (isDirty('notes')) dataToSave.notes = values.notes;
+    if (isDirty('payment_notes'))
+      dataToSave.payment_notes = values.payment_notes;
+    if (isDirty('created_at')) dataToSave.created_at = values.created_at;
+
+    if (dirtyFields.reminder) {
+      dataToSave.reminder = values.reminder;
+    }
+    if (dirtyFields.phone_calls) {
+      dataToSave.phone_calls = values.phone_calls;
+    }
+    if (dirtyFields.sales_info) {
+      dataToSave.sales_info = values.sales_info;
+    }
+    if (dirtyFields.travel_info) {
+      dataToSave.travel_info = values.travel_info;
+    }
+
+    if (Object.keys(dataToSave).length === 0) {
+      toast.info('Bilgi', {
+        description: 'Değişiklik yapılmadı.',
+      });
+      return;
+    }
+
     updateMutation.mutate(dataToSave);
   };
 
   const addPhoneCall = () => {
-    setPhoneCalls([
-      ...phoneCalls,
-      {
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toTimeString().slice(0, 5),
-        notes: '',
-      },
-    ]);
+    const currentCalls = getValues('phone_calls');
+    setValue(
+      'phone_calls',
+      [
+        ...currentCalls,
+        {
+          date: new Date().toISOString().split('T')[0],
+          time: new Date().toTimeString().slice(0, 5),
+          notes: '',
+        },
+      ],
+      { shouldDirty: true }
+    );
   };
 
   const updatePhoneCall = (
@@ -466,40 +559,51 @@ export function CustomersDetail() {
     field: 'date' | 'time' | 'notes',
     value: string
   ) => {
-    const updated = [...phoneCalls];
-    updated[index][field] = value;
-    setPhoneCalls(updated);
+    const currentCalls = getValues('phone_calls');
+    const updated = [...currentCalls];
+    updated[index] = { ...updated[index], [field]: value };
+    setValue('phone_calls', updated, { shouldDirty: true });
   };
 
   const deletePhoneCall = (index: number) => {
-    setPhoneCalls(phoneCalls.filter((_, i) => i !== index));
+    const currentCalls = getValues('phone_calls');
+    setValue(
+      'phone_calls',
+      currentCalls.filter((_, i) => i !== index),
+      { shouldDirty: true }
+    );
   };
 
   const addTravel = () => {
-    setTravelInfo([
-      ...travelInfo,
-      {
-        appointment_date: '',
-        appointment_time: '',
-        doctor_id: null,
-        teeth: [],
-        is_custom_hotel: false,
-        hotel_id: null,
-        hotel_name: '',
-        is_custom_transfer: false,
-        transfer_id: null,
-        transfer_name: '',
-        room_type: '',
-        person_count: '',
-        notes: '',
-        arrival_date: '',
-        arrival_time: '',
-        arrival_flight_code: '',
-        departure_date: '',
-        departure_time: '',
-        departure_flight_code: '',
-      },
-    ]);
+    const currentTravel = getValues('travel_info');
+    setValue(
+      'travel_info',
+      [
+        ...currentTravel,
+        {
+          appointment_date: '',
+          appointment_time: '',
+          doctor_id: null,
+          teeth: [],
+          is_custom_hotel: false,
+          hotel_id: null,
+          hotel_name: '',
+          is_custom_transfer: false,
+          transfer_id: null,
+          transfer_name: '',
+          room_type: '',
+          person_count: '',
+          notes: '',
+          arrival_date: '',
+          arrival_time: '',
+          arrival_flight_code: '',
+          departure_date: '',
+          departure_time: '',
+          departure_flight_code: '',
+        },
+      ],
+      { shouldDirty: true }
+    );
   };
 
   const updateTravel = (
@@ -507,13 +611,19 @@ export function CustomersDetail() {
     field: keyof TravelInfo,
     value: unknown
   ) => {
-    const updated = [...travelInfo];
+    const currentTravel = getValues('travel_info');
+    const updated = [...currentTravel];
     (updated[index] as unknown as Record<string, unknown>)[field] = value;
-    setTravelInfo(updated);
+    setValue('travel_info', updated, { shouldDirty: true });
   };
 
   const deleteTravel = (index: number) => {
-    setTravelInfo(travelInfo.filter((_, i) => i !== index));
+    const currentTravel = getValues('travel_info');
+    setValue(
+      'travel_info',
+      currentTravel.filter((_, i) => i !== index),
+      { shouldDirty: true }
+    );
   };
 
   const getFieldNameInTurkish = (fieldName: string) => {
@@ -748,7 +858,11 @@ export function CustomersDetail() {
           </div>
 
           <PermissionGuard permission="customer_Edit">
-            <Button onClick={handleSave} disabled={updateMutation.isPending} className="shrink-0">
+            <Button
+              onClick={handleSave}
+              disabled={updateMutation.isPending}
+              className="shrink-0"
+            >
               {updateMutation.isPending ? 'Kaydediliyor...' : 'Kaydet'}
             </Button>
           </PermissionGuard>
@@ -815,8 +929,12 @@ export function CustomersDetail() {
                       <Input
                         id="name"
                         placeholder="Ad Soyad"
-                        value={formData.name}
-                        onChange={handleInputChange}
+                        value={watch('name')}
+                        onChange={(e) =>
+                          setValue('name', e.target.value, {
+                            shouldDirty: true,
+                          })
+                        }
                       />
                     </div>
 
@@ -824,12 +942,12 @@ export function CustomersDetail() {
                       <Label htmlFor="phone">
                         Telefon <span className="text-destructive">*</span>
                       </Label>
-                      {formData.phone !== '' && (
+                      {watch('phone') !== '' && (
                         <PhoneInput
                           defaultCountry="tr"
-                          value={formData.phone}
+                          value={watch('phone')}
                           onChange={(phone) =>
-                            setFormData((prev) => ({ ...prev, phone }))
+                            setValue('phone', phone, { shouldDirty: true })
                           }
                           className="w-full"
                           inputClassName="w-full"
@@ -843,8 +961,12 @@ export function CustomersDetail() {
                         id="email"
                         type="email"
                         placeholder="ornek@email.com"
-                        value={formData.email}
-                        onChange={handleInputChange}
+                        value={watch('email') || ''}
+                        onChange={(e) =>
+                          setValue('email', e.target.value, {
+                            shouldDirty: true,
+                          })
+                        }
                       />
                     </div>
 
@@ -853,9 +975,9 @@ export function CustomersDetail() {
                         Ülke <span className="text-destructive">*</span>
                       </Label>
                       <Select
-                        value={formData.country}
+                        value={watch('country')}
                         onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, country: value }))
+                          setValue('country', value, { shouldDirty: true })
                         }
                       >
                         <SelectTrigger className="w-full">
@@ -881,8 +1003,10 @@ export function CustomersDetail() {
                       id="notes"
                       placeholder="Müşteri hakkında notlar..."
                       rows={4}
-                      value={formData.notes}
-                      onChange={handleInputChange}
+                      value={watch('notes') || ''}
+                      onChange={(e) =>
+                        setValue('notes', e.target.value, { shouldDirty: true })
+                      }
                     />
                   </div>
 
@@ -892,11 +1016,11 @@ export function CustomersDetail() {
                       id="created_at"
                       type="datetime-local"
                       value={
-                        formData.created_at
+                        watch('created_at')
                           ? new Date(
-                              new Date(formData.created_at).getTime() -
+                              new Date(watch('created_at')!).getTime() -
                                 new Date(
-                                  formData.created_at
+                                  watch('created_at')!
                                 ).getTimezoneOffset() *
                                   60000
                             )
@@ -904,7 +1028,11 @@ export function CustomersDetail() {
                               .slice(0, 16)
                           : ''
                       }
-                      onChange={handleInputChange}
+                      onChange={(e) =>
+                        setValue('created_at', e.target.value, {
+                          shouldDirty: true,
+                        })
+                      }
                     />
                   </div>
 
@@ -921,7 +1049,7 @@ export function CustomersDetail() {
                         <Input
                           id="ad_name"
                           placeholder="Reklam Adı"
-                          value={formData.ad_name}
+                          value={facebookLeadInfo.ad_name}
                           disabled
                         />
                       </div>
@@ -931,7 +1059,7 @@ export function CustomersDetail() {
                         <Input
                           id="adset_name"
                           placeholder="Reklam Grubu Adı"
-                          value={formData.adset_name}
+                          value={facebookLeadInfo.adset_name}
                           disabled
                         />
                       </div>
@@ -941,7 +1069,7 @@ export function CustomersDetail() {
                         <Input
                           id="campaign_name"
                           placeholder="Kampanya Adı"
-                          value={formData.campaign_name}
+                          value={facebookLeadInfo.campaign_name}
                           disabled
                         />
                       </div>
@@ -951,7 +1079,7 @@ export function CustomersDetail() {
                         <Input
                           id="lead_form_id"
                           placeholder="Lead Form ID"
-                          value={formData.lead_form_id}
+                          value={facebookLeadInfo.lead_form_id}
                           disabled
                         />
                       </div>
@@ -968,35 +1096,12 @@ export function CustomersDetail() {
                       <Label htmlFor="user_id">
                         Danışman <span className="text-destructive">*</span>
                       </Label>
-                      {/* <Select
-                        value={formData.user_id ? String(formData.user_id) : ''}
-                        onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            user_id: Number(value),
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Danışman seçin" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {userOptions.map(
-                            (user: { value: string; label: string }) => (
-                              <SelectItem key={user.value} value={user.value}>
-                                {user.label}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select> */}
                       <SearchableSelect
-                        value={formData.user_id ? String(formData.user_id) : ''}
+                        value={watch('user_id') ? String(watch('user_id')) : ''}
                         onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            user_id: Number(value),
-                          }))
+                          setValue('user_id', Number(value), {
+                            shouldDirty: true,
+                          })
                         }
                         placeholder="Danışman seçin"
                         searchPlaceholder="Danışman ara..."
@@ -1010,15 +1115,14 @@ export function CustomersDetail() {
                       </Label>
                       <SearchableSelect
                         value={
-                          formData.category_id
-                            ? String(formData.category_id)
+                          watch('category_id')
+                            ? String(watch('category_id'))
                             : ''
                         }
                         onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            category_id: Number(value),
-                          }))
+                          setValue('category_id', Number(value), {
+                            shouldDirty: true,
+                          })
                         }
                         placeholder="Kategori seçin"
                         searchPlaceholder="Kategori ara..."
@@ -1032,13 +1136,12 @@ export function CustomersDetail() {
                       </Label>
                       <SearchableSelect
                         value={
-                          formData.status_id ? String(formData.status_id) : ''
+                          watch('status_id') ? String(watch('status_id')) : ''
                         }
                         onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            status_id: Number(value),
-                          }))
+                          setValue('status_id', Number(value), {
+                            shouldDirty: true,
+                          })
                         }
                         placeholder="Durum seçin"
                         searchPlaceholder="Durum ara..."
@@ -1050,12 +1153,11 @@ export function CustomersDetail() {
                       <Label htmlFor="service_ids">Hizmetler</Label>
                       <MultiSelect
                         options={serviceOptions}
-                        defaultValue={formData.service_ids.map(String)}
+                        defaultValue={watch('service_ids').map(String)}
                         onValueChange={(values) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            service_ids: values.map(Number),
-                          }))
+                          setValue('service_ids', values.map(Number), {
+                            shouldDirty: true,
+                          })
                         }
                         placeholder="Hizmet seçin"
                         maxCount={2}
@@ -1082,12 +1184,11 @@ export function CustomersDetail() {
                     </div>
                     <Switch
                       id="reminder_enabled"
-                      checked={formData.reminder_enabled}
+                      checked={reminderEnabled}
                       onCheckedChange={(checked) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          reminder_enabled: checked,
-                        }))
+                        setValue('reminder.status', checked, {
+                          shouldDirty: true,
+                        })
                       }
                     />
                   </div>
@@ -1100,11 +1201,11 @@ export function CustomersDetail() {
                       id="reminder_date"
                       type="datetime-local"
                       value={
-                        formData.reminder_date
+                        watch('reminder.date')
                           ? new Date(
-                              new Date(formData.reminder_date).getTime() -
+                              new Date(watch('reminder.date')!).getTime() -
                                 new Date(
-                                  formData.reminder_date
+                                  watch('reminder.date')!
                                 ).getTimezoneOffset() *
                                   60000
                             )
@@ -1113,12 +1214,11 @@ export function CustomersDetail() {
                           : ''
                       }
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          reminder_date: e.target.value,
-                        }))
+                        setValue('reminder.date', e.target.value, {
+                          shouldDirty: true,
+                        })
                       }
-                      disabled={!formData.reminder_enabled}
+                      disabled={!reminderEnabled}
                     />
                   </div>
 
@@ -1128,14 +1228,13 @@ export function CustomersDetail() {
                       id="reminder_notes"
                       placeholder="Hatırlatma ile ilgili notlar..."
                       rows={6}
-                      value={formData.reminder_notes}
+                      value={watch('reminder.notes') || ''}
                       onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          reminder_notes: e.target.value,
-                        }))
+                        setValue('reminder.notes', e.target.value, {
+                          shouldDirty: true,
+                        })
                       }
-                      disabled={!formData.reminder_enabled}
+                      disabled={!reminderEnabled}
                     />
                   </div>
                 </div>
@@ -1334,10 +1433,9 @@ export function CustomersDetail() {
                         type="date"
                         value={salesInfo.sales_date}
                         onChange={(e) =>
-                          setSalesInfo((prev) => ({
-                            ...prev,
-                            sales_date: e.target.value,
-                          }))
+                          setValue('sales_info.sales_date', e.target.value, {
+                            shouldDirty: true,
+                          })
                         }
                       />
                     </div>
@@ -1350,10 +1448,9 @@ export function CustomersDetail() {
                         rows={4}
                         value={salesInfo.health_notes}
                         onChange={(e) =>
-                          setSalesInfo((prev) => ({
-                            ...prev,
-                            health_notes: e.target.value,
-                          }))
+                          setValue('sales_info.health_notes', e.target.value, {
+                            shouldDirty: true,
+                          })
                         }
                       />
                     </div>
@@ -1380,10 +1477,9 @@ export function CustomersDetail() {
                           id="trustpilot_review"
                           checked={salesInfo.trustpilot_review}
                           onCheckedChange={(checked) =>
-                            setSalesInfo((prev) => ({
-                              ...prev,
-                              trustpilot_review: checked,
-                            }))
+                            setValue('sales_info.trustpilot_review', checked, {
+                              shouldDirty: true,
+                            })
                           }
                         />
                       </div>
@@ -1401,10 +1497,9 @@ export function CustomersDetail() {
                           id="google_maps_review"
                           checked={salesInfo.google_maps_review}
                           onCheckedChange={(checked) =>
-                            setSalesInfo((prev) => ({
-                              ...prev,
-                              google_maps_review: checked,
-                            }))
+                            setValue('sales_info.google_maps_review', checked, {
+                              shouldDirty: true,
+                            })
                           }
                         />
                       </div>
@@ -1422,10 +1517,11 @@ export function CustomersDetail() {
                           id="satisfaction_survey"
                           checked={salesInfo.satisfaction_survey}
                           onCheckedChange={(checked) =>
-                            setSalesInfo((prev) => ({
-                              ...prev,
-                              satisfaction_survey: checked,
-                            }))
+                            setValue(
+                              'sales_info.satisfaction_survey',
+                              checked,
+                              { shouldDirty: true }
+                            )
                           }
                         />
                       </div>
@@ -1440,10 +1536,9 @@ export function CustomersDetail() {
                           id="warranty_sent"
                           checked={salesInfo.warranty_sent}
                           onCheckedChange={(checked) =>
-                            setSalesInfo((prev) => ({
-                              ...prev,
-                              warranty_sent: checked,
-                            }))
+                            setValue('sales_info.warranty_sent', checked, {
+                              shouldDirty: true,
+                            })
                           }
                         />
                       </div>
@@ -1458,10 +1553,9 @@ export function CustomersDetail() {
                           id="rpt"
                           checked={salesInfo.rpt}
                           onCheckedChange={(checked) =>
-                            setSalesInfo((prev) => ({
-                              ...prev,
-                              rpt: checked,
-                            }))
+                            setValue('sales_info.rpt', checked, {
+                              shouldDirty: true,
+                            })
                           }
                         />
                       </div>
@@ -1974,8 +2068,12 @@ export function CustomersDetail() {
                       id="payment_notes"
                       placeholder="Ödeme ile ilgili notlar..."
                       rows={10}
-                      value={formData.payment_notes}
-                      onChange={handleInputChange}
+                      value={watch('payment_notes') || ''}
+                      onChange={(e) =>
+                        setValue('payment_notes', e.target.value, {
+                          shouldDirty: true,
+                        })
+                      }
                     />
                   </div>
                 </div>
