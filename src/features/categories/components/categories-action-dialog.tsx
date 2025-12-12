@@ -432,7 +432,7 @@ export function CategoriesActionDialog({
       }}
     >
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-4xl">
-        <DialogHeader className="flex-shrink-0">
+        <DialogHeader className="flex-shrink-0 text-start">
           <DialogTitle>
             {isEdit ? 'Kategori Düzenle' : 'Yeni Kategori Ekle'}
           </DialogTitle>
@@ -477,8 +477,8 @@ export function CategoriesActionDialog({
                 render={({ field }) => (
                   <FormItem className="space-y-2">
                     <FormLabel>Üst Kategori</FormLabel>
-                    <div className="flex items-center gap-2">
-                      <FormControl>
+                    <div className="flex w-full items-center gap-2 overflow-hidden">
+                      <FormControl className="min-w-0 flex-1">
                         <SearchableSelect
                           value={field.value?.toString() || ''}
                           onValueChange={(value) => {
@@ -496,7 +496,7 @@ export function CategoriesActionDialog({
                         <button
                           type="button"
                           onClick={() => field.onChange(null)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-200"
+                          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-slate-200"
                           aria-label="Üst kategoriyi kaldır"
                         >
                           <X className="h-4 w-4" />
@@ -651,10 +651,10 @@ export function CategoriesActionDialog({
                     <FormLabel>Lead Form</FormLabel>
                     {settings?.facebook_settings?.access_token &&
                     facebookLeadForms.length > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <FormControl>
-                          <SelectDropdown
-                            defaultValue={field.value || ''}
+                      <div className="flex w-full items-center gap-2 overflow-hidden">
+                        <FormControl className="min-w-0 flex-1">
+                          <SearchableSelect
+                            value={field.value || ''}
                             onValueChange={(value) => {
                               field.onChange(value || null);
                               if (!value) {
@@ -671,8 +671,7 @@ export function CategoriesActionDialog({
                               value: form.id,
                               label: form.name,
                             }))}
-                            isControlled={true}
-                            className="w-full"
+                            modalPopover={true}
                           />
                         </FormControl>
                         {field.value && (
@@ -683,7 +682,7 @@ export function CategoriesActionDialog({
                               setFieldMappings([]);
                               setLeadFormFields([]);
                             }}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-200"
+                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-slate-200"
                             aria-label="Lead Form'u kaldır"
                           >
                             <X className="h-4 w-4" />

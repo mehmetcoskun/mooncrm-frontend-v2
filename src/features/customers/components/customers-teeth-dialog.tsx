@@ -85,7 +85,7 @@ export function CustomersTeethDialog({
   return (
     <Dialog open={open} onOpenChange={handleCancel}>
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-3xl">
-        <DialogHeader className="flex-shrink-0">
+        <DialogHeader className="flex-shrink-0 text-start">
           <DialogTitle>Diş Seçimi ve Tedavi Bilgileri</DialogTitle>
           <DialogDescription>
             Tedavi yapılacak dişleri seçin ve tedavi bilgisi girin. Seçilen

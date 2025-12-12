@@ -271,7 +271,7 @@ export function TwoFactorAuth() {
       {/* Enable Dialog */}
       <Dialog open={showEnableDialog} onOpenChange={setShowEnableDialog}>
         <DialogContent className="max-w-md">
-          <DialogHeader>
+          <DialogHeader className="text-start">
             <DialogTitle>İki Faktörlü Doğrulamayı Etkinleştir</DialogTitle>
             <DialogDescription>
               Aşağıdaki QR kodunu Google Authenticator veya benzeri bir uygulama
@@ -354,7 +354,7 @@ export function TwoFactorAuth() {
       {/* Disable Dialog */}
       <Dialog open={showDisableDialog} onOpenChange={setShowDisableDialog}>
         <DialogContent>
-          <DialogHeader>
+          <DialogHeader className="text-start">
             <DialogTitle>İki Faktörlü Doğrulamayı Devre Dışı Bırak</DialogTitle>
             <DialogDescription>
               Devam etmek için şifrenizi girin. Bu işlem hesabınızın güvenliğini
@@ -406,7 +406,7 @@ export function TwoFactorAuth() {
         onOpenChange={setShowRegenerateDialog}
       >
         <DialogContent>
-          <DialogHeader>
+          <DialogHeader className="text-start">
             <DialogTitle>Kurtarma Kodlarını Yenile</DialogTitle>
             <DialogDescription>
               Yeni kurtarma kodları oluşturulacak. Eski kodlar geçersiz olacak.
@@ -456,7 +456,7 @@ export function TwoFactorAuth() {
         onOpenChange={setShowRecoveryCodesDialog}
       >
         <DialogContent>
-          <DialogHeader>
+          <DialogHeader className="text-start">
             <DialogTitle>Kurtarma Kodları</DialogTitle>
             <DialogDescription>
               Bu kodları güvenli bir yerde saklayın. Telefonunuza erişiminizi

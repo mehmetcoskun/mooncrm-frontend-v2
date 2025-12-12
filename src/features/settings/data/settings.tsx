@@ -62,7 +62,7 @@ export const settings = [
     permission: 'setting_Facebook',
   },
   {
-    name: "Facebook Lead'leri",
+    name: 'Facebook Potansiyel Lead Merkezi',
     logo: <Facebook />,
     desc: "Facebook'tan gelen lead'leri görüntüleyin ve yönetin.",
     route: '/facebook-leads',

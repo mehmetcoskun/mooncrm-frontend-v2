@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Calendar, AlertCircle } from 'lucide-react';
+import { Calendar, AlertCircle, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useOrganizationStore } from '@/stores/organization-store';
 import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import {
   Tooltip,
@@ -21,9 +22,21 @@ import { settings } from './data/settings';
 
 export function Settings() {
   const [openSidebar, setOpenSidebar] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const { hasPermission } = usePermissions();
   const { currentOrganization } = useOrganizationStore();
   const navigate = useNavigate();
+
+  const filteredSettings = useMemo(() => {
+    if (!searchQuery.trim()) return settings;
+
+    const query = searchQuery.toLowerCase().trim();
+    return settings.filter(
+      (setting) =>
+        setting.name.toLowerCase().includes(query) ||
+        setting.desc.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
   const handleSettingClick = (
     setting: (typeof settings)[0],
@@ -99,11 +112,22 @@ export function Settings() {
       </Header>
 
       <Main fluid>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Ayarlar</h1>
-          <p className="text-muted-foreground">
-            Sistem ayarlarınızı buradan yönetebilirsiniz.
-          </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Ayarlar</h1>
+            <p className="text-muted-foreground">
+              Sistem ayarlarınızı buradan yönetebilirsiniz.
+            </p>
+          </div>
+          <div className="relative w-full sm:w-72">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Input
+              placeholder="Ayar ara..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
         <Separator className="my-4 shadow-sm" />
 
@@ -156,7 +180,18 @@ export function Settings() {
         )}
         <TooltipProvider>
           <ul className="faded-bottom no-scrollbar grid gap-4 overflow-auto pt-4 pb-16 md:grid-cols-2 lg:grid-cols-3">
-            {settings.map((setting) => {
+            {filteredSettings.length === 0 ? (
+              <li className="col-span-full py-12 text-center">
+                <Search className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="text-muted-foreground text-lg">
+                  "{searchQuery}" için sonuç bulunamadı
+                </p>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  Farklı bir arama terimi deneyin
+                </p>
+              </li>
+            ) : null}
+            {filteredSettings.map((setting) => {
               const hasAccess = hasPermission(setting.permission);
               const cardContent = (
                 <li

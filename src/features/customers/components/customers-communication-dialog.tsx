@@ -43,7 +43,7 @@ export function CustomersCommunicationDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col">
-        <DialogHeader className="flex-shrink-0">
+        <DialogHeader className="flex-shrink-0 text-start">
           <DialogTitle>İletişim - {customer.name}</DialogTitle>
           <DialogDescription>
             {customer.phone && <span>Telefon: {customer.phone}</span>}

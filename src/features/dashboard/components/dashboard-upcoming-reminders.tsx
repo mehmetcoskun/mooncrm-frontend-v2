@@ -49,26 +49,26 @@ export function DashboardUpcomingReminders({
             <Avatar className="h-9 w-9">
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-1 flex-wrap items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm leading-none font-medium">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-sm leading-none font-medium">
                   {upcomingReminder.title || 'Hatırlatıcı'}
                 </p>
-                <p className="text-muted-foreground text-sm">
-                  <Link
-                    to="/customers/$customerId"
-                    params={{ customerId: upcomingReminder.id.toString() }}
-                    className="hover:underline"
-                  >
-                    {upcomingReminder.customer}
-                  </Link>
-                  {' - '}
-                  {upcomingReminder.user}
-                </p>
+                <span className="text-muted-foreground shrink-0 text-sm">
+                  {timeDistance}
+                </span>
               </div>
-              <div className="text-muted-foreground text-sm">
-                {timeDistance}
-              </div>
+              <p className="text-muted-foreground mt-1 truncate text-sm">
+                <Link
+                  to="/customers/$customerId"
+                  params={{ customerId: upcomingReminder.id.toString() }}
+                  className="hover:underline"
+                >
+                  {upcomingReminder.customer}
+                </Link>
+                {' - '}
+                {upcomingReminder.user}
+              </p>
             </div>
           </div>
         );
