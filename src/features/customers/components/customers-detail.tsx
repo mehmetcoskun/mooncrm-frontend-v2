@@ -438,7 +438,11 @@ export function CustomersDetail() {
         },
         travel_info:
           customer.travel_info && Array.isArray(customer.travel_info)
-            ? customer.travel_info
+            ? customer.travel_info.map((travel) => ({
+                ...travel,
+                teeth: travel.teeth || [],
+                person_count: String(travel.person_count ?? ''),
+              }))
             : [],
       });
 
@@ -477,7 +481,17 @@ export function CustomersDetail() {
   const handleSave = () => {
     const values = getValues();
 
-    const validationResult = formSchema.safeParse(values);
+    // travel_info içindeki alanları normalize et
+    const normalizedValues = {
+      ...values,
+      travel_info: values.travel_info.map((travel) => ({
+        ...travel,
+        teeth: travel.teeth || [],
+        person_count: String(travel.person_count ?? ''),
+      })),
+    };
+
+    const validationResult = formSchema.safeParse(normalizedValues);
 
     if (!validationResult.success) {
       const firstError = validationResult.error.issues[0];
