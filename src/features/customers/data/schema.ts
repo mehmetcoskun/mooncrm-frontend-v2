@@ -34,7 +34,7 @@ export type SalesInfo = z.infer<typeof salesInfoSchema>;
 
 export const toothTreatmentSchema = z.object({
   tooth_number: z.number(),
-  treatment: z.string(),
+  treatment: z.string().nullable(),
 });
 export type ToothTreatment = z.infer<typeof toothTreatmentSchema>;
 

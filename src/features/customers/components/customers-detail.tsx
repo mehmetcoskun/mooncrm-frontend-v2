@@ -95,7 +95,7 @@ const salesInfoSchema = z.object({
 
 const toothSchema = z.object({
   tooth_number: z.number(),
-  treatment: z.string(),
+  treatment: z.string().nullable(),
 });
 
 const travelInfoSchema = z.object({
