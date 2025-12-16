@@ -111,7 +111,7 @@ const travelInfoSchema = z.object({
   transfer_name: z.string(),
   room_type: z.string(),
   person_count: z.string(),
-  notes: z.string(),
+  notes: z.string().nullable(),
   arrival_date: z.string(),
   arrival_time: z.string(),
   arrival_flight_code: z.string(),
@@ -2058,7 +2058,7 @@ export function CustomersDetail() {
                                 id={`notes_${index}`}
                                 placeholder="Seyahat ile ilgili notlar..."
                                 rows={3}
-                                value={travel.notes}
+                                value={travel.notes || ''}
                                 onChange={(e) =>
                                   updateTravel(index, 'notes', e.target.value)
                                 }
