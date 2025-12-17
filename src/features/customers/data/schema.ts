@@ -6,29 +6,29 @@ import { statusSchema } from '@/features/statuses/data/schema';
 import { userSchema } from '@/features/users/data/schema';
 
 export const phoneCallSchema = z.object({
-  date: z.string(),
-  time: z.string(),
-  notes: z.string(),
+  date: z.string().nullable(),
+  time: z.string().nullable(),
+  notes: z.string().nullable(),
   is_ai_call: z.boolean().optional(),
-  recording_url: z.string().optional(),
+  recording_url: z.string().optional().nullable(),
 });
 export type PhoneCall = z.infer<typeof phoneCallSchema>;
 
 export const reminderSchema = z.object({
   status: z.boolean(),
-  date: z.string(),
-  notes: z.string(),
+  date: z.string().nullable(),
+  notes: z.string().nullable(),
 });
 export type Reminder = z.infer<typeof reminderSchema>;
 
 export const salesInfoSchema = z.object({
-  sales_date: z.string(),
+  sales_date: z.string().nullable(),
   trustpilot_review: z.boolean(),
   google_maps_review: z.boolean(),
   satisfaction_survey: z.boolean(),
   warranty_sent: z.boolean(),
   rpt: z.boolean(),
-  health_notes: z.string(),
+  health_notes: z.string().nullable(),
 });
 export type SalesInfo = z.infer<typeof salesInfoSchema>;
 
@@ -39,25 +39,25 @@ export const toothTreatmentSchema = z.object({
 export type ToothTreatment = z.infer<typeof toothTreatmentSchema>;
 
 export const travelInfoSchema = z.object({
-  appointment_date: z.string(),
-  appointment_time: z.string(),
+  appointment_date: z.string().nullable(),
+  appointment_time: z.string().nullable(),
   doctor_id: z.number().nullable(),
-  teeth: z.array(toothTreatmentSchema).optional(),
+  teeth: z.array(toothTreatmentSchema).optional().nullable(),
   is_custom_hotel: z.boolean(),
   hotel_id: z.number().nullable(),
-  hotel_name: z.string(),
+  hotel_name: z.string().nullable(),
   is_custom_transfer: z.boolean(),
   transfer_id: z.number().nullable(),
-  transfer_name: z.string(),
-  room_type: z.string(),
-  person_count: z.string(),
+  transfer_name: z.string().nullable(),
+  room_type: z.string().nullable(),
+  person_count: z.string().nullable(),
   notes: z.string().nullable(),
-  arrival_date: z.string(),
-  arrival_time: z.string(),
-  arrival_flight_code: z.string(),
-  departure_date: z.string(),
-  departure_time: z.string(),
-  departure_flight_code: z.string(),
+  arrival_date: z.string().nullable(),
+  arrival_time: z.string().nullable(),
+  arrival_flight_code: z.string().nullable(),
+  departure_date: z.string().nullable(),
+  departure_time: z.string().nullable(),
+  departure_flight_code: z.string().nullable(),
 });
 export type TravelInfo = z.infer<typeof travelInfoSchema>;
 

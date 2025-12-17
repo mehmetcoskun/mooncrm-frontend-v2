@@ -76,21 +76,21 @@ import { type Customer, type TravelInfo } from '../data/schema';
 import { CustomersTeethDialog } from './customers-teeth-dialog';
 
 const phoneCallSchema = z.object({
-  date: z.string(),
-  time: z.string(),
-  notes: z.string(),
+  date: z.string().nullable(),
+  time: z.string().nullable(),
+  notes: z.string().nullable(),
   is_ai_call: z.boolean().optional(),
-  recording_url: z.string().optional(),
+  recording_url: z.string().optional().nullable(),
 });
 
 const salesInfoSchema = z.object({
-  sales_date: z.string(),
+  sales_date: z.string().nullable(),
   trustpilot_review: z.boolean(),
   google_maps_review: z.boolean(),
   satisfaction_survey: z.boolean(),
   warranty_sent: z.boolean(),
   rpt: z.boolean(),
-  health_notes: z.string(),
+  health_notes: z.string().nullable(),
 });
 
 const toothSchema = z.object({
@@ -99,25 +99,25 @@ const toothSchema = z.object({
 });
 
 const travelInfoSchema = z.object({
-  appointment_date: z.string(),
-  appointment_time: z.string(),
+  appointment_date: z.string().nullable(),
+  appointment_time: z.string().nullable(),
   doctor_id: z.number().nullable(),
-  teeth: z.array(toothSchema),
+  teeth: z.array(toothSchema).nullable(),
   is_custom_hotel: z.boolean(),
   hotel_id: z.number().nullable(),
-  hotel_name: z.string(),
+  hotel_name: z.string().nullable(),
   is_custom_transfer: z.boolean(),
   transfer_id: z.number().nullable(),
-  transfer_name: z.string(),
-  room_type: z.string(),
-  person_count: z.string(),
+  transfer_name: z.string().nullable(),
+  room_type: z.string().nullable(),
+  person_count: z.string().nullable(),
   notes: z.string().nullable(),
-  arrival_date: z.string(),
-  arrival_time: z.string(),
-  arrival_flight_code: z.string(),
-  departure_date: z.string(),
-  departure_time: z.string(),
-  departure_flight_code: z.string(),
+  arrival_date: z.string().nullable(),
+  arrival_time: z.string().nullable(),
+  arrival_flight_code: z.string().nullable(),
+  departure_date: z.string().nullable(),
+  departure_time: z.string().nullable(),
+  departure_flight_code: z.string().nullable(),
 });
 
 const reminderSchema = z.object({
@@ -1336,11 +1336,11 @@ export function CustomersDetail() {
                               <Input
                                 id={`call-date-${index}`}
                                 type="date"
-                                value={call.date}
+                                value={call.date || ''}
                                 onChange={(e) =>
                                   updatePhoneCall(index, 'date', e.target.value)
                                 }
-                                disabled={call.is_ai_call}
+                                disabled={call.is_ai_call || false}
                                 className={cn(
                                   call.is_ai_call &&
                                     'border-violet-200 bg-violet-100/50 dark:border-violet-800 dark:bg-violet-900/30'
@@ -1355,11 +1355,11 @@ export function CustomersDetail() {
                               <Input
                                 id={`call-time-${index}`}
                                 type="time"
-                                value={call.time}
+                                value={call.time || ''}
                                 onChange={(e) =>
                                   updatePhoneCall(index, 'time', e.target.value)
                                 }
-                                disabled={call.is_ai_call}
+                                disabled={call.is_ai_call || false}
                                 className={cn(
                                   call.is_ai_call &&
                                     'border-violet-200 bg-violet-100/50 dark:border-violet-800 dark:bg-violet-900/30'
@@ -1382,11 +1382,11 @@ export function CustomersDetail() {
                                   : 'Görüşme notlarını buraya yazın...'
                               }
                               rows={3}
-                              value={call.notes}
+                              value={call.notes || ''}
                               onChange={(e) =>
                                 updatePhoneCall(index, 'notes', e.target.value)
                               }
-                              disabled={call.is_ai_call}
+                              disabled={call.is_ai_call || false}
                               className={cn(
                                 call.is_ai_call &&
                                   'border-violet-200 bg-violet-100/50 dark:border-violet-800 dark:bg-violet-900/30'
@@ -1445,7 +1445,7 @@ export function CustomersDetail() {
                       <Input
                         id="sales_date"
                         type="date"
-                        value={salesInfo.sales_date}
+                        value={salesInfo.sales_date || ''}
                         onChange={(e) =>
                           setValue('sales_info.sales_date', e.target.value, {
                             shouldDirty: true,
@@ -1460,7 +1460,7 @@ export function CustomersDetail() {
                         id="health_notes"
                         placeholder="Sağlık ile ilgili notlar..."
                         rows={4}
-                        value={salesInfo.health_notes}
+                        value={salesInfo.health_notes || ''}
                         onChange={(e) =>
                           setValue('sales_info.health_notes', e.target.value, {
                             shouldDirty: true,
@@ -1489,7 +1489,7 @@ export function CustomersDetail() {
                         </div>
                         <Switch
                           id="trustpilot_review"
-                          checked={salesInfo.trustpilot_review}
+                          checked={salesInfo.trustpilot_review || false}
                           onCheckedChange={(checked) =>
                             setValue('sales_info.trustpilot_review', checked, {
                               shouldDirty: true,
@@ -1509,7 +1509,7 @@ export function CustomersDetail() {
                         </div>
                         <Switch
                           id="google_maps_review"
-                          checked={salesInfo.google_maps_review}
+                          checked={salesInfo.google_maps_review || false}
                           onCheckedChange={(checked) =>
                             setValue('sales_info.google_maps_review', checked, {
                               shouldDirty: true,
@@ -1529,7 +1529,7 @@ export function CustomersDetail() {
                         </div>
                         <Switch
                           id="satisfaction_survey"
-                          checked={salesInfo.satisfaction_survey}
+                          checked={salesInfo.satisfaction_survey || false}
                           onCheckedChange={(checked) =>
                             setValue(
                               'sales_info.satisfaction_survey',
@@ -1548,7 +1548,7 @@ export function CustomersDetail() {
                         </div>
                         <Switch
                           id="warranty_sent"
-                          checked={salesInfo.warranty_sent}
+                          checked={salesInfo.warranty_sent || false}
                           onCheckedChange={(checked) =>
                             setValue('sales_info.warranty_sent', checked, {
                               shouldDirty: true,
@@ -1565,7 +1565,7 @@ export function CustomersDetail() {
                         </div>
                         <Switch
                           id="rpt"
-                          checked={salesInfo.rpt}
+                          checked={salesInfo.rpt || false}
                           onCheckedChange={(checked) =>
                             setValue('sales_info.rpt', checked, {
                               shouldDirty: true,
@@ -1636,7 +1636,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`appointment_date_${index}`}
                                     type="date"
-                                    value={travel.appointment_date}
+                                    value={travel.appointment_date || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1654,7 +1654,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`appointment_time_${index}`}
                                     type="time"
-                                    value={travel.appointment_time}
+                                    value={travel.appointment_time || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1732,7 +1732,7 @@ export function CustomersDetail() {
                               <div className="flex items-center space-x-2">
                                 <Switch
                                   id={`is_custom_hotel_${index}`}
-                                  checked={travel.is_custom_hotel}
+                                  checked={travel.is_custom_hotel || false}
                                   onCheckedChange={(checked) =>
                                     updateTravel(
                                       index,
@@ -1754,7 +1754,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`hotel_name_${index}`}
                                     placeholder="Otel adını girin"
-                                    value={travel.hotel_name}
+                                    value={travel.hotel_name || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1813,7 +1813,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`room_type_${index}`}
                                     placeholder="Örn: Tek Kişilik, Çift Kişilik"
-                                    value={travel.room_type}
+                                    value={travel.room_type || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1831,7 +1831,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`person_count_${index}`}
                                     placeholder="Örn: 1, 2, 3"
-                                    value={travel.person_count}
+                                    value={travel.person_count || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1850,7 +1850,7 @@ export function CustomersDetail() {
                               <div className="flex items-center space-x-2">
                                 <Switch
                                   id={`is_custom_transfer_${index}`}
-                                  checked={travel.is_custom_transfer}
+                                  checked={travel.is_custom_transfer || false}
                                   onCheckedChange={(checked) =>
                                     updateTravel(
                                       index,
@@ -1872,7 +1872,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`transfer_name_${index}`}
                                     placeholder="Transfer firması adını girin"
-                                    value={travel.transfer_name}
+                                    value={travel.transfer_name || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1937,7 +1937,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`arrival_date_${index}`}
                                     type="date"
-                                    value={travel.arrival_date}
+                                    value={travel.arrival_date || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1955,7 +1955,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`arrival_time_${index}`}
                                     type="time"
-                                    value={travel.arrival_time}
+                                    value={travel.arrival_time || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -1974,7 +1974,7 @@ export function CustomersDetail() {
                                 <Input
                                   id={`arrival_flight_code_${index}`}
                                   placeholder="Örn: TK1234"
-                                  value={travel.arrival_flight_code}
+                                  value={travel.arrival_flight_code || ''}
                                   onChange={(e) =>
                                     updateTravel(
                                       index,
@@ -1999,7 +1999,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`departure_date_${index}`}
                                     type="date"
-                                    value={travel.departure_date}
+                                    value={travel.departure_date || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -2017,7 +2017,7 @@ export function CustomersDetail() {
                                   <Input
                                     id={`departure_time_${index}`}
                                     type="time"
-                                    value={travel.departure_time}
+                                    value={travel.departure_time || ''}
                                     onChange={(e) =>
                                       updateTravel(
                                         index,
@@ -2038,7 +2038,7 @@ export function CustomersDetail() {
                                 <Input
                                   id={`departure_flight_code_${index}`}
                                   placeholder="Örn: TK1235"
-                                  value={travel.departure_flight_code}
+                                  value={travel.departure_flight_code || ''}
                                   onChange={(e) =>
                                     updateTravel(
                                       index,
