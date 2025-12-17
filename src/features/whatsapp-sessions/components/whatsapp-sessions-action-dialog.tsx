@@ -4,8 +4,9 @@ import { z } from 'zod';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createSession } from '@/services/whatsapp-service';
+import { createSession, getSession } from '@/services/whatsapp-service';
 import { createWhatsappSession } from '@/services/whatsapp-session-service';
+import slugify from 'slugify';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,15 +57,31 @@ export function WhatsappSessionsActionDialog({
 
   const onSubmit = async (values: WhatsappSessionForm) => {
     try {
-      const whatsappSession = await createWhatsappSession(values);
+      const slugTitle = slugify(values.title, {
+        lower: true,
+        replacement: '_',
+      });
+      try {
+        await getSession(slugTitle);
+        toast.error('Hata', {
+          description: `'${slugTitle}' isimli oturum WhatsApp servisinde zaten mevcut.`,
+        });
+        return;
+      } catch (error) {
+        if (!(error instanceof AxiosError && error.response?.status === 404)) {
+          throw error;
+        }
+      }
+
+      await createWhatsappSession({ ...values, title: slugTitle });
 
       await createSession({
-        name: whatsappSession.title,
+        name: slugTitle,
         start: true,
       });
 
       toast.success('WhatsApp oturumu eklendi', {
-        description: `${values.title} WhatsApp oturumu başarıyla eklendi.`,
+        description: `${slugTitle} WhatsApp oturumu başarıyla eklendi.`,
       });
 
       form.reset();
