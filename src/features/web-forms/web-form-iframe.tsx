@@ -66,6 +66,29 @@ export function WebFormIframe() {
   });
 
   useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    const hadDarkClass = root.classList.contains('dark');
+    const originalHtmlBg = root.style.backgroundColor;
+    const originalBodyBg = body.style.backgroundColor;
+
+    root.classList.remove('dark');
+    root.classList.add('light');
+
+    root.style.backgroundColor = 'transparent';
+    body.style.backgroundColor = 'transparent';
+
+    return () => {
+      root.style.backgroundColor = originalHtmlBg;
+      body.style.backgroundColor = originalBodyBg;
+      if (hadDarkClass) {
+        root.classList.remove('light');
+        root.classList.add('dark');
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (webForm) {
       const root = document.documentElement;
       const styles = webForm.styles;
