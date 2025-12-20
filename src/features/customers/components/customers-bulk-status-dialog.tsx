@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AxiosError } from 'axios';
 import { type Table } from '@tanstack/react-table';
 import { bulkUpdateStatus } from '@/services/customer-service';
 import { toast } from 'sonner';
@@ -51,8 +52,13 @@ export function CustomersBulkStatusDialog<TData>({
       onSuccess();
       onOpenChange(false);
       setSelectedStatusId('');
-    } catch (_error) {
-      toast.error('Durum güncellenirken bir hata oluştu');
+    } catch (error) {
+      toast.error('Hata', {
+        description:
+          error instanceof AxiosError
+            ? error.response?.data.message
+            : 'Bir hata oluştu',
+      });
     }
   };
 

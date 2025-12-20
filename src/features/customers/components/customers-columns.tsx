@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { format } from 'date-fns';
 import { Link } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
@@ -298,8 +299,13 @@ export function getCustomersColumns({
             await updateCustomer(customer.id, { status_id: Number(statusId) });
             toast.success('Durum güncellendi');
             refetch();
-          } catch (_error) {
-            toast.error('Durum güncellenirken bir hata oluştu');
+          } catch (error) {
+            toast.error('Hata', {
+              description:
+                error instanceof AxiosError
+                  ? error.response?.data.message
+                  : 'Bir hata oluştu',
+            });
           }
         };
 
