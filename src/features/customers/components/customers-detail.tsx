@@ -988,26 +988,15 @@ export function CustomersDetail() {
                       <Label htmlFor="country">
                         Ülke <span className="text-destructive">*</span>
                       </Label>
-                      <Select
+                      <SearchableSelect
                         value={watch('country')}
                         onValueChange={(value) =>
                           setValue('country', value, { shouldDirty: true })
                         }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Ülke seçin" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countryOptions.map((country) => (
-                            <SelectItem
-                              key={country.value}
-                              value={country.value}
-                            >
-                              {country.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Ülke seçin"
+                        searchPlaceholder="Ülke ara..."
+                        items={countryOptions}
+                      />
                     </div>
                   </div>
 
