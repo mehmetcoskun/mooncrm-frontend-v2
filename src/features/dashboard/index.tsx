@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getDashboard } from '@/services/dashboard-service';
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import WorldMap from 'react-svg-worldmap';
+import { useTheme } from '@/context/theme-provider';
 import {
   Card,
   CardContent,
@@ -20,6 +21,7 @@ import { DashboardOverview } from './components/dashboard-overview';
 import { DashboardUpcomingReminders } from './components/dashboard-upcoming-reminders';
 
 export function Dashboard() {
+  const { resolvedTheme } = useTheme();
   const { data, isLoading } = useQuery({
     queryKey: ['dashboard'],
     queryFn: getDashboard,
@@ -296,7 +298,11 @@ export function Dashboard() {
                       </div>
                     ) : mapWidth > 0 ? (
                       <WorldMap
-                        color="black"
+                        color={resolvedTheme === 'dark' ? 'white' : 'black'}
+                        backgroundColor="transparent"
+                        borderColor={
+                          resolvedTheme === 'dark' ? 'white' : 'black'
+                        }
                         size={mapWidth}
                         data={countryDistribution}
                         richInteraction
