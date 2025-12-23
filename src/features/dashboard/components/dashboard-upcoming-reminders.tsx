@@ -29,7 +29,7 @@ export function DashboardUpcomingReminders({
   return (
     <div className="space-y-8">
       {upcomingReminders.map((upcomingReminder) => {
-        const initials = upcomingReminder.user
+        const initials = upcomingReminder.customer
           .split(' ')
           .map((n) => n[0])
           .join('')

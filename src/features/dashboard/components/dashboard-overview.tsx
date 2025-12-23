@@ -28,7 +28,6 @@ export function DashboardOverview({ data }: DashboardOverviewProps) {
           axisLine={false}
           interval="preserveStartEnd"
           minTickGap={10}
-          angle={-45}
           textAnchor="end"
           height={60}
         />

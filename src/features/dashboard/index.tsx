@@ -1,6 +1,8 @@
+import { useRef, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getDashboard } from '@/services/dashboard-service';
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
+import WorldMap from 'react-svg-worldmap';
 import {
   Card,
   CardContent,
@@ -35,6 +37,22 @@ export function Dashboard() {
   };
 
   const upcomingReminders = data?.upcomingReminders || [];
+  const countryDistribution = data?.countryDistribution || [];
+
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [mapWidth, setMapWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (mapContainerRef.current) {
+        setMapWidth(mapContainerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const chartData = data
     ? [
@@ -247,23 +265,47 @@ export function Dashboard() {
                 </CardContent>
               </Card>
             </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
-              <Card className="col-span-1 lg:col-span-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Genel Bakış</CardTitle>
+                <CardDescription>Son 12 aylık veriler</CardDescription>
+              </CardHeader>
+              <CardContent className="ps-2">
+                {isLoading ? (
+                  <div className="text-muted-foreground flex h-[350px] items-center justify-center">
+                    Yükleniyor...
+                  </div>
+                ) : (
+                  <DashboardOverview data={chartData} />
+                )}
+              </CardContent>
+            </Card>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <Card>
                 <CardHeader>
-                  <CardTitle>Genel Bakış</CardTitle>
-                  <CardDescription>Son 12 aylık veriler</CardDescription>
+                  <CardTitle>Ülkelere Göre Müşteri Dağılımı</CardTitle>
+                  <CardDescription>
+                    Müşterilerinizin dünya genelindeki dağılımı
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="ps-2">
-                  {isLoading ? (
-                    <div className="text-muted-foreground flex h-[350px] items-center justify-center">
-                      Yükleniyor...
-                    </div>
-                  ) : (
-                    <DashboardOverview data={chartData} />
-                  )}
+                <CardContent>
+                  <div ref={mapContainerRef} className="w-full">
+                    {isLoading ? (
+                      <div className="text-muted-foreground flex h-[200px] items-center justify-center">
+                        Yükleniyor...
+                      </div>
+                    ) : mapWidth > 0 ? (
+                      <WorldMap
+                        color="black"
+                        size={mapWidth}
+                        data={countryDistribution}
+                        richInteraction
+                      />
+                    ) : null}
+                  </div>
                 </CardContent>
               </Card>
-              <Card className="col-span-1 lg:col-span-3">
+              <Card>
                 <CardHeader>
                   <CardTitle>Yaklaşan Hatırlatıcılar</CardTitle>
                   <CardDescription>Yaklaşan hatırlatıcılarınız</CardDescription>
