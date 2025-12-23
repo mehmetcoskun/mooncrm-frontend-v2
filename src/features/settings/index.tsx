@@ -103,7 +103,7 @@ export function Settings() {
 
   return (
     <>
-      <Header>
+      <Header fixed>
         <div className="ms-auto flex items-center gap-4">
           <LeadSwitch />
           <ThemeSwitch />

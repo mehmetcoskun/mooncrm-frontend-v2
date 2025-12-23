@@ -99,7 +99,7 @@ export function OrganizationGuard({ children }: OrganizationGuardProps) {
 
   return (
     <>
-      <Header>
+      <Header fixed>
         <div className="ms-auto flex items-center space-x-4">
           <LeadSwitch />
           <ThemeSwitch />
