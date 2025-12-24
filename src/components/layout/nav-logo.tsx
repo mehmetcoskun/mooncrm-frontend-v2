@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Binary, ChevronsUpDown, CloudMoon, Plus } from 'lucide-react';
+import { Binary, ChevronsUpDown, Plus } from 'lucide-react';
 import { useOrganizationStore } from '@/stores/organization-store';
 import { useAuth } from '@/hooks/use-auth';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -68,7 +68,7 @@ export function NavLogo() {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <CloudMoon className="size-6" />
+                  <Binary className="size-6" />
                 </div>
                 <div className="grid flex-1 text-start text-sm leading-tight">
                   <span className="truncate font-semibold">MoonCRM</span>

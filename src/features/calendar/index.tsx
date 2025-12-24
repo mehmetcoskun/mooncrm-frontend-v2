@@ -36,7 +36,7 @@ export function Calendar() {
         </div>
       </Header>
 
-      <Main fixed fluid className="flex flex-col">
+      <Main fluid className="flex flex-col">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Takvim</h2>
