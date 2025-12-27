@@ -17,6 +17,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +42,7 @@ export function CustomersWhatsappTab({
   customer,
   onSuccess,
 }: CustomersWhatsappTabProps) {
+  const { user } = useAuth();
   const [sessions, setSessions] = useState<WhatsappSession[]>([]);
   const [selectedSession, setSelectedSession] =
     useState<WhatsappSession | null>(null);
@@ -152,6 +154,66 @@ export function CustomersWhatsappTab({
     reader.readAsDataURL(file);
   };
 
+  const replacePlaceholders = (message: string): string => {
+    const firstName = customer.name.split(' ')[0];
+    const userName = user?.name || '';
+    return message.replace(/{name}/g, firstName).replace(/{user}/g, userName);
+  };
+
+  const formatWhatsAppMessage = (message: string): React.ReactNode => {
+    const processedMessage = replacePlaceholders(message);
+
+    const parts: React.ReactNode[] = [];
+    let currentIndex = 0;
+    let key = 0;
+
+    const regex = /(\*[^*]+\*)|(_[^_]+_)|(~[^~]+~)|(`[^`]+`)/g;
+    let match;
+
+    while ((match = regex.exec(processedMessage)) !== null) {
+      if (match.index > currentIndex) {
+        parts.push(processedMessage.slice(currentIndex, match.index));
+      }
+
+      const matchedText = match[0];
+      const innerText = matchedText.slice(1, -1);
+
+      if (matchedText.startsWith('*')) {
+        parts.push(
+          <strong key={key++} className="font-bold">
+            {innerText}
+          </strong>
+        );
+      } else if (matchedText.startsWith('_')) {
+        parts.push(
+          <em key={key++} className="italic">
+            {innerText}
+          </em>
+        );
+      } else if (matchedText.startsWith('~')) {
+        parts.push(
+          <span key={key++} className="line-through">
+            {innerText}
+          </span>
+        );
+      } else if (matchedText.startsWith('`')) {
+        parts.push(
+          <code key={key++} className="bg-muted rounded px-1 font-mono text-sm">
+            {innerText}
+          </code>
+        );
+      }
+
+      currentIndex = match.index + matchedText.length;
+    }
+
+    if (currentIndex < processedMessage.length) {
+      parts.push(processedMessage.slice(currentIndex));
+    }
+
+    return parts.length > 0 ? parts : processedMessage;
+  };
+
   const handleSend = async () => {
     if (!selectedSession || !isValid) {
       toast.error(
@@ -160,11 +222,15 @@ export function CustomersWhatsappTab({
       return;
     }
 
-    const messageText = selectedTemplate?.message || customMessage;
-    if (!messageText && !uploadedFile) {
+    const rawMessageText = selectedTemplate?.message || customMessage;
+    if (!rawMessageText && !uploadedFile) {
       toast.error('Lütfen bir mesaj yazın veya dosya yükleyin.');
       return;
     }
+
+    const messageText = rawMessageText
+      ? replacePlaceholders(rawMessageText)
+      : '';
 
     setIsSending(true);
 
@@ -371,7 +437,9 @@ export function CustomersWhatsappTab({
                   )}
                   {(selectedTemplate?.message || customMessage) && (
                     <p className="text-sm whitespace-pre-wrap">
-                      {selectedTemplate?.message || customMessage}
+                      {formatWhatsAppMessage(
+                        selectedTemplate?.message || customMessage
+                      )}
                     </p>
                   )}
                   <div className="flex items-center justify-end gap-1">

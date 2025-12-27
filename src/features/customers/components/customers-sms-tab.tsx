@@ -5,6 +5,7 @@ import { sendSms } from '@/services/marketing-sms-service';
 import { getSmsTemplates } from '@/services/sms-template-service';
 import { Loader2, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -24,6 +25,7 @@ type CustomersSmsTabProps = {
 };
 
 export function CustomersSmsTab({ customer, onSuccess }: CustomersSmsTabProps) {
+  const { user } = useAuth();
   const [templates, setTemplates] = useState<SmsTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<SmsTemplate | null>(
     null
@@ -31,6 +33,12 @@ export function CustomersSmsTab({ customer, onSuccess }: CustomersSmsTabProps) {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [customMessage, setCustomMessage] = useState('');
+
+  const replacePlaceholders = (message: string): string => {
+    const firstName = customer.name.split(' ')[0];
+    const userName = user?.name || '';
+    return message.replace(/{name}/g, firstName).replace(/{user}/g, userName);
+  };
 
   useEffect(() => {
     setIsLoadingTemplates(true);
@@ -67,7 +75,7 @@ export function CustomersSmsTab({ customer, onSuccess }: CustomersSmsTabProps) {
       if (selectedTemplate) {
         payload.sms_template_id = selectedTemplate.id;
       } else {
-        payload.message = customMessage;
+        payload.message = replacePlaceholders(customMessage);
       }
 
       await sendSms(payload);
@@ -161,7 +169,9 @@ export function CustomersSmsTab({ customer, onSuccess }: CustomersSmsTabProps) {
                 </div>
                 <div className="bg-background flex-1 space-y-2 rounded-lg p-3 shadow-sm">
                   <p className="text-sm whitespace-pre-wrap">
-                    {selectedTemplate?.message || customMessage}
+                    {replacePlaceholders(
+                      selectedTemplate?.message || customMessage
+                    )}
                   </p>
                   <div className="flex items-center justify-end">
                     <span className="text-muted-foreground text-xs">

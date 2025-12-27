@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getSetting } from '@/services/setting-service';
 import { Mail, MessageSquare, Phone } from 'lucide-react';
 import { usePermissions } from '@/hooks/use-permissions';
 import {
@@ -33,10 +35,20 @@ export function CustomersCommunicationDialog({
   const [activeTab, setActiveTab] = useState('whatsapp');
   const { hasPermission } = usePermissions();
 
+  const { data: settings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: getSetting,
+  });
+
   const canSendWhatsapp = hasPermission('marketing_SendWhatsapp');
   const canSendSms = hasPermission('marketing_SendSms');
   const canSendEmail = hasPermission('marketing_SendMail');
   const canSendCall = hasPermission('marketing_SendCall');
+
+  const isWhatsappDisabled = !settings?.whatsapp_settings;
+  const isSmsDisabled = !settings?.sms_settings;
+  const isEmailDisabled = !settings?.mail_settings;
+  const isCallDisabled = !settings?.vapi_settings;
 
   if (!customer) return null;
 
@@ -64,25 +76,38 @@ export function CustomersCommunicationDialog({
                 <TabsTrigger
                   value="whatsapp"
                   className="flex items-center gap-2"
+                  disabled={isWhatsappDisabled}
                 >
                   <MessageSquare className="h-4 w-4" />
                   WhatsApp
                 </TabsTrigger>
               )}
               {canSendSms && (
-                <TabsTrigger value="sms" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="sms"
+                  className="flex items-center gap-2"
+                  disabled={isSmsDisabled}
+                >
                   <MessageSquare className="h-4 w-4" />
                   SMS
                 </TabsTrigger>
               )}
               {canSendEmail && (
-                <TabsTrigger value="email" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="email"
+                  className="flex items-center gap-2"
+                  disabled={isEmailDisabled}
+                >
                   <Mail className="h-4 w-4" />
                   E-Posta
                 </TabsTrigger>
               )}
               {canSendCall && (
-                <TabsTrigger value="phone" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="phone"
+                  className="flex items-center gap-2"
+                  disabled={isCallDisabled}
+                >
                   <Phone className="h-4 w-4" />
                   Telefon
                 </TabsTrigger>
