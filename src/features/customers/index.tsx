@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { getCategories } from '@/services/category-service';
 import { getCustomers } from '@/services/customer-service';
 import { getServices } from '@/services/service-service';
@@ -20,18 +21,68 @@ import { CustomersProvider } from './components/customers-provider';
 import { CustomersTable } from './components/customers-table';
 
 export function Customers() {
-  const [search, setSearch] = useState('');
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const [filterObject, setFilterObject] = useState<Record<string, unknown>>({});
-  const [activeFilters, setActiveFilters] = useState<FilterCondition[]>([]);
-  const [logicalOperator, setLogicalOperator] = useState<'and' | 'or'>('and');
+  const navigate = useNavigate();
+  const searchParams = useSearch({ from: '/_authenticated/customers/' });
 
-  useEffect(() => {
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-  }, [search, filterObject]);
+  // URL'den state değerlerini oku
+  const search = searchParams.search ?? '';
+  const pagination = useMemo(
+    () => ({
+      pageIndex: searchParams.page ?? 0,
+      pageSize: searchParams.pageSize ?? 10,
+    }),
+    [searchParams.page, searchParams.pageSize]
+  );
+  const filterObject = useMemo(
+    () => searchParams.filterObject ?? {},
+    [searchParams.filterObject]
+  );
+  const activeFilters = useMemo(
+    () => (searchParams.filters ?? []) as FilterCondition[],
+    [searchParams.filters]
+  );
+  const logicalOperator = searchParams.operator ?? 'and';
+
+  // URL güncelleme fonksiyonları
+  const setSearch = useCallback(
+    (newSearch: string) => {
+      navigate({
+        to: '/customers',
+        search: (prev) => ({
+          ...prev,
+          search: newSearch || undefined,
+          page: 0, // Arama değişince sayfa sıfırlansın
+        }),
+        replace: true,
+      });
+    },
+    [navigate]
+  );
+
+  const setPagination = useCallback(
+    (
+      updater:
+        | { pageIndex: number; pageSize: number }
+        | ((prev: { pageIndex: number; pageSize: number }) => {
+            pageIndex: number;
+            pageSize: number;
+          })
+    ) => {
+      const newPagination =
+        typeof updater === 'function' ? updater(pagination) : updater;
+      navigate({
+        to: '/customers',
+        search: (prev) => ({
+          ...prev,
+          page: newPagination.pageIndex || undefined,
+          pageSize:
+            newPagination.pageSize !== 10 ? newPagination.pageSize : undefined,
+        }),
+        replace: true,
+      });
+    },
+    [navigate, pagination]
+  );
 
   const queryFilters = useMemo(() => {
     return {
@@ -42,16 +93,28 @@ export function Customers() {
     };
   }, [search, pagination, filterObject]);
 
-  const handleApplyFilters = (
-    _queryString: string,
-    filters: FilterCondition[],
-    logicalOp: 'and' | 'or',
-    queryParams: Record<string, unknown>
-  ) => {
-    setFilterObject(queryParams);
-    setActiveFilters(filters);
-    setLogicalOperator(logicalOp);
-  };
+  const handleApplyFilters = useCallback(
+    (
+      _queryString: string,
+      filters: FilterCondition[],
+      logicalOp: 'and' | 'or',
+      queryParams: Record<string, unknown>
+    ) => {
+      navigate({
+        to: '/customers',
+        search: (prev) => ({
+          ...prev,
+          filters: filters.length > 0 ? filters : undefined,
+          filterObject:
+            Object.keys(queryParams).length > 0 ? queryParams : undefined,
+          operator: logicalOp !== 'and' ? logicalOp : undefined,
+          page: 0, // Filtre değişince sayfa sıfırlansın
+        }),
+        replace: true,
+      });
+    },
+    [navigate]
+  );
 
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['customers', queryFilters],

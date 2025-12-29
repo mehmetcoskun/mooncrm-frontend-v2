@@ -48,7 +48,7 @@ export function WebFormIframe() {
 
       if (webForm?.redirect_url) {
         setTimeout(() => {
-          window.location.href = webForm.redirect_url!;
+          window.parent.location.href = webForm.redirect_url!;
         }, 2000);
       }
     },
