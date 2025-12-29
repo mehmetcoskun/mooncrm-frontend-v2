@@ -32,11 +32,49 @@ export function WebFormIframe() {
   const [submitStatus, setSubmitStatus] = useState<
     'idle' | 'success' | 'error' | 'rate_limit'
   >('idle');
+  const [isDomainValid, setIsDomainValid] = useState<boolean | null>(null);
+  const [userCountry, setUserCountry] = useState<string>('');
 
   const { data: webForm, isLoading } = useQuery<WebForm>({
     queryKey: ['webFormIframe', uuid],
     queryFn: () => getWebFormIframeByUuid(uuid),
   });
+
+  useEffect(() => {
+    if (webForm) {
+      const allowedDomains =
+        webForm.domain === '*'
+          ? ['*']
+          : webForm.domain.split(',').map((domain) => domain.trim());
+
+      const currentDomain = window.location.hostname;
+      const referrerDomain = document.referrer
+        ? new URL(document.referrer).hostname
+        : null;
+
+      const isValidDomain =
+        allowedDomains.includes('*') ||
+        allowedDomains.includes(currentDomain) ||
+        (referrerDomain && allowedDomains.includes(referrerDomain)) ||
+        allowedDomains.some(
+          (domain) =>
+            currentDomain.endsWith(`.${domain}`) ||
+            (referrerDomain && referrerDomain.endsWith(`.${domain}`))
+        );
+
+      setIsDomainValid(isValidDomain);
+    }
+  }, [webForm]);
+
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.country_code) {
+          setUserCountry(data.country_code.toLowerCase());
+        }
+      });
+  }, []);
 
   const submitMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -150,7 +188,6 @@ export function WebFormIframe() {
 
     if (!webForm) return;
 
-    // Validate all fields
     const newErrors: Record<string, string> = {};
     webForm.fields.forEach((field) => {
       const error = validateField(field, formData[field.id]);
@@ -164,7 +201,6 @@ export function WebFormIframe() {
       return;
     }
 
-    // Prepare submission data
     const submissionData: Record<string, unknown> = {
       category_id: webForm.category_id,
     };
@@ -183,7 +219,6 @@ export function WebFormIframe() {
   const handleFieldChange = (fieldId: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [fieldId]: value }));
 
-    // Clear error for this field
     if (errors[fieldId]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -192,7 +227,6 @@ export function WebFormIframe() {
       });
     }
 
-    // Reset submit status when user starts typing again
     if (submitStatus !== 'idle') {
       setSubmitStatus('idle');
     }
@@ -232,7 +266,9 @@ export function WebFormIframe() {
       case 'phone':
         return (
           <PhoneInput
-            defaultCountry={field.defaultCountry?.toLowerCase() || 'tr'}
+            defaultCountry={
+              field.defaultCountry?.toLowerCase() || userCountry || 'tr'
+            }
             value={(fieldValue as string) || ''}
             onChange={(phone) => handleFieldChange(field.id, phone)}
             style={{
@@ -347,7 +383,7 @@ export function WebFormIframe() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isDomainValid === null) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2Icon className="h-8 w-8 animate-spin" />
@@ -362,6 +398,19 @@ export function WebFormIframe() {
           <h2 className="text-2xl font-bold">Form Bulunamadı</h2>
           <p className="text-muted-foreground mt-2">
             Aradığınız form mevcut değil veya kaldırılmış olabilir.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isDomainValid) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500">Erişim Reddedildi</h2>
+          <p className="text-muted-foreground mt-2">
+            Bu form bu domain üzerinde görüntülenemez.
           </p>
         </div>
       </div>

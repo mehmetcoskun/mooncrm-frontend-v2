@@ -53,7 +53,6 @@ export function WebFormsSettingsTabs({
     queryFn: getCategories,
   });
 
-  // Dinamik olarak iframe linkini oluştur
   const baseUrl = window.location.origin;
   const iframeLink = `${baseUrl}/web-form/iframe/${uuid}`;
   const iframeCode = `<iframe src="${iframeLink}" height="100%" width="100%" frameborder="0"></iframe>`;
@@ -91,7 +90,6 @@ export function WebFormsSettingsTabs({
         </TabsList>
 
         <div className="p-4 pt-0">
-          {/* Uyarı Mesajları */}
           <TabsContent value="messages" className="space-y-4">
             <div className="space-y-2">
               <Label>Zorunlu Alan</Label>
@@ -179,7 +177,6 @@ export function WebFormsSettingsTabs({
             </div>
           </TabsContent>
 
-          {/* Form Ayarları */}
           <TabsContent value="settings" className="space-y-4">
             <div className="space-y-2">
               <Label>Yönlendirme URL</Label>
@@ -243,7 +240,6 @@ export function WebFormsSettingsTabs({
               </Select>
             </div>
 
-            {/* Rate Limiting */}
             <div className="space-y-4 rounded-lg border p-4">
               <div className="flex items-center justify-between">
                 <Label>Rate Limiting</Label>
@@ -291,7 +287,6 @@ export function WebFormsSettingsTabs({
             </div>
           </TabsContent>
 
-          {/* Form Özelleştirme */}
           <TabsContent value="styling" className="space-y-4">
             <div className="space-y-4 rounded-lg border p-4">
               <div className="flex items-center justify-between">
@@ -472,7 +467,6 @@ export function WebFormsSettingsTabs({
             </div>
           </TabsContent>
 
-          {/* Iframe */}
           <TabsContent value="embed" className="space-y-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
