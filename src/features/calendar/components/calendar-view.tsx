@@ -302,7 +302,7 @@ export function CalendarView({
                 key={day.toISOString()}
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                  'group hover:bg-accent/50 relative flex cursor-pointer flex-col overflow-hidden p-1 transition-colors sm:p-1.5',
+                  'group hover:bg-accent/50 relative flex min-h-[100px] cursor-pointer flex-col overflow-hidden p-1 transition-colors sm:min-h-[120px] sm:p-1.5',
                   !isLastColumn && 'border-r',
                   !isLastRow && 'border-b',
                   !isCurrentMonth && 'bg-muted/30',
