@@ -146,6 +146,27 @@ export function UserAuthForm({
           {isLoading ? <Loader2 className="animate-spin" /> : <LogIn />}
           Giriş Yap
         </Button>
+        <div className="mt-4 text-center text-xs text-muted-foreground/70">
+          <span>Giriş yaparak </span>
+          <a
+            href="https://www.mooncrm.com.tr/terms-of-service"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-muted-foreground transition-colors"
+          >
+            Kullanım Koşulları
+          </a>
+          <span> ve </span>
+          <a
+            href="https://www.mooncrm.com.tr/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-muted-foreground transition-colors"
+          >
+            Gizlilik Politikası
+          </a>
+          <span>'nı kabul etmiş olursunuz.</span>
+        </div>
       </form>
     </Form>
   );

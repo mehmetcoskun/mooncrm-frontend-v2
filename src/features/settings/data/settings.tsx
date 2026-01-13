@@ -20,6 +20,7 @@ import {
   Facebook,
   Brain,
 } from 'lucide-react';
+import { FaTiktok } from 'react-icons/fa';
 import { SettingsDailyReportSidebar } from '../components/settings-daily-report-sidebar';
 import { SettingsEmailSidebar } from '../components/settings-email-sidebar';
 import { SettingsFacebookSidebar } from '../components/settings-facebook-sidebar';
@@ -27,6 +28,7 @@ import { SettingsLeadAssignmentSidebar } from '../components/settings-lead-assig
 import { SettingsSalesEmailSidebar } from '../components/settings-sales-email-sidebar';
 import { SettingsSalesNotificationSidebar } from '../components/settings-sales-notification-sidebar';
 import { SettingsSmsSidebar } from '../components/settings-sms-sidebar';
+import { SettingsTiktokSidebar } from '../components/settings-tiktok-sidebar';
 import { SettingsUserNotificationSidebar } from '../components/settings-user-notification-sidebar';
 import { SettingsVapiSidebar } from '../components/settings-vapi-sidebar';
 import { SettingsWelcomeMessageSidebar } from '../components/settings-welcome-message-sidebar';
@@ -60,6 +62,13 @@ export const settings = [
     desc: 'Facebook hesabınızı bağlayın ve sayfalarınızı yönetin.',
     component: SettingsFacebookSidebar,
     permission: 'setting_Facebook',
+  },
+  {
+    name: 'TikTok Ayarları',
+    logo: <FaTiktok />,
+    desc: 'TikTok hesabınızı bağlayın ve sayfalarınızı yönetin.',
+    component: SettingsTiktokSidebar,
+    permission: 'setting_Tiktok',
   },
   {
     name: 'Facebook Potansiyel Lead Merkezi',

@@ -51,6 +51,7 @@
     "react-email-editor": "^1.7.11",
     "react-facebook-login": "^4.1.1",
     "react-hook-form": "^7.62.0",
+    "react-icons": "^5.5.0",
     "react-international-phone": "^4.6.0",
     "react-svg-worldmap": "2.0.0-alpha.16",
     "react-top-loading-bar": "^3.0.2",
