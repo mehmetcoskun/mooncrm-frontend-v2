@@ -35,7 +35,8 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     ),
     cell: ({ row }) => {
       const travelInfo = row.original.travel_info[0];
-      if (!travelInfo) return <span className="text-muted-foreground">-</span>;
+      if (!travelInfo || !travelInfo.appointment_date)
+        return <span className="text-muted-foreground">-</span>;
 
       return (
         <div className="flex items-center space-x-2">
@@ -115,7 +116,8 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     ),
     cell: ({ row }) => {
       const travelInfo = row.original.travel_info[0];
-      if (!travelInfo) return <span className="text-muted-foreground">-</span>;
+      if (!travelInfo || !travelInfo.arrival_date)
+        return <span className="text-muted-foreground">-</span>;
 
       return (
         <div className="flex items-center space-x-2">
@@ -141,7 +143,8 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     ),
     cell: ({ row }) => {
       const travelInfo = row.original.travel_info[0];
-      if (!travelInfo) return <span className="text-muted-foreground">-</span>;
+      if (!travelInfo || !travelInfo.departure_date)
+        return <span className="text-muted-foreground">-</span>;
 
       return (
         <div className="flex items-center space-x-2">
@@ -170,7 +173,8 @@ export const appointmentsColumns: ColumnDef<Appointment>[] = [
     ),
     cell: ({ row }) => {
       const travelInfo = row.original.travel_info[0];
-      if (!travelInfo) return <span className="text-muted-foreground">-</span>;
+      if (!travelInfo || !travelInfo.departure_date || !travelInfo.departure_time)
+        return <span className="text-muted-foreground">-</span>;
 
       const departureDateTime = parse(
         `${travelInfo.departure_date} ${travelInfo.departure_time}`,
