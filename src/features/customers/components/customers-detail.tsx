@@ -442,6 +442,12 @@ export function CustomersDetail() {
                 ...travel,
                 teeth: travel.teeth || [],
                 person_count: String(travel.person_count ?? ''),
+                is_custom_hotel: travel.is_custom_hotel ?? false,
+                hotel_id: travel.hotel_id ?? null,
+                hotel_name: travel.hotel_name ?? '',
+                is_custom_transfer: travel.is_custom_transfer ?? false,
+                transfer_id: travel.transfer_id ?? null,
+                transfer_name: travel.transfer_name ?? '',
               }))
             : [],
       });
