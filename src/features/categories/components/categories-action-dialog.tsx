@@ -135,7 +135,7 @@ export function CategoriesActionDialog({
   const watchChannel = form.watch('channel');
   const watchLeadFormId = form.watch('lead_form_id');
 
-  // Facebook Lead Forms yükleme
+  // Facebook Lead Forms yükleme (pagination destekli)
   const fetchFacebookLeadForms = useCallback(async (accessToken: string) => {
     setLoadingLeadForms(true);
     try {
@@ -180,26 +180,37 @@ export function CategoriesActionDialog({
             continue;
           }
 
-          const formsResponse = await fetch(
-            `https://graph.facebook.com/v24.0/${page.id}/leadgen_forms?access_token=${pageAccessToken}&fields=id,name,status`
-          );
-          const formsData = await formsResponse.json();
+          // Pagination ile tüm formları al
+          let nextUrl: string | null =
+            `https://graph.facebook.com/v24.0/${page.id}/leadgen_forms?access_token=${pageAccessToken}&fields=id,name,status&limit=100`;
 
-          if (formsData.error) {
-            continue;
-          }
+          while (nextUrl) {
+            const formsResponse: Response = await fetch(nextUrl);
+            const formsData: {
+              data?: { id: string; name: string; status: string }[];
+              error?: unknown;
+              paging?: { next?: string };
+            } = await formsResponse.json();
 
-          if (Array.isArray(formsData.data)) {
-            const activeForms = formsData.data
-              .filter((form: { status: string }) => form.status === 'ACTIVE')
-              .map((form: { id: string; name: string }) => ({
-                id: form.id,
-                name: `${form.name} (${page.name})`,
-                pageName: page.name,
-                pageId: page.id,
-              }));
+            if (formsData.error) {
+              break;
+            }
 
-            allLeadForms.push(...activeForms);
+            if (Array.isArray(formsData.data)) {
+              const activeForms = formsData.data
+                .filter((form) => form.status === 'ACTIVE')
+                .map((form) => ({
+                  id: form.id,
+                  name: `${form.name} (${page.name})`,
+                  pageName: page.name,
+                  pageId: page.id,
+                }));
+
+              allLeadForms.push(...activeForms);
+            }
+
+            // Sonraki sayfa varsa devam et
+            nextUrl = formsData.paging?.next || null;
           }
         } catch {
           continue;
