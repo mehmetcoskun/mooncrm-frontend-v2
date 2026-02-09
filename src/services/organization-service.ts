@@ -5,13 +5,8 @@ export async function getOrganizations() {
   return response.data;
 }
 
-export async function createOrganization(payload: FormData) {
-  const response = await api.post('/organization', payload, {
-    headers:
-      payload instanceof FormData
-        ? { 'Content-Type': 'multipart/form-data' }
-        : {},
-  });
+export async function createOrganization(payload: Record<string, unknown>) {
+  const response = await api.post('/organization', payload);
   return response.data;
 }
 
@@ -20,14 +15,12 @@ export async function getOrganization(id: number) {
   return response.data;
 }
 
-export async function updateOrganization(id: number, payload: FormData) {
-  if (payload instanceof FormData) {
-    payload.append('_method', 'PUT');
-    const response = await api.post(`/organization/${id}`, payload, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
-  }
+export async function updateOrganization(
+  id: number,
+  payload: Record<string, unknown>
+) {
+  const response = await api.put(`/organization/${id}`, payload);
+  return response.data;
 }
 
 export async function destroyOrganization(id: number) {

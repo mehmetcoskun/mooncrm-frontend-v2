@@ -215,26 +215,24 @@ export function UsersActionDialog({
             .map((id) => ({ id }))
         : [];
 
-      if (payload.work_schedule) {
-        const filteredSchedule = payload.work_schedule.days.map((day) => ({
-          ...day,
-          times: day.times.filter(
-            (time) =>
-              time.start &&
-              time.end &&
-              time.start.trim() !== '' &&
-              time.end.trim() !== ''
-          ),
-        }));
+      const filteredSchedule = workSchedule.days.map((day) => ({
+        ...day,
+        times: day.times.filter(
+          (time) =>
+            time.start &&
+            time.end &&
+            time.start.trim() !== '' &&
+            time.end.trim() !== ''
+        ),
+      }));
 
-        const hasAnyTimes = filteredSchedule.some(
-          (day) => day.times.length > 0
-        );
-        payload.work_schedule = {
-          is_active: workSchedule.is_active,
-          days: hasAnyTimes ? filteredSchedule : [],
-        };
-      }
+      const hasAnyTimes = filteredSchedule.some(
+        (day) => day.times.length > 0
+      );
+      payload.work_schedule = {
+        is_active: workSchedule.is_active,
+        days: hasAnyTimes ? filteredSchedule : [],
+      };
 
       if (isEdit && currentRow) {
         await updateUser(currentRow.id, {

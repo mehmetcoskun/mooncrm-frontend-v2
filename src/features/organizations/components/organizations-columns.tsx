@@ -14,30 +14,6 @@ export const organizationsColumns: ColumnDef<Organization>[] = [
     cell: ({ row }) => <div>{row.getValue('id')}</div>,
   },
   {
-    accessorKey: 'logo',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Logo" />
-    ),
-    cell: ({ row }) => {
-      const logo = row.getValue('logo') as string | null;
-      return (
-        <div className="flex items-center">
-          {logo ? (
-            <img
-              src={`${import.meta.env.VITE_STORAGE_URL}/${logo}`}
-              alt="Organization logo"
-              className="h-8 w-8 rounded border object-contain"
-            />
-          ) : (
-            <div className="bg-muted flex h-8 w-8 items-center justify-center rounded border">
-              <span className="text-muted-foreground text-xs">-</span>
-            </div>
-          )}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: 'name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Firma Adı" />

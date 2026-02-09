@@ -159,7 +159,7 @@ export function WorkScheduleSidebar({
   useEffect(() => {
     if (!workSchedule.days || workSchedule.days.length === 0) {
       const defaultWorkSchedule = {
-        is_active: true,
+        is_active: workSchedule.is_active,
         days: [
           { day: 0, times: [] },
           { day: 1, times: [] },

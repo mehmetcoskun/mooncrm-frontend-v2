@@ -4,7 +4,6 @@ export const organizationSchema = z.object({
   id: z.number(),
   name: z.string(),
   code: z.string(),
-  logo: z.string().nullable().optional(),
   trial_ends_at: z.coerce.date().nullable().optional(),
   license_ends_at: z.coerce.date().nullable().optional(),
   is_active: z.boolean().optional(),
