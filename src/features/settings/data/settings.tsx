@@ -29,6 +29,7 @@ import { SettingsSalesEmailSidebar } from '../components/settings-sales-email-si
 import { SettingsSalesNotificationSidebar } from '../components/settings-sales-notification-sidebar';
 import { SettingsSmsSidebar } from '../components/settings-sms-sidebar';
 import { SettingsTiktokSidebar } from '../components/settings-tiktok-sidebar';
+import { SettingsGroupNotificationSidebar } from '../components/settings-group-notification-sidebar';
 import { SettingsUserNotificationSidebar } from '../components/settings-user-notification-sidebar';
 import { SettingsVapiSidebar } from '../components/settings-vapi-sidebar';
 import { SettingsWelcomeMessageSidebar } from '../components/settings-welcome-message-sidebar';
@@ -104,6 +105,13 @@ export const settings = [
     desc: 'Kullanıcı bildirim tercihlerini yönetin.',
     component: SettingsUserNotificationSidebar,
     permission: 'setting_UserNotification',
+  },
+  {
+    name: 'Grup Bildirim Ayarları',
+    logo: <Users />,
+    desc: 'Gruba bildirim gönderim ayarlarını yönetin.',
+    component: SettingsGroupNotificationSidebar,
+    permission: 'setting_GroupNotification',
   },
   {
     name: 'Günlük Rapor Ayarları',

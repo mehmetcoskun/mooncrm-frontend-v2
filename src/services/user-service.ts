@@ -15,6 +15,11 @@ export async function updateUser(id: number, payload: Record<string, unknown>) {
   return response.data;
 }
 
+export async function updateProfile(payload: Record<string, unknown>) {
+  const response = await api.put('/auth/profile', payload);
+  return response.data;
+}
+
 export async function destroyUser(id: number) {
   const response = await api.delete(`/user/${id}`);
   return response.data;

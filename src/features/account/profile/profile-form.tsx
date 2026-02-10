@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { updateUser } from '@/services/user-service';
+import { updateProfile } from '@/services/user-service';
 import { languages } from 'countries-list';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/use-auth';
@@ -66,8 +66,8 @@ export function ProfileForm() {
       const { password, ...dataToSend } = values;
       const payload = password && password.trim() !== '' ? values : dataToSend;
 
-      await updateUser(Number(user?.id), payload);
-      toast.success('Kullanıcı güncellendi', {
+      await updateProfile(payload);
+      toast.success('Profil güncellendi', {
         description: `${values.name} başarıyla güncellendi.`,
       });
     } catch (error) {
