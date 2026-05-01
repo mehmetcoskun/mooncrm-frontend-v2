@@ -100,3 +100,55 @@ export async function bulkUpdateUser(ids: number[], userId: number) {
   });
   return response.data;
 }
+
+export type CustomerNotificationType =
+  | 'user_notification'
+  | 'group_notification'
+  | 'sales_notification'
+  | 'customer_message'
+  | 'confirmation_email'
+  | 'hotel_message'
+  | 'hotel_email'
+  | 'transfer_message';
+
+export type CustomerNotificationVariant = 'reservation' | 'cancel' | null;
+
+export interface CustomerNotificationLog {
+  id: number;
+  customer_id: number;
+  organization_id: number;
+  type: CustomerNotificationType;
+  variant: string | null;
+  channel: string | null;
+  status: 'success' | 'failed' | 'skipped';
+  skip_reason: string | null;
+  request: Record<string, unknown> | null;
+  response_status: number | null;
+  response_body: string | null;
+  error: string | null;
+  triggered_by: 'auto' | 'manual';
+  triggered_by_user_id: number | null;
+  triggered_by_user?: { id: number; name: string; email: string } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getCustomerNotifications(customerId: number) {
+  const response = await api.get(`/customer/${customerId}/notification`);
+  return response.data as { data: CustomerNotificationLog[] };
+}
+
+export async function triggerCustomerNotification(
+  customerId: number,
+  type: CustomerNotificationType,
+  variant?: 'reservation' | 'cancel'
+) {
+  const response = await api.post(`/customer/${customerId}/notification/trigger`, {
+    type,
+    variant,
+  });
+  return response.data as {
+    message: string;
+    notification: CustomerNotificationLog | null;
+  };
+}

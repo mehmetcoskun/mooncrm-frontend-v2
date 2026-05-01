@@ -33,6 +33,7 @@ import {
   CreditCard,
   FileText,
   History,
+  BellRing,
   Upload,
   Trash2,
   Edit2,
@@ -74,6 +75,7 @@ import { GeneralError } from '@/features/errors/general-error';
 import { NotFoundError } from '@/features/errors/not-found-error';
 import { type Customer, type TravelInfo } from '../data/schema';
 import { CustomersTeethDialog } from './customers-teeth-dialog';
+import { CustomersNotificationsSection } from './customers-notifications-section';
 
 const phoneCallSchema = z.object({
   date: z.string().nullable(),
@@ -164,6 +166,7 @@ type CustomerFormValues = z.infer<typeof formSchema>;
 const getSidebarNavItems = (
   canAccessFiles: boolean,
   canAccessLogs: boolean,
+  canAccessNotifications: boolean,
   customerStatusId?: number
 ) =>
   [
@@ -210,6 +213,12 @@ const getSidebarNavItems = (
       show: canAccessFiles,
     },
     {
+      title: 'Bildirimler',
+      id: 'notifications',
+      icon: <BellRing size={18} />,
+      show: canAccessNotifications,
+    },
+    {
       title: 'Değişiklik Geçmişi',
       id: 'history',
       icon: <History size={18} />,
@@ -226,6 +235,7 @@ export function CustomersDetail() {
 
   const canAccessLogs = hasPermission('customer_LogAccess');
   const canAccessFiles = hasPermission('customer_FileAccess');
+  const canAccessNotifications = hasPermission('customer_NotificationAccess');
 
   const [activeSection, setActiveSection] = useState('personal');
 
@@ -301,8 +311,13 @@ export function CustomersDetail() {
 
   const sidebarNavItems = useMemo(
     () =>
-      getSidebarNavItems(canAccessFiles, canAccessLogs, customer?.status_id),
-    [canAccessFiles, canAccessLogs, customer?.status_id]
+      getSidebarNavItems(
+        canAccessFiles,
+        canAccessLogs,
+        canAccessNotifications,
+        customer?.status_id
+      ),
+    [canAccessFiles, canAccessLogs, canAccessNotifications, customer?.status_id]
   );
 
   const { data: users = [] } = useQuery({
@@ -2235,6 +2250,13 @@ export function CustomersDetail() {
                     </div>
                   )}
                 </div>
+              )}
+
+              {activeSection === 'notifications' && canAccessNotifications && (
+                <CustomersNotificationsSection
+                  customerId={Number(customerId)}
+                  customerStatusId={customer?.status_id}
+                />
               )}
 
               {activeSection === 'history' && (
