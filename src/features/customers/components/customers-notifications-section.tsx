@@ -254,13 +254,15 @@ export function CustomersNotificationsSection({
 
   const logs = logsData?.data ?? [];
 
-  const lastByKey = useMemo(() => {
-    const map = new Map<string, CustomerNotificationLog>();
+  const { lastByExact, lastByType } = useMemo(() => {
+    const exact = new Map<string, CustomerNotificationLog>();
+    const byType = new Map<string, CustomerNotificationLog>();
     for (const log of logs) {
       const key = `${log.type}::${log.variant ?? ''}`;
-      if (!map.has(key)) map.set(key, log);
+      if (!exact.has(key)) exact.set(key, log);
+      if (!byType.has(log.type)) byType.set(log.type, log);
     }
-    return map;
+    return { lastByExact: exact, lastByType: byType };
   }, [logs]);
 
   const triggerMutation = useMutation({
@@ -438,7 +440,9 @@ export function CustomersNotificationsSection({
             <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
               {group.items.map((item) => {
                 const key = `${item.type}::${item.variant ?? ''}`;
-                const last = lastByKey.get(key);
+                const last = item.variant
+                  ? lastByExact.get(key)
+                  : (lastByExact.get(key) ?? lastByType.get(item.type));
                 const isPending =
                   triggerMutation.isPending &&
                   triggerMutation.variables?.type === item.type &&
