@@ -4,8 +4,10 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# pnpm via corepack (lockfile is pnpm-lock.yaml)
-RUN corepack enable
+# pnpm via corepack — pin to v9 to match lockfileVersion 9.0
+# (v10 introduced a build-approval gate that breaks unattended CI builds
+# for packages like @swc/core, esbuild, @tailwindcss/oxide.)
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # Copy manifest and lockfile first for better layer caching
 COPY package.json pnpm-lock.yaml ./
