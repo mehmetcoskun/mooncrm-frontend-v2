@@ -7,7 +7,6 @@ import {
   sendBulkImageScheduler,
   sendBulkTextScheduler,
 } from '@/services/whatsapp-scheduler-service';
-import { checkExists } from '@/services/whatsapp-service';
 import { getWhatsappSessions } from '@/services/whatsapp-session-service';
 import { getWhatsappTemplates } from '@/services/whatsapp-template-service';
 import {
@@ -18,12 +17,9 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -60,8 +56,6 @@ export function SegmentsWhatsappDialog({
   const [selectedSession, setSelectedSession] =
     useState<WhatsappSession | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [validatedCustomers, setValidatedCustomers] = useState<Customer[]>([]);
-  const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [templates, setTemplates] = useState<WhatsappTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] =
     useState<WhatsappTemplate | null>(null);
@@ -72,7 +66,6 @@ export function SegmentsWhatsappDialog({
   } | null>(null);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
@@ -110,8 +103,6 @@ export function SegmentsWhatsappDialog({
   useEffect(() => {
     if (!selectedSession || !currentRow?.id) {
       setCustomers([]);
-      setValidatedCustomers([]);
-      setSelectedCustomers([]);
       return;
     }
 
@@ -128,43 +119,9 @@ export function SegmentsWhatsappDialog({
       });
   }, [selectedSession, currentRow?.id]);
 
-  useEffect(() => {
-    if (!selectedSession || customers.length === 0) {
-      setValidatedCustomers([]);
-      setSelectedCustomers([]);
-      return;
-    }
-
-    const validateCustomers = async () => {
-      setIsValidating(true);
-      const validated: Customer[] = [];
-
-      for (const customer of customers) {
-        if (!customer.phone) continue;
-
-        try {
-          const cleanPhone = customer.phone
-            .replace(/\D/g, '')
-            .replace(/^(\+)|^0/g, '');
-          const { numberExists } = await checkExists(
-            selectedSession.title,
-            cleanPhone
-          );
-
-          if (numberExists) {
-            validated.push(customer);
-          }
-        } catch {
-          // Skip invalid numbers silently
-        }
-      }
-
-      setValidatedCustomers(validated);
-      setIsValidating(false);
-    };
-
-    validateCustomers();
-  }, [selectedSession, customers]);
+  // Telefon numarası olan müşteriler gönderilebilir. Numaranın WhatsApp'ta
+  // kayıtlı olup olmadığı, gönderim sırasında scheduler tarafında kontrol edilir.
+  const eligibleCustomers = customers.filter((customer) => customer.phone);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -199,49 +156,21 @@ export function SegmentsWhatsappDialog({
     reader.readAsDataURL(file);
   };
 
-  const handleSelectAll = () => {
-    if (selectedCustomers.length === validatedCustomers.length) {
-      setSelectedCustomers([]);
-    } else {
-      const customersToSelect = validatedCustomers.slice(0, 256);
-      if (validatedCustomers.length > 256) {
-        toast.warning(
-          `Maksimum 256 müşteri seçilebilir. İlk 256 müşteri seçildi.`
-        );
-      }
-      setSelectedCustomers(customersToSelect);
-    }
-  };
-
-  const handleCustomerToggle = (customer: Customer) => {
-    const isSelected = selectedCustomers.some((c) => c.id === customer.id);
-    if (isSelected) {
-      setSelectedCustomers(
-        selectedCustomers.filter((c) => c.id !== customer.id)
-      );
-    } else {
-      if (selectedCustomers.length >= 256) {
-        toast.error('Maksimum 256 müşteri seçebilirsiniz.');
-        return;
-      }
-      setSelectedCustomers([...selectedCustomers, customer]);
-    }
-  };
-
   const handleSend = async () => {
-    if (
-      !selectedSession ||
-      !selectedTemplate ||
-      selectedCustomers.length === 0
-    ) {
-      toast.error('Lütfen tüm alanları doldurun ve en az bir müşteri seçin.');
+    if (!selectedSession || !selectedTemplate) {
+      toast.error('Lütfen oturum ve şablon seçin.');
+      return;
+    }
+
+    if (eligibleCustomers.length === 0) {
+      toast.error('Bu segmentte gönderilebilecek müşteri yok.');
       return;
     }
 
     setIsSending(true);
 
     try {
-      const formattedCustomers = selectedCustomers.map((customer) => ({
+      const formattedCustomers = eligibleCustomers.map((customer) => ({
         user: customer.user.name,
         name: customer.name,
         chatId:
@@ -287,21 +216,19 @@ export function SegmentsWhatsappDialog({
         const campaignData = {
           key: campaignKey,
           createdAt: new Date().toISOString(),
-          totalCustomers: selectedCustomers.length,
+          totalCustomers: eligibleCustomers.length,
         };
         const updatedKeys = [campaignData, ...existingKeys];
         localStorage.setItem(storageKey, JSON.stringify(updatedKeys));
       }
 
       toast.success(
-        `${selectedCustomers.length} müşteriye WhatsApp mesajı gönderilmeye başlandı.`
+        `${eligibleCustomers.length} müşteriye WhatsApp mesajı gönderilmeye başlandı.`
       );
 
       setSelectedSession(null);
       setSelectedTemplate(null);
       setUploadedFile(null);
-      setSelectedCustomers([]);
-      setValidatedCustomers([]);
       setCustomers([]);
 
       onSuccess?.();
@@ -354,115 +281,7 @@ export function SegmentsWhatsappDialog({
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className={!selectedSession ? 'opacity-50' : ''}>
-                  Müşteriler (Maksimum 256)
-                </Label>
-                {validatedCustomers.length > 0 && (
-                  <Badge variant="secondary">
-                    {selectedCustomers.length} /{' '}
-                    {Math.min(validatedCustomers.length, 256)} seçili
-                  </Badge>
-                )}
-              </div>
-
-              {!selectedSession ? (
-                <div className="border-muted bg-muted/30 flex flex-col items-center justify-center rounded-md border p-8 opacity-50">
-                  <MessageSquare className="text-muted-foreground mb-2 h-8 w-8" />
-                  <p className="text-muted-foreground text-sm">
-                    Müşterileri görmek için önce bir oturum seçin.
-                  </p>
-                </div>
-              ) : isLoadingCustomers || isValidating ? (
-                <div className="border-muted flex items-center justify-center rounded-md border p-8">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  <span className="text-muted-foreground text-sm">
-                    {isLoadingCustomers
-                      ? 'Müşteriler yükleniyor...'
-                      : 'WhatsApp numaraları kontrol ediliyor...'}
-                  </span>
-                </div>
-              ) : validatedCustomers.length === 0 ? (
-                <div className="border-muted flex flex-col items-center justify-center rounded-md border p-8">
-                  <MessageSquare className="text-muted-foreground mb-2 h-8 w-8" />
-                  <p className="text-muted-foreground text-sm">
-                    Bu segmentte WhatsApp kullanan müşteri bulunamadı.
-                  </p>
-                </div>
-              ) : (
-                <div className="border-muted space-y-2 rounded-md border">
-                  <div className="border-muted flex items-center gap-2 border-b p-3">
-                    <Checkbox
-                      checked={
-                        selectedCustomers.length ===
-                        Math.min(validatedCustomers.length, 256)
-                      }
-                      onCheckedChange={handleSelectAll}
-                    />
-                    <Label className="cursor-pointer" onClick={handleSelectAll}>
-                      Tümünü Seç{' '}
-                      {validatedCustomers.length > 256 && '(İlk 256)'}
-                    </Label>
-                  </div>
-                  <ScrollArea className="h-[200px]">
-                    <div className="space-y-1 p-2">
-                      {validatedCustomers.map((customer, index) => (
-                        <div
-                          key={customer.id}
-                          className={`flex items-center gap-2 rounded-md p-2 transition-colors ${
-                            index >= 256
-                              ? 'cursor-not-allowed opacity-50'
-                              : 'hover:bg-muted cursor-pointer'
-                          }`}
-                          onClick={() => {
-                            if (
-                              index < 256 ||
-                              selectedCustomers.some(
-                                (c) => c.id === customer.id
-                              )
-                            ) {
-                              handleCustomerToggle(customer);
-                            }
-                          }}
-                        >
-                          <Checkbox
-                            checked={selectedCustomers.some(
-                              (c) => c.id === customer.id
-                            )}
-                            onCheckedChange={() =>
-                              handleCustomerToggle(customer)
-                            }
-                            disabled={
-                              index >= 256 &&
-                              !selectedCustomers.some(
-                                (c) => c.id === customer.id
-                              )
-                            }
-                          />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">
-                              {customer.name}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              {customer.phone}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                className={
-                  !selectedSession || validatedCustomers.length === 0
-                    ? 'opacity-50'
-                    : ''
-                }
-              >
+              <Label className={!selectedSession ? 'opacity-50' : ''}>
                 WhatsApp Şablonu
               </Label>
               <Select
@@ -476,7 +295,7 @@ export function SegmentsWhatsappDialog({
                 disabled={
                   isLoadingTemplates ||
                   !selectedSession ||
-                  validatedCustomers.length === 0
+                  eligibleCustomers.length === 0
                 }
               >
                 <SelectTrigger className="w-full">
@@ -535,6 +354,10 @@ export function SegmentsWhatsappDialog({
               </p>
               <p className="text-muted-foreground mt-1 text-xs">
                 Mesajlar her müşteriye 90 saniye aralıklarla gönderilecektir.
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                WhatsApp'ta kayıtlı olmayan numaralar gönderim sırasında otomatik
+                olarak atlanır.
               </p>
             </div>
 
@@ -601,7 +424,8 @@ export function SegmentsWhatsappDialog({
               disabled={
                 !selectedSession ||
                 !selectedTemplate ||
-                selectedCustomers.length === 0 ||
+                isLoadingCustomers ||
+                eligibleCustomers.length === 0 ||
                 isSending
               }
             >
