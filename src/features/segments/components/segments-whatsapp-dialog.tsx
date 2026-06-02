@@ -11,15 +11,21 @@ import { getWhatsappSessions } from '@/services/whatsapp-session-service';
 import { getWhatsappTemplates } from '@/services/whatsapp-template-service';
 import {
   Check,
+  ChevronLeft,
+  ChevronRight,
   FileIcon,
   ImageIcon,
   Loader2,
   MessageSquare,
+  Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -56,6 +62,7 @@ export function SegmentsWhatsappDialog({
   const [selectedSession, setSelectedSession] =
     useState<WhatsappSession | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedCustomers, setSelectedCustomers] = useState<Customer[]>([]);
   const [templates, setTemplates] = useState<WhatsappTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] =
     useState<WhatsappTemplate | null>(null);
@@ -68,6 +75,9 @@ export function SegmentsWhatsappDialog({
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [batchSize, setBatchSize] = useState(100);
+  const [batchOffset, setBatchOffset] = useState(0);
 
   useEffect(() => {
     if (open) {
@@ -103,6 +113,7 @@ export function SegmentsWhatsappDialog({
   useEffect(() => {
     if (!selectedSession || !currentRow?.id) {
       setCustomers([]);
+      setSelectedCustomers([]);
       return;
     }
 
@@ -110,6 +121,7 @@ export function SegmentsWhatsappDialog({
     getCustomersBySegmentId(currentRow.id)
       .then((data) => {
         setCustomers(data);
+        setSelectedCustomers([]);
       })
       .catch(() => {
         toast.error('Müşteriler yüklenirken bir hata oluştu.');
@@ -119,9 +131,76 @@ export function SegmentsWhatsappDialog({
       });
   }, [selectedSession, currentRow?.id]);
 
+  // Segment bazında kaldığın grup ofsetini localStorage'dan yükle.
+  useEffect(() => {
+    setSearchQuery('');
+    if (!currentRow?.id) {
+      setBatchOffset(0);
+      return;
+    }
+    const saved = localStorage.getItem(
+      `whatsapp_segment_offset_${currentRow.id}`
+    );
+    const parsed = saved ? parseInt(saved, 10) : 0;
+    setBatchOffset(Number.isFinite(parsed) && parsed > 0 ? parsed : 0);
+  }, [currentRow?.id]);
+
   // Telefon numarası olan müşteriler gönderilebilir. Numaranın WhatsApp'ta
   // kayıtlı olup olmadığı, gönderim sırasında scheduler tarafında kontrol edilir.
   const eligibleCustomers = customers.filter((customer) => customer.phone);
+
+  // Arama kutusuna göre filtrelenmiş liste (yalnızca görüntüleme için).
+  const filteredCustomers = searchQuery.trim()
+    ? eligibleCustomers.filter((customer) => {
+        const q = searchQuery.trim().toLowerCase();
+        return (
+          customer.name?.toLowerCase().includes(q) ||
+          customer.phone?.toLowerCase().includes(q)
+        );
+      })
+    : eligibleCustomers;
+
+  const persistOffset = (offset: number) => {
+    if (currentRow?.id) {
+      localStorage.setItem(
+        `whatsapp_segment_offset_${currentRow.id}`,
+        String(offset)
+      );
+    }
+  };
+
+  // Grup seçimleri tam (ofset bazlı) liste üzerinde çalışır, aramadan bağımsızdır.
+  const selectBatchAt = (offset: number) => {
+    setSelectedCustomers(eligibleCustomers.slice(offset, offset + batchSize));
+  };
+
+  const handleSelectCurrentBatch = () => {
+    selectBatchAt(batchOffset);
+  };
+
+  const handleNextBatch = () => {
+    const next = batchOffset + batchSize;
+    if (next >= eligibleCustomers.length) {
+      toast.info('Son gruba ulaşıldı.');
+      return;
+    }
+    setBatchOffset(next);
+    persistOffset(next);
+    selectBatchAt(next);
+  };
+
+  const handlePrevBatch = () => {
+    const prev = Math.max(0, batchOffset - batchSize);
+    setBatchOffset(prev);
+    persistOffset(prev);
+    selectBatchAt(prev);
+  };
+
+  const handleResetBatch = () => {
+    setBatchOffset(0);
+    persistOffset(0);
+    setSelectedCustomers([]);
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -156,21 +235,50 @@ export function SegmentsWhatsappDialog({
     reader.readAsDataURL(file);
   };
 
-  const handleSend = async () => {
-    if (!selectedSession || !selectedTemplate) {
-      toast.error('Lütfen oturum ve şablon seçin.');
-      return;
+  const handleSelectAll = () => {
+    const selectableCount = Math.min(eligibleCustomers.length, 256);
+    if (selectedCustomers.length === selectableCount) {
+      setSelectedCustomers([]);
+    } else {
+      const customersToSelect = eligibleCustomers.slice(0, 256);
+      if (eligibleCustomers.length > 256) {
+        toast.warning(
+          `Maksimum 256 müşteri seçilebilir. İlk 256 müşteri seçildi.`
+        );
+      }
+      setSelectedCustomers(customersToSelect);
     }
+  };
 
-    if (eligibleCustomers.length === 0) {
-      toast.error('Bu segmentte gönderilebilecek müşteri yok.');
+  const handleCustomerToggle = (customer: Customer) => {
+    const isSelected = selectedCustomers.some((c) => c.id === customer.id);
+    if (isSelected) {
+      setSelectedCustomers(
+        selectedCustomers.filter((c) => c.id !== customer.id)
+      );
+    } else {
+      if (selectedCustomers.length >= 256) {
+        toast.error('Maksimum 256 müşteri seçebilirsiniz.');
+        return;
+      }
+      setSelectedCustomers([...selectedCustomers, customer]);
+    }
+  };
+
+  const handleSend = async () => {
+    if (
+      !selectedSession ||
+      !selectedTemplate ||
+      selectedCustomers.length === 0
+    ) {
+      toast.error('Lütfen tüm alanları doldurun ve en az bir müşteri seçin.');
       return;
     }
 
     setIsSending(true);
 
     try {
-      const formattedCustomers = eligibleCustomers.map((customer) => ({
+      const formattedCustomers = selectedCustomers.map((customer) => ({
         user: customer.user.name,
         name: customer.name,
         chatId:
@@ -216,19 +324,20 @@ export function SegmentsWhatsappDialog({
         const campaignData = {
           key: campaignKey,
           createdAt: new Date().toISOString(),
-          totalCustomers: eligibleCustomers.length,
+          totalCustomers: selectedCustomers.length,
         };
         const updatedKeys = [campaignData, ...existingKeys];
         localStorage.setItem(storageKey, JSON.stringify(updatedKeys));
       }
 
       toast.success(
-        `${eligibleCustomers.length} müşteriye WhatsApp mesajı gönderilmeye başlandı.`
+        `${selectedCustomers.length} müşteriye WhatsApp mesajı gönderilmeye başlandı.`
       );
 
       setSelectedSession(null);
       setSelectedTemplate(null);
       setUploadedFile(null);
+      setSelectedCustomers([]);
       setCustomers([]);
 
       onSuccess?.();
@@ -281,7 +390,173 @@ export function SegmentsWhatsappDialog({
             </div>
 
             <div className="space-y-2">
-              <Label className={!selectedSession ? 'opacity-50' : ''}>
+              <div className="flex items-center justify-between">
+                <Label className={!selectedSession ? 'opacity-50' : ''}>
+                  Müşteriler (Maksimum 256)
+                </Label>
+                {eligibleCustomers.length > 0 && (
+                  <Badge variant="secondary">
+                    {selectedCustomers.length} /{' '}
+                    {Math.min(eligibleCustomers.length, 256)} seçili
+                  </Badge>
+                )}
+              </div>
+
+              {!selectedSession ? (
+                <div className="border-muted bg-muted/30 flex flex-col items-center justify-center rounded-md border p-8 opacity-50">
+                  <MessageSquare className="text-muted-foreground mb-2 h-8 w-8" />
+                  <p className="text-muted-foreground text-sm">
+                    Müşterileri görmek için önce bir oturum seçin.
+                  </p>
+                </div>
+              ) : isLoadingCustomers ? (
+                <div className="border-muted flex items-center justify-center rounded-md border p-8">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <span className="text-muted-foreground text-sm">
+                    Müşteriler yükleniyor...
+                  </span>
+                </div>
+              ) : eligibleCustomers.length === 0 ? (
+                <div className="border-muted flex flex-col items-center justify-center rounded-md border p-8">
+                  <MessageSquare className="text-muted-foreground mb-2 h-8 w-8" />
+                  <p className="text-muted-foreground text-sm">
+                    Bu segmentte gönderilebilecek müşteri bulunamadı.
+                  </p>
+                </div>
+              ) : (
+                <div className="border-muted space-y-2 rounded-md border">
+                  <div className="space-y-2 border-b p-2">
+                    <div className="relative">
+                      <Search className="text-muted-foreground absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
+                      <Input
+                        placeholder="İsim veya telefon ara..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-8"
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-muted-foreground text-xs">
+                        Grup boyutu:
+                      </span>
+                      <Select
+                        value={String(batchSize)}
+                        onValueChange={(value) => setBatchSize(Number(value))}
+                      >
+                        <SelectTrigger className="h-8 w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[10, 25, 50, 100, 256].map((n) => (
+                            <SelectItem key={n} value={String(n)}>
+                              {n}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSelectCurrentBatch}
+                      >
+                        Grubu Seç
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevBatch}
+                        disabled={batchOffset <= 0}
+                      >
+                        <ChevronLeft className="h-4 w-4" /> Önceki
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNextBatch}
+                        disabled={
+                          batchOffset + batchSize >= eligibleCustomers.length
+                        }
+                      >
+                        Sonraki <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetBatch}
+                      >
+                        Sıfırla
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      Grup: {Math.min(batchOffset + 1, eligibleCustomers.length)}
+                      –
+                      {Math.min(
+                        batchOffset + batchSize,
+                        eligibleCustomers.length
+                      )}{' '}
+                      / {eligibleCustomers.length} müşteri (kaldığın yer
+                      kaydedilir)
+                    </p>
+                  </div>
+                  <div className="border-muted flex items-center gap-2 border-b p-3">
+                    <Checkbox
+                      checked={
+                        selectedCustomers.length ===
+                        Math.min(eligibleCustomers.length, 256)
+                      }
+                      onCheckedChange={handleSelectAll}
+                    />
+                    <Label className="cursor-pointer" onClick={handleSelectAll}>
+                      Tümünü Seç{' '}
+                      {eligibleCustomers.length > 256 && '(İlk 256)'}
+                    </Label>
+                  </div>
+                  <ScrollArea className="h-[200px]">
+                    <div className="space-y-1 p-2">
+                      {filteredCustomers.length === 0 ? (
+                        <p className="text-muted-foreground p-4 text-center text-sm">
+                          Aramayla eşleşen müşteri yok.
+                        </p>
+                      ) : (
+                        filteredCustomers.map((customer) => (
+                        <div
+                          key={customer.id}
+                          className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded-md p-2 transition-colors"
+                          onClick={() => handleCustomerToggle(customer)}
+                        >
+                          <Checkbox
+                            checked={selectedCustomers.some(
+                              (c) => c.id === customer.id
+                            )}
+                            onCheckedChange={() =>
+                              handleCustomerToggle(customer)
+                            }
+                          />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">
+                              {customer.name}
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              {customer.phone}
+                            </p>
+                          </div>
+                        </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                className={
+                  !selectedSession || eligibleCustomers.length === 0
+                    ? 'opacity-50'
+                    : ''
+                }
+              >
                 WhatsApp Şablonu
               </Label>
               <Select
@@ -424,8 +699,7 @@ export function SegmentsWhatsappDialog({
               disabled={
                 !selectedSession ||
                 !selectedTemplate ||
-                isLoadingCustomers ||
-                eligibleCustomers.length === 0 ||
+                selectedCustomers.length === 0 ||
                 isSending
               }
             >
