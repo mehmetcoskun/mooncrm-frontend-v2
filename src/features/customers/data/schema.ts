@@ -83,6 +83,12 @@ export const customerSchema = z.object({
   adset_name: z.string().nullable(),
   campaign_name: z.string().nullable(),
   lead_form_id: z.string().nullable(),
+  referral_token: z.string().nullable(),
+  referred_by_customer_id: z.number().nullable(),
+  referred_by: z
+    .object({ id: z.number(), name: z.string().nullable() })
+    .nullable()
+    .optional(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date(),
   organization: organizationSchema,

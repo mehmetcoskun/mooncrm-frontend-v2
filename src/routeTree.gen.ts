@@ -49,6 +49,7 @@ import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCustomersCustomerIdRouteImport } from './routes/_authenticated/customers/$customerId'
 import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated/account/security'
 import { Route as AuthenticatedAccountAppearanceRouteImport } from './routes/_authenticated/account/appearance'
+import { Route as publicReferralTokenRouteImport } from './routes/(public)/referral/$token'
 import { Route as AuthenticatedVapiPhoneNumbersIndexRouteImport } from './routes/_authenticated/vapi/phone-numbers/index'
 import { Route as AuthenticatedVapiAiAssistantsIndexRouteImport } from './routes/_authenticated/vapi/ai-assistants/index'
 import { Route as publicWebFormIframeUuidRouteImport } from './routes/(public)/web-form/iframe/$uuid'
@@ -281,6 +282,11 @@ const AuthenticatedAccountAppearanceRoute =
     path: '/appearance',
     getParentRoute: () => AuthenticatedAccountRouteRoute,
   } as any)
+const publicReferralTokenRoute = publicReferralTokenRouteImport.update({
+  id: '/(public)/referral/$token',
+  path: '/referral/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedVapiPhoneNumbersIndexRoute =
   AuthenticatedVapiPhoneNumbersIndexRouteImport.update({
     id: '/vapi/phone-numbers/',
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
+  '/referral/$token': typeof publicReferralTokenRoute
   '/account/appearance': typeof AuthenticatedAccountAppearanceRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
@@ -351,6 +358,7 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
+  '/referral/$token': typeof publicReferralTokenRoute
   '/account/appearance': typeof AuthenticatedAccountAppearanceRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
@@ -397,6 +405,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/(public)/referral/$token': typeof publicReferralTokenRoute
   '/_authenticated/account/appearance': typeof AuthenticatedAccountAppearanceRoute
   '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
   '/_authenticated/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
@@ -443,6 +452,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/referral/$token'
     | '/account/appearance'
     | '/account/security'
     | '/customers/$customerId'
@@ -486,6 +496,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/'
+    | '/referral/$token'
     | '/account/appearance'
     | '/account/security'
     | '/customers/$customerId'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
+    | '/(public)/referral/$token'
     | '/_authenticated/account/appearance'
     | '/_authenticated/account/security'
     | '/_authenticated/customers/$customerId'
@@ -575,6 +587,7 @@ export interface RootRouteChildren {
   errors404Route: typeof errors404Route
   errors500Route: typeof errors500Route
   errors503Route: typeof errors503Route
+  publicReferralTokenRoute: typeof publicReferralTokenRoute
   publicWebFormIframeUuidRoute: typeof publicWebFormIframeUuidRoute
 }
 
@@ -860,6 +873,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountAppearanceRouteImport
       parentRoute: typeof AuthenticatedAccountRouteRoute
     }
+    '/(public)/referral/$token': {
+      id: '/(public)/referral/$token'
+      path: '/referral/$token'
+      fullPath: '/referral/$token'
+      preLoaderRoute: typeof publicReferralTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/vapi/phone-numbers/': {
       id: '/_authenticated/vapi/phone-numbers/'
       path: '/vapi/phone-numbers'
@@ -987,6 +1007,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors404Route: errors404Route,
   errors500Route: errors500Route,
   errors503Route: errors503Route,
+  publicReferralTokenRoute: publicReferralTokenRoute,
   publicWebFormIframeUuidRoute: publicWebFormIframeUuidRoute,
 }
 export const routeTree = rootRouteImport

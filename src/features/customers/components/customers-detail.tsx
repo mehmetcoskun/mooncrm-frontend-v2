@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { useParams } from '@tanstack/react-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams, Link } from '@tanstack/react-router';
 import { getCategories } from '@/services/category-service';
 import {
   getCustomer,
@@ -18,6 +18,11 @@ import {
   destroyCustomerFile,
 } from '@/services/customer-service';
 import { getDoctors } from '@/services/doctor-service';
+import {
+  getCustomerReferrals,
+  generateReferralToken,
+  deleteReferralToken,
+} from '@/services/referral-service';
 import { getHotels } from '@/services/hotel-service';
 import { getServices } from '@/services/service-service';
 import { getStatuses } from '@/services/status-service';
@@ -34,6 +39,8 @@ import {
   FileText,
   History,
   BellRing,
+  Users,
+  Loader2,
   Upload,
   Trash2,
   Edit2,
@@ -167,6 +174,7 @@ const getSidebarNavItems = (
   canAccessFiles: boolean,
   canAccessLogs: boolean,
   canAccessNotifications: boolean,
+  canAccessReferrals: boolean,
   customerStatusId?: number
 ) =>
   [
@@ -193,6 +201,12 @@ const getSidebarNavItems = (
       id: 'calls',
       icon: <Phone size={18} />,
       show: true,
+    },
+    {
+      title: 'Referanslar',
+      id: 'referrals',
+      icon: <Users size={18} />,
+      show: canAccessReferrals,
     },
     {
       title: 'Satış',
@@ -236,6 +250,7 @@ export function CustomersDetail() {
   const canAccessLogs = hasPermission('customer_LogAccess');
   const canAccessFiles = hasPermission('customer_FileAccess');
   const canAccessNotifications = hasPermission('customer_NotificationAccess');
+  const canAccessReferrals = hasPermission('customer_ReferralAccess');
 
   const [activeSection, setActiveSection] = useState('personal');
 
@@ -298,6 +313,8 @@ export function CustomersDetail() {
     null
   );
 
+  const queryClient = useQueryClient();
+
   const {
     data: customer,
     isLoading,
@@ -315,9 +332,16 @@ export function CustomersDetail() {
         canAccessFiles,
         canAccessLogs,
         canAccessNotifications,
+        canAccessReferrals,
         customer?.status_id
       ),
-    [canAccessFiles, canAccessLogs, canAccessNotifications, customer?.status_id]
+    [
+      canAccessFiles,
+      canAccessLogs,
+      canAccessNotifications,
+      canAccessReferrals,
+      customer?.status_id,
+    ]
   );
 
   const { data: users = [] } = useQuery({
@@ -370,6 +394,46 @@ export function CustomersDetail() {
     queryFn: () => getCustomerFiles(Number(customerId)),
     enabled: activeSection === 'files',
   });
+
+  const { data: customerReferrals = [], isLoading: isReferralsLoading } =
+    useQuery<Customer[]>({
+      queryKey: ['customerReferrals', customerId],
+      queryFn: () => getCustomerReferrals(customerId),
+      enabled: activeSection === 'referrals',
+    });
+
+  const generateTokenMutation = useMutation({
+    mutationFn: () => generateReferralToken(customerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
+      toast.success('Referans bağlantısı oluşturuldu');
+    },
+    onError: () => {
+      toast.error('Referans bağlantısı oluşturulamadı');
+    },
+  });
+
+  const deleteTokenMutation = useMutation({
+    mutationFn: () => deleteReferralToken(customerId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
+      toast.success('Referans bağlantısı silindi');
+    },
+    onError: () => {
+      toast.error('Referans bağlantısı silinemedi');
+    },
+  });
+
+  const copyReferralLink = async () => {
+    if (!customer?.referral_token) return;
+    const link = `${window.location.origin}/referral/${customer.referral_token}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      toast.success('Referans bağlantısı kopyalandı');
+    } catch {
+      toast.error('Bağlantı kopyalanamadı');
+    }
+  };
 
   const uploadFilesMutation = useMutation({
     mutationFn: (formData: FormData) =>
@@ -1437,6 +1501,131 @@ export function CustomersDetail() {
                             </div>
                           )}
                         </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeSection === 'referrals' && (
+                <div className="space-y-6">
+                  <div className="space-y-3 rounded-lg border p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-lg font-semibold">
+                        Referans Bağlantısı
+                      </h3>
+                      {customer?.referral_token ? (
+                        <PermissionGuard permission="customer_ReferralManage">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => deleteTokenMutation.mutate()}
+                            disabled={deleteTokenMutation.isPending}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Linki Sil
+                          </Button>
+                        </PermissionGuard>
+                      ) : null}
+                    </div>
+
+                    {customer?.referral_token ? (
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <Input
+                          readOnly
+                          value={`${window.location.origin}/referral/${customer.referral_token}`}
+                          onFocus={(e) => e.currentTarget.select()}
+                          className="font-mono text-sm"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={copyReferralLink}
+                          className="shrink-0"
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Kopyala
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="text-muted-foreground text-sm">
+                          Bu müşteri için henüz bir referans bağlantısı
+                          oluşturulmadı.
+                        </p>
+                        <PermissionGuard permission="customer_ReferralManage">
+                          <Button
+                            type="button"
+                            onClick={() => generateTokenMutation.mutate()}
+                            disabled={generateTokenMutation.isPending}
+                          >
+                            {generateTokenMutation.isPending ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Oluşturuluyor...
+                              </>
+                            ) : (
+                              <>
+                                <Users className="mr-2 h-4 w-4" />
+                                Referans Bağlantısı Oluştur
+                              </>
+                            )}
+                          </Button>
+                        </PermissionGuard>
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 className="text-lg font-semibold">
+                    Referansla Gelen Müşteriler
+                  </h3>
+
+                  {isReferralsLoading ? (
+                    <div className="flex min-h-[200px] items-center justify-center">
+                      <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+                    </div>
+                  ) : customerReferrals.length === 0 ? (
+                    <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed">
+                      <div className="text-center">
+                        <Users className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
+                        <p className="text-muted-foreground">
+                          Bu müşterinin referansıyla kaydolan müşteri yok
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="divide-y rounded-lg border">
+                      {customerReferrals.map((referral) => (
+                        <Link
+                          key={referral.id}
+                          to="/customers/$customerId"
+                          params={{ customerId: referral.id.toString() }}
+                          className="hover:bg-muted/50 flex items-center justify-between gap-4 px-4 py-3 transition-colors"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate font-medium">
+                              {referral.name}
+                            </p>
+                            <p className="text-muted-foreground truncate text-sm">
+                              {referral.phone}
+                              {referral.email ? ` · ${referral.email}` : ''}
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 flex-col items-end gap-1">
+                            {referral.status?.title && (
+                              <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
+                                {referral.status.title}
+                              </span>
+                            )}
+                            <span className="text-muted-foreground text-xs">
+                              {new Date(
+                                referral.created_at
+                              ).toLocaleDateString('tr-TR')}
+                            </span>
+                          </div>
+                        </Link>
                       ))}
                     </div>
                   )}

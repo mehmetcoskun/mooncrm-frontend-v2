@@ -64,11 +64,13 @@ export function EmailEditorSheet({
   const handleSave = () => {
     if (!emailEditorRef.current?.editor) return;
 
-    emailEditorRef.current.editor.exportHtml((data) => {
-      const { design, html } = data;
-      const templateJson = JSON.stringify(design);
-      onSave(templateJson, html);
-    });
+    emailEditorRef.current.editor.exportHtml(
+      (data: { design: unknown; html: string }) => {
+        const { design, html } = data;
+        const templateJson = JSON.stringify(design);
+        onSave(templateJson, html);
+      }
+    );
   };
 
   return (

@@ -181,14 +181,23 @@ export function getCustomersColumns({
         <DataTableColumnHeader column={column} title="Müşteri Adı" />
       ),
       cell: ({ row }) => {
+        const referredBy = row.original.referred_by;
+
         return (
-          <Link
-            to="/customers/$customerId"
-            params={{ customerId: row.original.id.toString() }}
-            className="hover:text-primary hover:underline"
-          >
-            {row.getValue('name')}
-          </Link>
+          <div className="flex flex-col">
+            <Link
+              to="/customers/$customerId"
+              params={{ customerId: row.original.id.toString() }}
+              className="hover:text-primary hover:underline"
+            >
+              {row.getValue('name')}
+            </Link>
+            {referredBy?.name && (
+              <span className="text-muted-foreground text-xs lowercase">
+                {referredBy.name}
+              </span>
+            )}
+          </div>
         );
       },
     },
