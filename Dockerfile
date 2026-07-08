@@ -1,17 +1,12 @@
 # syntax=docker/dockerfile:1.7
 
 # --- Build stage ---
-FROM node:22-alpine AS build
+FROM oven/bun:1-alpine AS build
 WORKDIR /app
 
-# pnpm via corepack — pin to v9 to match lockfileVersion 9.0
-# (v10 introduced a build-approval gate that breaks unattended CI builds
-# for packages like @swc/core, esbuild, @tailwindcss/oxide.)
-RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
-
 # Copy manifest and lockfile first for better layer caching
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json bun.lock* ./
+RUN bun install --frozen-lockfile
 
 # Build-time env: baked into the bundle.
 # Set whichever applies via Dokploy build-args.
@@ -29,7 +24,7 @@ ENV VITE_API_URL=${VITE_API_URL} \
     VITE_MAIL_SCHEDULER_API_URL=${VITE_MAIL_SCHEDULER_API_URL}
 
 COPY . .
-RUN pnpm build
+RUN bun run build
 
 
 # --- Runtime stage ---
