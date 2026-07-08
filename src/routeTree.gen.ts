@@ -306,6 +306,7 @@ const publicWebFormIframeUuidRoute = publicWebFormIframeUuidRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthenticatedIndexRoute
   '/account': typeof AuthenticatedAccountRouteRouteWithChildren
   '/sign-in': typeof authSignInRoute
   '/401': typeof errors401Route
@@ -313,42 +314,41 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/': typeof AuthenticatedIndexRoute
   '/referral/$token': typeof publicReferralTokenRoute
   '/account/appearance': typeof AuthenticatedAccountAppearanceRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
-  '/appointments': typeof AuthenticatedAppointmentsIndexRoute
-  '/calendar': typeof AuthenticatedCalendarIndexRoute
-  '/campaigns': typeof AuthenticatedCampaignsIndexRoute
-  '/categories': typeof AuthenticatedCategoriesIndexRoute
-  '/customers': typeof AuthenticatedCustomersIndexRoute
-  '/doctors': typeof AuthenticatedDoctorsIndexRoute
-  '/email-templates': typeof AuthenticatedEmailTemplatesIndexRoute
-  '/facebook-leads': typeof AuthenticatedFacebookLeadsIndexRoute
-  '/hotels': typeof AuthenticatedHotelsIndexRoute
-  '/organizations': typeof AuthenticatedOrganizationsIndexRoute
-  '/permissions': typeof AuthenticatedPermissionsIndexRoute
-  '/reports': typeof AuthenticatedReportsIndexRoute
-  '/roles': typeof AuthenticatedRolesIndexRoute
-  '/segments': typeof AuthenticatedSegmentsIndexRoute
-  '/services': typeof AuthenticatedServicesIndexRoute
-  '/settings': typeof AuthenticatedSettingsIndexRoute
-  '/sms-templates': typeof AuthenticatedSmsTemplatesIndexRoute
-  '/statistics': typeof AuthenticatedStatisticsIndexRoute
-  '/statuses': typeof AuthenticatedStatusesIndexRoute
-  '/tags': typeof AuthenticatedTagsIndexRoute
-  '/transfers': typeof AuthenticatedTransfersIndexRoute
-  '/users': typeof AuthenticatedUsersIndexRoute
-  '/web-forms': typeof AuthenticatedWebFormsIndexRoute
-  '/whatsapp-chats': typeof AuthenticatedWhatsappChatsIndexRoute
-  '/whatsapp-sessions': typeof AuthenticatedWhatsappSessionsIndexRoute
-  '/whatsapp-templates': typeof AuthenticatedWhatsappTemplatesIndexRoute
+  '/appointments/': typeof AuthenticatedAppointmentsIndexRoute
+  '/calendar/': typeof AuthenticatedCalendarIndexRoute
+  '/campaigns/': typeof AuthenticatedCampaignsIndexRoute
+  '/categories/': typeof AuthenticatedCategoriesIndexRoute
+  '/customers/': typeof AuthenticatedCustomersIndexRoute
+  '/doctors/': typeof AuthenticatedDoctorsIndexRoute
+  '/email-templates/': typeof AuthenticatedEmailTemplatesIndexRoute
+  '/facebook-leads/': typeof AuthenticatedFacebookLeadsIndexRoute
+  '/hotels/': typeof AuthenticatedHotelsIndexRoute
+  '/organizations/': typeof AuthenticatedOrganizationsIndexRoute
+  '/permissions/': typeof AuthenticatedPermissionsIndexRoute
+  '/reports/': typeof AuthenticatedReportsIndexRoute
+  '/roles/': typeof AuthenticatedRolesIndexRoute
+  '/segments/': typeof AuthenticatedSegmentsIndexRoute
+  '/services/': typeof AuthenticatedServicesIndexRoute
+  '/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/sms-templates/': typeof AuthenticatedSmsTemplatesIndexRoute
+  '/statistics/': typeof AuthenticatedStatisticsIndexRoute
+  '/statuses/': typeof AuthenticatedStatusesIndexRoute
+  '/tags/': typeof AuthenticatedTagsIndexRoute
+  '/transfers/': typeof AuthenticatedTransfersIndexRoute
+  '/users/': typeof AuthenticatedUsersIndexRoute
+  '/web-forms/': typeof AuthenticatedWebFormsIndexRoute
+  '/whatsapp-chats/': typeof AuthenticatedWhatsappChatsIndexRoute
+  '/whatsapp-sessions/': typeof AuthenticatedWhatsappSessionsIndexRoute
+  '/whatsapp-templates/': typeof AuthenticatedWhatsappTemplatesIndexRoute
   '/web-form/iframe/$uuid': typeof publicWebFormIframeUuidRoute
-  '/vapi/ai-assistants': typeof AuthenticatedVapiAiAssistantsIndexRoute
-  '/vapi/phone-numbers': typeof AuthenticatedVapiPhoneNumbersIndexRoute
+  '/vapi/ai-assistants/': typeof AuthenticatedVapiAiAssistantsIndexRoute
+  '/vapi/phone-numbers/': typeof AuthenticatedVapiPhoneNumbersIndexRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof authSignInRoute
@@ -444,6 +444,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/account'
     | '/sign-in'
     | '/401'
@@ -451,42 +452,41 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/'
     | '/referral/$token'
     | '/account/appearance'
     | '/account/security'
     | '/customers/$customerId'
     | '/errors/$error'
     | '/account/'
-    | '/appointments'
-    | '/calendar'
-    | '/campaigns'
-    | '/categories'
-    | '/customers'
-    | '/doctors'
-    | '/email-templates'
-    | '/facebook-leads'
-    | '/hotels'
-    | '/organizations'
-    | '/permissions'
-    | '/reports'
-    | '/roles'
-    | '/segments'
-    | '/services'
-    | '/settings'
-    | '/sms-templates'
-    | '/statistics'
-    | '/statuses'
-    | '/tags'
-    | '/transfers'
-    | '/users'
-    | '/web-forms'
-    | '/whatsapp-chats'
-    | '/whatsapp-sessions'
-    | '/whatsapp-templates'
+    | '/appointments/'
+    | '/calendar/'
+    | '/campaigns/'
+    | '/categories/'
+    | '/customers/'
+    | '/doctors/'
+    | '/email-templates/'
+    | '/facebook-leads/'
+    | '/hotels/'
+    | '/organizations/'
+    | '/permissions/'
+    | '/reports/'
+    | '/roles/'
+    | '/segments/'
+    | '/services/'
+    | '/settings/'
+    | '/sms-templates/'
+    | '/statistics/'
+    | '/statuses/'
+    | '/tags/'
+    | '/transfers/'
+    | '/users/'
+    | '/web-forms/'
+    | '/whatsapp-chats/'
+    | '/whatsapp-sessions/'
+    | '/whatsapp-templates/'
     | '/web-form/iframe/$uuid'
-    | '/vapi/ai-assistants'
-    | '/vapi/phone-numbers'
+    | '/vapi/ai-assistants/'
+    | '/vapi/phone-numbers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sign-in'
@@ -596,7 +596,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -659,182 +659,182 @@ declare module '@tanstack/react-router' {
     '/_authenticated/whatsapp-templates/': {
       id: '/_authenticated/whatsapp-templates/'
       path: '/whatsapp-templates'
-      fullPath: '/whatsapp-templates'
+      fullPath: '/whatsapp-templates/'
       preLoaderRoute: typeof AuthenticatedWhatsappTemplatesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/whatsapp-sessions/': {
       id: '/_authenticated/whatsapp-sessions/'
       path: '/whatsapp-sessions'
-      fullPath: '/whatsapp-sessions'
+      fullPath: '/whatsapp-sessions/'
       preLoaderRoute: typeof AuthenticatedWhatsappSessionsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/whatsapp-chats/': {
       id: '/_authenticated/whatsapp-chats/'
       path: '/whatsapp-chats'
-      fullPath: '/whatsapp-chats'
+      fullPath: '/whatsapp-chats/'
       preLoaderRoute: typeof AuthenticatedWhatsappChatsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/web-forms/': {
       id: '/_authenticated/web-forms/'
       path: '/web-forms'
-      fullPath: '/web-forms'
+      fullPath: '/web-forms/'
       preLoaderRoute: typeof AuthenticatedWebFormsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
-      fullPath: '/users'
+      fullPath: '/users/'
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/transfers/': {
       id: '/_authenticated/transfers/'
       path: '/transfers'
-      fullPath: '/transfers'
+      fullPath: '/transfers/'
       preLoaderRoute: typeof AuthenticatedTransfersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tags/': {
       id: '/_authenticated/tags/'
       path: '/tags'
-      fullPath: '/tags'
+      fullPath: '/tags/'
       preLoaderRoute: typeof AuthenticatedTagsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/statuses/': {
       id: '/_authenticated/statuses/'
       path: '/statuses'
-      fullPath: '/statuses'
+      fullPath: '/statuses/'
       preLoaderRoute: typeof AuthenticatedStatusesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/statistics/': {
       id: '/_authenticated/statistics/'
       path: '/statistics'
-      fullPath: '/statistics'
+      fullPath: '/statistics/'
       preLoaderRoute: typeof AuthenticatedStatisticsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/sms-templates/': {
       id: '/_authenticated/sms-templates/'
       path: '/sms-templates'
-      fullPath: '/sms-templates'
+      fullPath: '/sms-templates/'
       preLoaderRoute: typeof AuthenticatedSmsTemplatesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/settings'
-      fullPath: '/settings'
+      fullPath: '/settings/'
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/services/': {
       id: '/_authenticated/services/'
       path: '/services'
-      fullPath: '/services'
+      fullPath: '/services/'
       preLoaderRoute: typeof AuthenticatedServicesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/segments/': {
       id: '/_authenticated/segments/'
       path: '/segments'
-      fullPath: '/segments'
+      fullPath: '/segments/'
       preLoaderRoute: typeof AuthenticatedSegmentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/roles/': {
       id: '/_authenticated/roles/'
       path: '/roles'
-      fullPath: '/roles'
+      fullPath: '/roles/'
       preLoaderRoute: typeof AuthenticatedRolesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reports/': {
       id: '/_authenticated/reports/'
       path: '/reports'
-      fullPath: '/reports'
+      fullPath: '/reports/'
       preLoaderRoute: typeof AuthenticatedReportsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/permissions/': {
       id: '/_authenticated/permissions/'
       path: '/permissions'
-      fullPath: '/permissions'
+      fullPath: '/permissions/'
       preLoaderRoute: typeof AuthenticatedPermissionsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/organizations/': {
       id: '/_authenticated/organizations/'
       path: '/organizations'
-      fullPath: '/organizations'
+      fullPath: '/organizations/'
       preLoaderRoute: typeof AuthenticatedOrganizationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/hotels/': {
       id: '/_authenticated/hotels/'
       path: '/hotels'
-      fullPath: '/hotels'
+      fullPath: '/hotels/'
       preLoaderRoute: typeof AuthenticatedHotelsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/facebook-leads/': {
       id: '/_authenticated/facebook-leads/'
       path: '/facebook-leads'
-      fullPath: '/facebook-leads'
+      fullPath: '/facebook-leads/'
       preLoaderRoute: typeof AuthenticatedFacebookLeadsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/email-templates/': {
       id: '/_authenticated/email-templates/'
       path: '/email-templates'
-      fullPath: '/email-templates'
+      fullPath: '/email-templates/'
       preLoaderRoute: typeof AuthenticatedEmailTemplatesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/doctors/': {
       id: '/_authenticated/doctors/'
       path: '/doctors'
-      fullPath: '/doctors'
+      fullPath: '/doctors/'
       preLoaderRoute: typeof AuthenticatedDoctorsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/customers/': {
       id: '/_authenticated/customers/'
       path: '/customers'
-      fullPath: '/customers'
+      fullPath: '/customers/'
       preLoaderRoute: typeof AuthenticatedCustomersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/categories/': {
       id: '/_authenticated/categories/'
       path: '/categories'
-      fullPath: '/categories'
+      fullPath: '/categories/'
       preLoaderRoute: typeof AuthenticatedCategoriesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/campaigns/': {
       id: '/_authenticated/campaigns/'
       path: '/campaigns'
-      fullPath: '/campaigns'
+      fullPath: '/campaigns/'
       preLoaderRoute: typeof AuthenticatedCampaignsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/calendar/': {
       id: '/_authenticated/calendar/'
       path: '/calendar'
-      fullPath: '/calendar'
+      fullPath: '/calendar/'
       preLoaderRoute: typeof AuthenticatedCalendarIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/appointments/': {
       id: '/_authenticated/appointments/'
       path: '/appointments'
-      fullPath: '/appointments'
+      fullPath: '/appointments/'
       preLoaderRoute: typeof AuthenticatedAppointmentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
@@ -883,14 +883,14 @@ declare module '@tanstack/react-router' {
     '/_authenticated/vapi/phone-numbers/': {
       id: '/_authenticated/vapi/phone-numbers/'
       path: '/vapi/phone-numbers'
-      fullPath: '/vapi/phone-numbers'
+      fullPath: '/vapi/phone-numbers/'
       preLoaderRoute: typeof AuthenticatedVapiPhoneNumbersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/vapi/ai-assistants/': {
       id: '/_authenticated/vapi/ai-assistants/'
       path: '/vapi/ai-assistants'
-      fullPath: '/vapi/ai-assistants'
+      fullPath: '/vapi/ai-assistants/'
       preLoaderRoute: typeof AuthenticatedVapiAiAssistantsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
