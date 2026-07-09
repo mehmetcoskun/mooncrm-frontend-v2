@@ -712,7 +712,7 @@ export function CustomersDetail() {
   ) => {
     const currentTravel = getValues('travel_info');
     const updated = [...currentTravel];
-    (updated[index] as unknown as Record<string, unknown>)[field] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setValue('travel_info', updated, { shouldDirty: true });
   };
 
