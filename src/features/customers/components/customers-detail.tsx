@@ -808,23 +808,16 @@ export function CustomersDetail() {
     }
   };
 
-  const buildFilesFormData = (files: FileList) => {
-    const formData = new FormData();
-
-    Array.from(files).forEach((file) => {
-      const safeName = file.name.replace(/['";=]/g, '_');
-      formData.append('files[]', file, safeName);
-      formData.append('titles[]', file.name);
-    });
-
-    return formData;
-  };
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    uploadFilesMutation.mutate(buildFilesFormData(files));
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      formData.append('files[]', file);
+    });
+
+    uploadFilesMutation.mutate(formData);
     e.target.value = '';
   };
 
@@ -833,7 +826,12 @@ export function CustomersDetail() {
     const files = e.dataTransfer.files;
     if (!files || files.length === 0) return;
 
-    uploadFilesMutation.mutate(buildFilesFormData(files));
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      formData.append('files[]', file);
+    });
+
+    uploadFilesMutation.mutate(formData);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
