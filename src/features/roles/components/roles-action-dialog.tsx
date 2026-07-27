@@ -10,6 +10,7 @@ import { getAvailablePermissions } from '@/services/permission-service';
 import { createRole, updateRole } from '@/services/role-service';
 import { getStatuses } from '@/services/status-service';
 import { toast } from 'sonner';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -57,6 +58,7 @@ export function RolesActionDialog({
   onOpenChange,
   onSuccess,
 }: RolesActionDialogProps) {
+  const { isSuperUser } = usePermissions();
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: statuses = [] } = useQuery({
@@ -76,7 +78,7 @@ export function RolesActionDialog({
       ? {
           title: currentRow.title,
           has_status_filter: currentRow.has_status_filter,
-          is_global: currentRow.is_global,
+          is_global: isSuperUser() ? currentRow.is_global : false,
           statuses: currentRow.statuses?.map((s) => s.id) || [],
           permissions: currentRow.permissions?.map((p) => p.id) || [],
           isEdit,
@@ -272,26 +274,28 @@ export function RolesActionDialog({
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="is_global"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Global Rol</FormLabel>
-                          <div className="text-muted-foreground text-sm">
-                            Tüm firmalarda geçerli
+                  {isSuperUser() && (
+                    <FormField
+                      control={form.control}
+                      name="is_global"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                          <div className="space-y-0.5">
+                            <FormLabel>Global Rol</FormLabel>
+                            <div className="text-muted-foreground text-sm">
+                              Tüm firmalarda geçerli
+                            </div>
                           </div>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <FormField
                     control={form.control}

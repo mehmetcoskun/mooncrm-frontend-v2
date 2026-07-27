@@ -10,6 +10,7 @@ import {
   updatePermission,
 } from '@/services/permission-service';
 import { toast } from 'sonner';
+import { usePermissions as usePermissionsHook } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -54,6 +55,7 @@ export function PermissionsActionDialog({
   onOpenChange,
   onSuccess,
 }: PermissionActionDialogProps) {
+  const { isSuperUser } = usePermissionsHook();
   const [isLoading, setIsLoading] = useState(false);
 
   const isEdit = !!currentRow;
@@ -64,7 +66,7 @@ export function PermissionsActionDialog({
           title: currentRow.title,
           slug: currentRow.slug,
           is_custom: currentRow.is_custom,
-          is_global: currentRow.is_global,
+          is_global: isSuperUser() ? currentRow.is_global : false,
           isEdit,
         }
       : {
@@ -187,26 +189,28 @@ export function PermissionsActionDialog({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_global"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Global İzin</FormLabel>
-                      <div className="text-muted-foreground text-sm">
-                        Tüm organizasyonlar için geçerli olacak sistem izni
+              {isSuperUser() && (
+                <FormField
+                  control={form.control}
+                  name="is_global"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Global İzin</FormLabel>
+                        <div className="text-muted-foreground text-sm">
+                          Tüm organizasyonlar için geçerli olacak sistem izni
+                        </div>
                       </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

@@ -18,6 +18,7 @@ import {
 } from '@/services/vapi-service';
 import { ArrowRight, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -74,6 +75,7 @@ export function CategoriesActionDialog({
   onOpenChange,
   onSuccess,
 }: CategoryActionDialogProps) {
+  const { isSuperUser } = usePermissions();
   const [isLoading, setIsLoading] = useState(false);
   const [isFirstCommunication, setIsFirstCommunication] = useState(false);
   const [fieldMappings, setFieldMappings] = useState<FieldMapping[]>([]);
@@ -117,7 +119,7 @@ export function CategoriesActionDialog({
           lead_form_id: currentRow.lead_form_id,
           vapi_assistant_id: currentRow.vapi_assistant_id,
           vapi_phone_number_id: currentRow.vapi_phone_number_id,
-          is_global: currentRow.is_global,
+          is_global: isSuperUser() ? currentRow.is_global : false,
           isEdit,
         }
       : {
@@ -778,26 +780,28 @@ export function CategoriesActionDialog({
               )}
 
               {/* Global Switch */}
-              <FormField
-                control={form.control}
-                name="is_global"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Global</FormLabel>
-                      <div className="text-muted-foreground text-sm">
-                        Bu kategori global olarak kullanılsın mı?
+              {isSuperUser() && (
+                <FormField
+                  control={form.control}
+                  name="is_global"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Global</FormLabel>
+                        <div className="text-muted-foreground text-sm">
+                          Bu kategori global olarak kullanılsın mı?
+                        </div>
                       </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
             </form>
           </Form>
         </div>

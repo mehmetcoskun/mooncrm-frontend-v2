@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createStatus, updateStatus } from '@/services/status-service';
 import { toast } from 'sonner';
+import { usePermissions } from '@/hooks/use-permissions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -49,6 +50,7 @@ export function StatusesActionDialog({
   onOpenChange,
   onSuccess,
 }: StatusActionDialogProps) {
+  const { isSuperUser } = usePermissions();
   const [isLoading, setIsLoading] = useState(false);
 
   const isEdit = !!currentRow;
@@ -58,7 +60,7 @@ export function StatusesActionDialog({
       ? {
           title: currentRow.title,
           background_color: currentRow.background_color,
-          is_global: currentRow.is_global,
+          is_global: isSuperUser() ? currentRow.is_global : false,
           isEdit,
         }
       : {
@@ -164,26 +166,28 @@ export function StatusesActionDialog({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="is_global"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Global</FormLabel>
-                      <div className="text-muted-foreground text-sm">
-                        Bu durum global olarak kullanılsın mı?
+              {isSuperUser() && (
+                <FormField
+                  control={form.control}
+                  name="is_global"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Global</FormLabel>
+                        <div className="text-muted-foreground text-sm">
+                          Bu durum global olarak kullanılsın mı?
+                        </div>
                       </div>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
             </form>
           </Form>
         </div>
