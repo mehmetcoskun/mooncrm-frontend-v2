@@ -499,7 +499,7 @@ export function WebFormIframe() {
               {submitMutation.isPending ? (
                 <>
                   <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                  Gönderiliyor...
+                  {webForm.styles.buttonLabel}
                 </>
               ) : (
                 webForm.styles.buttonLabel
