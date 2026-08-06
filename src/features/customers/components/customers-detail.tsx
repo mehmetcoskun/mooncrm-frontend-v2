@@ -170,36 +170,6 @@ const formSchema = z
 
 type CustomerFormValues = z.infer<typeof formSchema>;
 
-const pad = (value: number, length = 2) =>
-  String(value).padStart(length, '0');
-
-// Date nesnesini datetime-local input'unun beklediği yerel saat formatına çevirir.
-// toISOString + getTimezoneOffset yöntemi kullanılmıyor: getTimezoneOffset tam
-// dakika döndürdüğü için 1880 öncesi LMT offset'lerinde (İstanbul +01:55:52)
-// değeri bir dakika geri kaydırıyordu.
-const formatDateTimeLocal = (date: Date) =>
-  `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-
-// Input'a basılacak değeri üretir. Kayıtlı değer zaten yerel saat ise (datetime-local
-// çıktısı) olduğu gibi kullanılır; böylece kullanıcı yazarken input'un değeri
-// değişmez ve tarayıcının segment yazma tamponu sıfırlanmaz.
-const toDateTimeLocalValue = (value?: string | null) => {
-  if (!value) return '';
-
-  const raw = value.trim();
-
-  if (!/(Z|[+-]\d{2}:?\d{2})$/.test(raw)) {
-    return raw.replace(' ', 'T').slice(0, 16);
-  }
-
-  const date = new Date(raw);
-  if (Number.isNaN(date.getTime())) return '';
-
-  return formatDateTimeLocal(date);
-};
-
 const getSidebarNavItems = (
   canAccessFiles: boolean,
   canAccessLogs: boolean,
@@ -335,7 +305,6 @@ export function CustomersDetail() {
   const salesInfo = watch('sales_info');
   const travelInfo = watch('travel_info');
   const reminderEnabled = watch('reminder.status');
-  const minReminderDate = useMemo(() => formatDateTimeLocal(new Date()), []);
 
   const [editingFileId, setEditingFileId] = useState<number | null>(null);
   const [editingFileName, setEditingFileName] = useState('');
@@ -615,31 +584,6 @@ export function CustomersDetail() {
         description: firstError.message,
       });
       return;
-    }
-
-    // Hatırlatıcı geçmiş bir tarihle kaydedilirse sunucudaki kontrol komutu onu
-    // "zamanı gelmiş" sayıp anında WhatsApp mesajı atıyor ve hatırlatıcıyı
-    // kapatıyor. Bu yüzden geçersiz/geçmiş tarihi buradan geçirmiyoruz.
-    if (values.reminder.status) {
-      const reminderDate = values.reminder.date
-        ? new Date(values.reminder.date)
-        : null;
-
-      if (!reminderDate || Number.isNaN(reminderDate.getTime())) {
-        toast.error('Hata', {
-          description: 'Hatırlatıcı için tarih ve saat seçmelisiniz.',
-        });
-        return;
-      }
-
-      if (reminderDate.getTime() <= Date.now()) {
-        toast.error('Hata', {
-          description:
-            'Hatırlatıcı tarihi gelecekte olmalıdır. Seçilen tarih: ' +
-            toDateTimeLocalValue(values.reminder.date).replace('T', ' '),
-        });
-        return;
-      }
     }
 
     const dataToSave: Record<string, unknown> = {};
@@ -1159,7 +1103,19 @@ export function CustomersDetail() {
                     <Input
                       id="created_at"
                       type="datetime-local"
-                      value={toDateTimeLocalValue(watch('created_at'))}
+                      value={
+                        watch('created_at')
+                          ? new Date(
+                              new Date(watch('created_at')!).getTime() -
+                                new Date(
+                                  watch('created_at')!
+                                ).getTimezoneOffset() *
+                                  60000
+                            )
+                              .toISOString()
+                              .slice(0, 16)
+                          : ''
+                      }
                       onChange={(e) =>
                         setValue('created_at', e.target.value, {
                           shouldDirty: true,
@@ -1332,8 +1288,19 @@ export function CustomersDetail() {
                     <Input
                       id="reminder_date"
                       type="datetime-local"
-                      min={minReminderDate}
-                      value={toDateTimeLocalValue(watch('reminder.date'))}
+                      value={
+                        watch('reminder.date')
+                          ? new Date(
+                              new Date(watch('reminder.date')!).getTime() -
+                                new Date(
+                                  watch('reminder.date')!
+                                ).getTimezoneOffset() *
+                                  60000
+                            )
+                              .toISOString()
+                              .slice(0, 16)
+                          : ''
+                      }
                       onChange={(e) =>
                         setValue('reminder.date', e.target.value, {
                           shouldDirty: true,
