@@ -129,6 +129,28 @@ const travelInfoSchema = z.object({
   departure_flight_code: z.string().nullable(),
 });
 
+// datetime-local alanlarının konuştuğu tek biçim: yerel duvar saati, saniyesiz.
+const LOCAL_DATETIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+
+// Bir Date'i datetime-local'ın beklediği yerel biçime çevirir.
+// Bilerek toISOString kullanılmıyor: o UTC'ye çevirir ve tarihi kaydırır.
+const toLocalDateTimeInput = (date: Date) => {
+  const pad = (n: number, len = 2) => String(n).padStart(len, '0');
+  return (
+    `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  );
+};
+
+// API'den gelen değeri input'a basılabilir hale getirir. Zaten yerel biçimdeyse
+// olduğu gibi döner; aksi halde (ör. UTC "...Z") bir kez yerele çevirir.
+const toDateTimeInputValue = (value?: string | null) => {
+  if (!value) return '';
+  if (LOCAL_DATETIME_PATTERN.test(value)) return value;
+  const parsed = new Date(value);
+  return isNaN(parsed.getTime()) ? '' : toLocalDateTimeInput(parsed);
+};
+
 const reminderSchema = z.object({
   status: z.boolean(),
   date: z.string().nullable(),
@@ -167,6 +189,26 @@ const formSchema = z
       path: ['sales_info', 'sales_date'],
     }
   );
+
+// Hatırlatıcı yalnızca değiştirildiğinde doğrulanır; aksi halde geçmişte kalmış
+// eski bir hatırlatıcı, alakasız bir alanın kaydedilmesini de engellerdi.
+const getReminderError = (reminder: {
+  status: boolean;
+  date: string | null;
+}): string | null => {
+  if (!reminder.status) return null;
+
+  if (!reminder.date || !LOCAL_DATETIME_PATTERN.test(reminder.date)) {
+    return 'Geçerli bir hatırlatma tarihi ve saati seçiniz.';
+  }
+
+  const picked = new Date(reminder.date);
+  if (isNaN(picked.getTime()) || picked.getTime() <= Date.now()) {
+    return 'Hatırlatma tarihi gelecekte bir zaman olmalıdır.';
+  }
+
+  return null;
+};
 
 type CustomerFormValues = z.infer<typeof formSchema>;
 
@@ -305,6 +347,8 @@ export function CustomersDetail() {
   const salesInfo = watch('sales_info');
   const travelInfo = watch('travel_info');
   const reminderEnabled = watch('reminder.status');
+  // Tarayıcının geçmiş tarihi işaretlemesi için alt sınır; asıl doğrulama zod'da.
+  const minReminderDate = useMemo(() => toLocalDateTimeInput(new Date()), []);
 
   const [editingFileId, setEditingFileId] = useState<number | null>(null);
   const [editingFileName, setEditingFileName] = useState('');
@@ -584,6 +628,14 @@ export function CustomersDetail() {
         description: firstError.message,
       });
       return;
+    }
+
+    if (dirtyFields.reminder) {
+      const reminderError = getReminderError(values.reminder);
+      if (reminderError) {
+        toast.error('Hata', { description: reminderError });
+        return;
+      }
     }
 
     const dataToSave: Record<string, unknown> = {};
@@ -1103,19 +1155,7 @@ export function CustomersDetail() {
                     <Input
                       id="created_at"
                       type="datetime-local"
-                      value={
-                        watch('created_at')
-                          ? new Date(
-                              new Date(watch('created_at')!).getTime() -
-                                new Date(
-                                  watch('created_at')!
-                                ).getTimezoneOffset() *
-                                  60000
-                            )
-                              .toISOString()
-                              .slice(0, 16)
-                          : ''
-                      }
+                      value={toDateTimeInputValue(watch('created_at'))}
                       onChange={(e) =>
                         setValue('created_at', e.target.value, {
                           shouldDirty: true,
@@ -1288,19 +1328,8 @@ export function CustomersDetail() {
                     <Input
                       id="reminder_date"
                       type="datetime-local"
-                      value={
-                        watch('reminder.date')
-                          ? new Date(
-                              new Date(watch('reminder.date')!).getTime() -
-                                new Date(
-                                  watch('reminder.date')!
-                                ).getTimezoneOffset() *
-                                  60000
-                            )
-                              .toISOString()
-                              .slice(0, 16)
-                          : ''
-                      }
+                      min={minReminderDate}
+                      value={watch('reminder.date') ?? ''}
                       onChange={(e) =>
                         setValue('reminder.date', e.target.value, {
                           shouldDirty: true,
